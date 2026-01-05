@@ -1,6 +1,7 @@
 import { Search, MapPin, Home, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { siteConfig } from "@/lib/siteConfig";
 import heroImage from "@/assets/hero-home.jpg";
 
 export function HeroSection() {
@@ -20,15 +21,15 @@ export function HeroSection() {
       <div className="container-custom relative z-10 pt-20">
         <div className="max-w-3xl">
           <p className="text-accent font-medium tracking-wider uppercase mb-4 animate-fade-in">
-            Houston's Premier Real Estate Agency
+            {siteConfig.tagline}
           </p>
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground leading-tight mb-6 animate-slide-up">
-            Find Your Dream Home in
-            <span className="block text-gradient-gold">Greater Houston</span>
+            {siteConfig.name}
+            <span className="block text-gradient-gold">Greater Houston Area</span>
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl animate-slide-up stagger-1">
-            Discover luxury properties across Houston, Sugar Land, Katy, Cypress, and Richmond. 
-            Expert guidance for buyers, sellers, and investors.
+            As a dedicated real estate team serving {siteConfig.serviceAreas.slice(0, 5).join(", ")}, and beyond. 
+            We combine deep local market knowledge with personalized service to guide you through every step of your journey.
           </p>
 
           {/* Search Box */}
@@ -69,32 +70,17 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 mt-12 animate-fade-in stagger-3">
-            <div>
-              <p className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground">
-                500+
-              </p>
-              <p className="text-primary-foreground/60 text-sm">
-                Homes Sold
-              </p>
-            </div>
-            <div>
-              <p className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground">
-                $2B+
-              </p>
-              <p className="text-primary-foreground/60 text-sm">
-                Sales Volume
-              </p>
-            </div>
-            <div>
-              <p className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground">
-                15+
-              </p>
-              <p className="text-primary-foreground/60 text-sm">
-                Years Experience
-              </p>
-            </div>
+          {/* Quick Search Locations */}
+          <div className="flex flex-wrap gap-2 mt-6 animate-fade-in stagger-3">
+            <span className="text-primary-foreground/60 text-sm">Quick Search:</span>
+            {siteConfig.serviceAreas.slice(0, 6).map((area) => (
+              <button
+                key={area}
+                className="px-3 py-1 text-sm rounded-full bg-primary-foreground/10 text-primary-foreground/80 hover:bg-primary-foreground/20 transition-colors"
+              >
+                {area}
+              </button>
+            ))}
           </div>
         </div>
       </div>

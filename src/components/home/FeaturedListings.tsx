@@ -2,60 +2,21 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Bed, Bath, Square, Heart, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import listing1 from "@/assets/listing-1.jpg";
-import listing2 from "@/assets/listing-2.jpg";
-import listing3 from "@/assets/listing-3.jpg";
+import { featuredListings, siteConfig } from "@/lib/siteConfig";
 
-const listings = [
-  {
-    id: "1",
-    title: "Modern Estate in Sugar Land",
-    address: "4521 Sweetwater Blvd, Sugar Land, TX",
-    price: 1250000,
-    beds: 5,
-    baths: 4.5,
-    sqft: 4800,
-    image: listing1,
-    featured: true,
-    type: "House",
-  },
-  {
-    id: "2",
-    title: "Contemporary Home in Katy",
-    address: "789 Grand Pkwy, Katy, TX",
-    price: 875000,
-    beds: 4,
-    baths: 3.5,
-    sqft: 3600,
-    image: listing2,
-    featured: true,
-    type: "House",
-  },
-  {
-    id: "3",
-    title: "Elegant Townhome in Cypress",
-    address: "1234 Cypress Creek Dr, Cypress, TX",
-    price: 525000,
-    beds: 3,
-    baths: 2.5,
-    sqft: 2400,
-    image: listing3,
-    featured: true,
-    type: "Townhouse",
-  },
-];
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", {
+function formatPrice(price: number, priceType: string): string {
+  const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
+  
+  return priceType === "lease" ? `${formatted}/mo` : formatted;
 }
 
 interface PropertyCardProps {
-  listing: (typeof listings)[0];
+  listing: (typeof featuredListings)[0];
 }
 
 function PropertyCard({ listing }: PropertyCardProps) {
@@ -73,11 +34,15 @@ function PropertyCard({ listing }: PropertyCardProps) {
         
         {/* Badges */}
         <div className="absolute top-4 left-4 flex items-center gap-2">
-          {listing.featured && (
-            <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
-              Featured
-            </span>
-          )}
+          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+            listing.status === "For Sale" 
+              ? "bg-green-500 text-white" 
+              : listing.status === "For Lease" 
+              ? "bg-blue-500 text-white"
+              : "bg-gray-500 text-white"
+          }`}>
+            {listing.status}
+          </span>
           <span className="px-3 py-1 bg-card/90 backdrop-blur-sm text-foreground text-xs font-medium rounded-full">
             {listing.type}
           </span>
@@ -93,7 +58,7 @@ function PropertyCard({ listing }: PropertyCardProps) {
       <div className="p-6">
         <div className="flex items-start justify-between mb-2">
           <p className="font-serif text-2xl font-bold text-foreground">
-            {formatPrice(listing.price)}
+            {formatPrice(listing.price, listing.priceType)}
           </p>
         </div>
 
@@ -108,14 +73,18 @@ function PropertyCard({ listing }: PropertyCardProps) {
 
         {/* Features */}
         <div className="flex items-center gap-6 pt-4 border-t border-border">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Bed className="h-4 w-4" />
-            <span>{listing.beds} Beds</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Bath className="h-4 w-4" />
-            <span>{listing.baths} Baths</span>
-          </div>
+          {listing.beds > 0 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Bed className="h-4 w-4" />
+              <span>{listing.beds} Beds</span>
+            </div>
+          )}
+          {listing.baths > 0 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Bath className="h-4 w-4" />
+              <span>{listing.baths} Baths</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Square className="h-4 w-4" />
             <span>{listing.sqft.toLocaleString()} Sqft</span>
@@ -129,8 +98,10 @@ function PropertyCard({ listing }: PropertyCardProps) {
           "@context": "https://schema.org",
           "@type": "RealEstateListing",
           name: listing.title,
-          description: `${listing.beds} bedroom, ${listing.baths} bathroom ${listing.type.toLowerCase()} in ${listing.address}`,
-          url: `https://houstonelite.com/listings/${listing.id}`,
+          description: listing.beds > 0 
+            ? `${listing.beds} bedroom, ${listing.baths} bathroom ${listing.type.toLowerCase()} in ${listing.address}`
+            : `${listing.sqft.toLocaleString()} sq ft ${listing.type.toLowerCase()} in ${listing.address}`,
+          url: `${siteConfig.url}/properties/${listing.id}`,
           image: listing.image,
           address: {
             "@type": "PostalAddress",
@@ -143,9 +114,10 @@ function PropertyCard({ listing }: PropertyCardProps) {
             "@type": "Offer",
             price: listing.price,
             priceCurrency: "USD",
+            availability: "https://schema.org/InStock",
           },
-          numberOfRooms: listing.beds,
-          numberOfBathroomsTotal: listing.baths,
+          numberOfRooms: listing.beds || undefined,
+          numberOfBathroomsTotal: listing.baths || undefined,
           floorSize: {
             "@type": "QuantitativeValue",
             value: listing.sqft,
@@ -168,8 +140,8 @@ export function FeaturedListings() {
               Featured Properties
             </p>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-              Exceptional Homes,<br />
-              <span className="text-muted-foreground">Exceptional Living</span>
+              Our Portfolio<br />
+              <span className="text-muted-foreground">Current Listings</span>
             </h2>
           </div>
           <Link to="/listings">
@@ -182,7 +154,7 @@ export function FeaturedListings() {
 
         {/* Listings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {listings.map((listing) => (
+          {featuredListings.map((listing) => (
             <Link key={listing.id} to={`/listings/${listing.id}`}>
               <PropertyCard listing={listing} />
             </Link>
