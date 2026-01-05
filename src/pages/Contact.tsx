@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { siteConfig } from "@/lib/siteConfig";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -32,12 +33,12 @@ const Contact = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Houston Elite Real Estate | Schedule Your Free Consultation</title>
+        <title>Contact {siteConfig.agent.name} | {siteConfig.brokerage} | Houston Real Estate</title>
         <meta
           name="description"
-          content="Get in touch with Houston Elite Real Estate. Schedule a free consultation with our expert realtors for buying, selling, or investing in Houston real estate."
+          content={`Get in touch with ${siteConfig.agent.name} at ${siteConfig.brokerage}. Schedule a free consultation for buying, selling, or investing in Houston area real estate. Call ${siteConfig.phone}.`}
         />
-        <link rel="canonical" href="https://houstonelite.com/contact" />
+        <link rel="canonical" href={`${siteConfig.url}/contact`} />
       </Helmet>
 
       <Layout>
@@ -46,14 +47,14 @@ const Contact = () => {
           <div className="container-custom">
             <div className="max-w-3xl">
               <p className="text-accent font-medium tracking-wider uppercase mb-4">
-                Contact Us
+                Let's Connect
               </p>
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
-                Let's Start Your
-                <span className="block text-gradient-gold">Real Estate Journey</span>
+                Start Your Real Estate
+                <span className="block text-gradient-gold">Journey Today</span>
               </h1>
               <p className="text-xl text-primary-foreground/70">
-                Ready to buy, sell, or invest? Our team is here to help you every step of the way.
+                Ready to buy, sell, or invest? We're here to help you every step of the way.
               </p>
             </div>
           </div>
@@ -76,8 +77,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                      <a href="tel:+17135551234" className="text-muted-foreground hover:text-accent transition-colors">
-                        (713) 555-1234
+                      <a href={`tel:${siteConfig.phoneRaw}`} className="text-muted-foreground hover:text-accent transition-colors">
+                        {siteConfig.phone}
                       </a>
                     </div>
                   </div>
@@ -88,8 +89,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                      <a href="mailto:info@houstonelite.com" className="text-muted-foreground hover:text-accent transition-colors">
-                        info@houstonelite.com
+                      <a href={`mailto:${siteConfig.email}`} className="text-muted-foreground hover:text-accent transition-colors">
+                        {siteConfig.email}
                       </a>
                     </div>
                   </div>
@@ -101,8 +102,8 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Office</h3>
                       <p className="text-muted-foreground">
-                        1234 Main Street, Suite 500<br />
-                        Houston, TX 77002
+                        {siteConfig.address.street}<br />
+                        {siteConfig.address.city}, {siteConfig.address.state} {siteConfig.address.zip}
                       </p>
                     </div>
                   </div>
@@ -114,9 +115,9 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Hours</h3>
                       <p className="text-muted-foreground">
-                        Mon - Fri: 9:00 AM - 6:00 PM<br />
-                        Saturday: 10:00 AM - 4:00 PM<br />
-                        Sunday: By Appointment
+                        Mon - Fri: {siteConfig.hours.weekdays}<br />
+                        Saturday: {siteConfig.hours.saturday}<br />
+                        Sunday: {siteConfig.hours.sunday}
                       </p>
                     </div>
                   </div>
@@ -184,7 +185,7 @@ const Contact = () => {
                         </label>
                         <Input
                           type="tel"
-                          placeholder="(713) 555-1234"
+                          placeholder="(832) 555-1234"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         />
@@ -200,10 +201,10 @@ const Contact = () => {
                           onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
                         >
                           <option value="">Select an option</option>
+                          <option value="selling-buying">Selling & Buying</option>
                           <option value="buying">Buying a Home</option>
                           <option value="selling">Selling a Home</option>
-                          <option value="investing">Investment Properties</option>
-                          <option value="consultation">Free Consultation</option>
+                          <option value="renting">Renting</option>
                           <option value="other">Other</option>
                         </select>
                       </div>
@@ -222,6 +223,10 @@ const Contact = () => {
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       />
                     </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      By submitting this form, you acknowledge and agree to our Privacy Policy and consent to receiving marketing communications.
+                    </p>
 
                     <Button type="submit" variant="gold" size="xl" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? (
@@ -246,8 +251,33 @@ const Contact = () => {
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ContactPage",
-          name: "Contact Houston Elite Real Estate",
-          url: "https://houstonelite.com/contact",
+          name: `Contact ${siteConfig.agent.name}`,
+          url: `${siteConfig.url}/contact`,
+          mainEntity: {
+            "@type": "RealEstateAgent",
+            name: siteConfig.name,
+            telephone: siteConfig.phone,
+            email: siteConfig.email,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: siteConfig.address.street,
+              addressLocality: siteConfig.address.city,
+              addressRegion: siteConfig.address.state,
+              postalCode: siteConfig.address.zip,
+              addressCountry: "US",
+            },
+          },
+        })}
+      </script>
+
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+            { "@type": "ListItem", position: 2, name: "Contact", item: `${siteConfig.url}/contact` },
+          ],
         })}
       </script>
     </>

@@ -8,29 +8,34 @@ import {
   ServicesSection,
   CTASection,
 } from "@/components/home";
+import { siteConfig, testimonials } from "@/lib/siteConfig";
 
 const Index = () => {
+  // Calculate average rating
+  const avgRating = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
+
   return (
     <>
       <Helmet>
-        <title>Houston Elite Real Estate | Luxury Homes in Houston, Sugar Land, Katy, Cypress</title>
+        <title>{siteConfig.name} | {siteConfig.tagline} | Houston, Sugar Land, Katy, Cypress Real Estate</title>
         <meta
           name="description"
-          content="Houston's premier luxury real estate agency. Find your dream home in Houston, Sugar Land, Katy, Cypress, and Richmond. Expert guidance for buyers, sellers, and investors."
+          content={`${siteConfig.name} - ${siteConfig.tagline}. As a dedicated real estate team serving Houston, Sugar Land, Richmond, Missouri City, Katy, and Cypress, our approach is rooted in a strong client-first philosophy.`}
         />
-        <meta name="keywords" content="Houston real estate, luxury homes Houston, Sugar Land homes, Katy real estate, Cypress homes for sale, Richmond TX real estate, Houston realtor" />
-        <link rel="canonical" href="https://houstonelite.com" />
+        <meta name="keywords" content="Mike Ogunkeye, Houston real estate, Sugar Land homes, Katy real estate, Cypress homes for sale, Richmond TX real estate, Missouri City realtor, eXp Realty Houston, Houston homes for sale" />
+        <link rel="canonical" href={siteConfig.url} />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Houston Elite Real Estate | Luxury Homes in Greater Houston" />
-        <meta property="og:description" content="Houston's premier luxury real estate agency. Expert guidance for buyers, sellers, and investors." />
+        <meta property="og:title" content={`${siteConfig.name} | ${siteConfig.tagline}`} />
+        <meta property="og:description" content="As a dedicated real estate team serving Houston and surrounding areas, our approach is rooted in a strong client-first philosophy." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://houstonelite.com" />
+        <meta property="og:url" content={siteConfig.url} />
+        <meta property="og:site_name" content={siteConfig.name} />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Houston Elite Real Estate" />
-        <meta name="twitter:description" content="Houston's premier luxury real estate agency." />
+        <meta name="twitter:title" content={siteConfig.name} />
+        <meta name="twitter:description" content={siteConfig.tagline} />
       </Helmet>
 
       <Layout>
@@ -42,36 +47,44 @@ const Index = () => {
         <CTASection />
       </Layout>
 
-      {/* Schema Markup */}
+      {/* Advanced Schema Markup */}
+      
+      {/* RealEstateAgent Schema */}
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "RealEstateAgent",
-          name: "Houston Elite Real Estate",
-          description: "Houston's premier luxury real estate agency serving Houston, Sugar Land, Katy, Cypress, and Richmond.",
-          url: "https://houstonelite.com",
-          telephone: "+1-713-555-1234",
-          email: "info@houstonelite.com",
+          "@id": `${siteConfig.url}#agent`,
+          name: siteConfig.name,
+          alternateName: siteConfig.agent.fullName,
+          description: `${siteConfig.tagline}. As a dedicated real estate team serving Houston, Sugar Land, Richmond, Missouri City, Katy, and Cypress, our approach is rooted in a strong client-first philosophy.`,
+          url: siteConfig.url,
+          telephone: siteConfig.phone,
+          email: siteConfig.email,
+          image: `${siteConfig.url}/images/mike-ogunkeye.jpg`,
+          logo: `${siteConfig.url}/logo.png`,
+          priceRange: "$$-$$$$",
           address: {
             "@type": "PostalAddress",
-            streetAddress: "1234 Main Street, Suite 500",
-            addressLocality: "Houston",
-            addressRegion: "TX",
-            postalCode: "77002",
+            streetAddress: siteConfig.address.street,
+            addressLocality: siteConfig.address.city,
+            addressRegion: siteConfig.address.state,
+            postalCode: siteConfig.address.zip,
             addressCountry: "US",
           },
           geo: {
             "@type": "GeoCoordinates",
-            latitude: 29.7604,
-            longitude: -95.3698,
+            latitude: 29.6197,
+            longitude: -95.5617,
           },
-          areaServed: [
-            { "@type": "City", name: "Houston" },
-            { "@type": "City", name: "Sugar Land" },
-            { "@type": "City", name: "Katy" },
-            { "@type": "City", name: "Cypress" },
-            { "@type": "City", name: "Richmond" },
-          ],
+          areaServed: siteConfig.serviceAreas.map((area) => ({
+            "@type": "City",
+            name: area,
+            containedInPlace: {
+              "@type": "State",
+              name: "Texas",
+            },
+          })),
           openingHoursSpecification: [
             {
               "@type": "OpeningHoursSpecification",
@@ -86,31 +99,145 @@ const Index = () => {
               closes: "16:00",
             },
           ],
+          sameAs: [
+            siteConfig.social.instagram,
+            siteConfig.social.facebook,
+            siteConfig.social.linkedin,
+          ],
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: 5,
-            reviewCount: 127,
+            ratingValue: avgRating,
+            bestRating: 5,
+            worstRating: 1,
+            ratingCount: testimonials.length,
+            reviewCount: testimonials.length,
           },
+          review: testimonials.slice(0, 5).map((testimonial) => ({
+            "@type": "Review",
+            author: {
+              "@type": "Person",
+              name: testimonial.name,
+            },
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: testimonial.rating,
+              bestRating: 5,
+            },
+            reviewBody: testimonial.text,
+          })),
+          parentOrganization: {
+            "@type": "Organization",
+            name: siteConfig.brokerage,
+            url: "https://exprealty.com",
+          },
+          knowsAbout: [
+            "Residential Real Estate",
+            "Luxury Homes",
+            "First-Time Home Buyers",
+            "Investment Properties",
+            "Property Valuation",
+            "Real Estate Negotiation",
+          ],
         })}
       </script>
 
+      {/* Person Schema for Agent */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "@id": `${siteConfig.url}#person`,
+          name: siteConfig.agent.fullName,
+          alternateName: siteConfig.agent.name,
+          jobTitle: "Real Estate Agent",
+          worksFor: {
+            "@type": "Organization",
+            name: siteConfig.brokerage,
+          },
+          url: siteConfig.url,
+          telephone: siteConfig.phone,
+          email: siteConfig.email,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: siteConfig.address.city,
+            addressRegion: siteConfig.address.state,
+            addressCountry: "US",
+          },
+          sameAs: [
+            siteConfig.social.instagram,
+            siteConfig.social.facebook,
+            siteConfig.social.linkedin,
+          ],
+        })}
+      </script>
+
+      {/* WebSite Schema with SearchAction */}
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Houston Elite Real Estate",
-          url: "https://houstonelite.com",
+          "@id": `${siteConfig.url}#website`,
+          name: siteConfig.name,
+          url: siteConfig.url,
+          description: siteConfig.tagline,
+          publisher: {
+            "@id": `${siteConfig.url}#agent`,
+          },
           potentialAction: {
             "@type": "SearchAction",
             target: {
               "@type": "EntryPoint",
-              urlTemplate: "https://houstonelite.com/listings?search={search_term_string}",
+              urlTemplate: `${siteConfig.url}/listings?search={search_term_string}`,
             },
             "query-input": "required name=search_term_string",
           },
+          inLanguage: "en-US",
         })}
       </script>
 
+      {/* LocalBusiness Schema */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "@id": `${siteConfig.url}#localbusiness`,
+          name: siteConfig.name,
+          image: `${siteConfig.url}/logo.png`,
+          telephone: siteConfig.phone,
+          email: siteConfig.email,
+          url: siteConfig.url,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: siteConfig.address.street,
+            addressLocality: siteConfig.address.city,
+            addressRegion: siteConfig.address.state,
+            postalCode: siteConfig.address.zip,
+            addressCountry: "US",
+          },
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: 29.6197,
+            longitude: -95.5617,
+          },
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+              opens: "09:00",
+              closes: "18:00",
+            },
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: "Saturday",
+              opens: "10:00",
+              closes: "16:00",
+            },
+          ],
+          priceRange: "$$-$$$$",
+        })}
+      </script>
+
+      {/* BreadcrumbList Schema */}
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
@@ -120,8 +247,36 @@ const Index = () => {
               "@type": "ListItem",
               position: 1,
               name: "Home",
-              item: "https://houstonelite.com",
+              item: siteConfig.url,
             },
+          ],
+        })}
+      </script>
+
+      {/* Organization Schema */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": `${siteConfig.url}#organization`,
+          name: siteConfig.name,
+          url: siteConfig.url,
+          logo: `${siteConfig.url}/logo.png`,
+          contactPoint: {
+            "@type": "ContactPoint",
+            telephone: siteConfig.phone,
+            contactType: "customer service",
+            email: siteConfig.email,
+            availableLanguage: ["English"],
+            areaServed: siteConfig.serviceAreas.map((area) => ({
+              "@type": "City",
+              name: area,
+            })),
+          },
+          sameAs: [
+            siteConfig.social.instagram,
+            siteConfig.social.facebook,
+            siteConfig.social.linkedin,
           ],
         })}
       </script>

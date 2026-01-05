@@ -1,36 +1,37 @@
 import { Helmet } from "react-helmet-async";
 import { Layout } from "@/components/layout";
-import { Award, Users, Target, Heart, CheckCircle } from "lucide-react";
+import { Award, Users, Target, Heart, CheckCircle, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { siteConfig } from "@/lib/siteConfig";
 
 const stats = [
-  { label: "Years of Experience", value: "15+" },
-  { label: "Homes Sold", value: "500+" },
-  { label: "Happy Clients", value: "1,000+" },
-  { label: "Cities Served", value: "5" },
+  { label: "Service Areas", value: "9+" },
+  { label: "Happy Clients", value: "100+" },
+  { label: "5-Star Reviews", value: "50+" },
+  { label: "Years Experience", value: "10+" },
 ];
 
 const values = [
   {
-    icon: Award,
-    title: "Excellence",
-    description: "We strive for excellence in every transaction, ensuring our clients receive the highest level of service.",
-  },
-  {
     icon: Users,
-    title: "Client-First",
-    description: "Your goals are our priority. We listen, understand, and deliver personalized real estate solutions.",
+    title: "Client-First Philosophy",
+    description: "We believe that exceptional service begins with being accessible, listening closely, and responding quickly to your needs.",
   },
   {
     icon: Target,
-    title: "Results-Driven",
-    description: "Our proven strategies and market expertise consistently deliver exceptional outcomes for our clients.",
+    title: "Local Market Knowledge",
+    description: "Deep expertise in Houston, Sugar Land, Richmond, Missouri City, Katy, Cypress, and surrounding communities.",
+  },
+  {
+    icon: Award,
+    title: "Strong Negotiation Skills",
+    description: "We negotiate with experience and expertise to ensure you get the best possible outcome in every transaction.",
   },
   {
     icon: Heart,
-    title: "Integrity",
-    description: "Trust is the foundation of every relationship. We operate with complete transparency and honesty.",
+    title: "Trusted Network",
+    description: "Access to a comprehensive network of industry professionals including lenders, inspectors, and contractors.",
   },
 ];
 
@@ -38,12 +39,12 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About Us | Houston Elite Real Estate - Your Trusted Houston Realtors</title>
+        <title>About {siteConfig.agent.name} | {siteConfig.brokerage} | Houston Real Estate Agent</title>
         <meta
           name="description"
-          content="Meet Houston Elite Real Estate - a team of expert realtors with 15+ years serving Houston, Sugar Land, Katy, Cypress, and Richmond. Over 500 homes sold and $2B in sales."
+          content={`Meet ${siteConfig.agent.name} - a dedicated real estate professional with ${siteConfig.brokerage}. Serving Houston, Sugar Land, Katy, Cypress, Richmond, Missouri City and surrounding areas with a client-first approach.`}
         />
-        <link rel="canonical" href="https://houstonelite.com/about" />
+        <link rel="canonical" href={`${siteConfig.url}/about`} />
       </Helmet>
 
       <Layout>
@@ -52,14 +53,14 @@ const About = () => {
           <div className="container-custom">
             <div className="max-w-3xl">
               <p className="text-accent font-medium tracking-wider uppercase mb-4">
-                About Us
+                Meet the Team
               </p>
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
-                Houston's Most Trusted
-                <span className="block text-gradient-gold">Real Estate Team</span>
+                {siteConfig.agent.fullName}
+                <span className="block text-gradient-gold">{siteConfig.brokerage}</span>
               </h1>
               <p className="text-xl text-primary-foreground/70">
-                For over 15 years, we've been helping families find their perfect homes across greater Houston. Our commitment to excellence has made us the region's premier real estate agency.
+                As a dedicated real estate team serving Houston, Sugar Land, Richmond, Missouri City, Katy, and Cypress, our approach is rooted in a strong client-first philosophy.
               </p>
             </div>
           </div>
@@ -87,7 +88,7 @@ const About = () => {
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
                 <p className="text-accent font-medium tracking-wider uppercase mb-2">
-                  Our Story
+                  Our Approach
                 </p>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
                   Built on Trust,
@@ -95,22 +96,23 @@ const About = () => {
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    Houston Elite Real Estate was founded with a simple mission: to provide exceptional real estate services that put our clients first. What started as a small team has grown into one of Houston's most respected agencies.
+                    We believe that exceptional service begins with being accessible, listening closely, and responding quickly to your needs. With deep local market knowledge, strong negotiation skills, and a trusted network of industry professionals, we're here to guide you through every step of the buying or selling process.
                   </p>
                   <p>
-                    Our deep knowledge of the Houston market, combined with our commitment to personalized service, has helped hundreds of families achieve their real estate dreams. From first-time homebuyers to seasoned investors, we treat every client with the same dedication and care.
+                    By combining personalized service with the latest technology, we're able to deliver faster, more efficient results—always with your goals at the center of everything we do.
                   </p>
                   <p>
-                    Today, we serve communities across Houston, Sugar Land, Katy, Cypress, and Richmond, bringing the same passion and expertise that has defined our success from day one.
+                    Every client relationship is built on a foundation of trust, clear communication, and a genuine commitment to putting your needs first.
                   </p>
                 </div>
 
                 <div className="mt-8 space-y-3">
                   {[
-                    "Certified Luxury Home Marketing Specialists",
-                    "Top 1% of Houston Realtors",
-                    "5-Star Rating Across All Platforms",
-                    "HAR Circle of Excellence Award Winners",
+                    "Deep Local Market Expertise",
+                    "Strong Negotiation Skills",
+                    "Trusted Network of Professionals",
+                    "Personalized Client Service",
+                    "Latest Technology Integration",
                   ].map((item) => (
                     <div key={item} className="flex items-center gap-3">
                       <CheckCircle className="h-5 w-5 text-accent shrink-0" />
@@ -118,17 +120,34 @@ const About = () => {
                     </div>
                   ))}
                 </div>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                  <a href={`tel:${siteConfig.phoneRaw}`}>
+                    <Button variant="gold" size="lg">
+                      <Phone className="h-4 w-4" />
+                      {siteConfig.phone}
+                    </Button>
+                  </a>
+                  <a href={`mailto:${siteConfig.email}`}>
+                    <Button variant="outline" size="lg">
+                      <Mail className="h-4 w-4" />
+                      Email Me
+                    </Button>
+                  </a>
+                </div>
               </div>
 
               <div className="relative">
                 <div className="aspect-[4/5] rounded-2xl bg-secondary overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-charcoal to-charcoal-light flex items-center justify-center">
-                    <span className="font-serif text-6xl font-bold text-primary-foreground/20">HE</span>
-                  </div>
+                  <img
+                    src="https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=1280/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2"
+                    alt={siteConfig.agent.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="absolute -bottom-8 -left-8 bg-accent text-accent-foreground p-6 rounded-xl shadow-gold">
-                  <p className="font-serif text-3xl font-bold">$2B+</p>
-                  <p className="text-sm">Total Sales Volume</p>
+                  <p className="font-serif text-3xl font-bold">{siteConfig.brokerage}</p>
+                  <p className="text-sm">Real Estate Professional</p>
                 </div>
               </div>
             </div>
@@ -140,7 +159,7 @@ const About = () => {
           <div className="container-custom">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <p className="text-accent font-medium tracking-wider uppercase mb-2">
-                Our Values
+                Why Work With Us
               </p>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground">
                 What Sets Us Apart
@@ -172,7 +191,7 @@ const About = () => {
         <section className="py-20 bg-primary">
           <div className="container-custom text-center">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-              Ready to Work With the Best?
+              Ready to Work Together?
             </h2>
             <p className="text-primary-foreground/70 mb-8 max-w-2xl mx-auto">
               Let's discuss how we can help you achieve your real estate goals.
@@ -192,9 +211,32 @@ const About = () => {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://houstonelite.com" },
-            { "@type": "ListItem", position: 2, name: "About", item: "https://houstonelite.com/about" },
+            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+            { "@type": "ListItem", position: 2, name: "About", item: `${siteConfig.url}/about` },
           ],
+        })}
+      </script>
+
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          mainEntity: {
+            "@type": "Person",
+            name: siteConfig.agent.fullName,
+            jobTitle: "Real Estate Agent",
+            worksFor: {
+              "@type": "Organization",
+              name: siteConfig.brokerage,
+            },
+            telephone: siteConfig.phone,
+            email: siteConfig.email,
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: siteConfig.address.city,
+              addressRegion: siteConfig.address.state,
+            },
+          },
         })}
       </script>
     </>

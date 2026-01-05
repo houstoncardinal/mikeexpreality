@@ -1,46 +1,10 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-const neighborhoods = [
-  {
-    name: "Houston",
-    description: "The heart of Texas with diverse neighborhoods and endless opportunities",
-    homes: "2,500+",
-    avgPrice: "$485K",
-    gradient: "from-charcoal via-charcoal-light to-charcoal",
-  },
-  {
-    name: "Sugar Land",
-    description: "Family-friendly suburbs with top-rated schools and master-planned communities",
-    homes: "800+",
-    avgPrice: "$550K",
-    gradient: "from-accent via-gold-light to-accent",
-  },
-  {
-    name: "Katy",
-    description: "Rapidly growing community with excellent amenities and modern developments",
-    homes: "1,200+",
-    avgPrice: "$420K",
-    gradient: "from-charcoal-light via-charcoal to-charcoal-light",
-  },
-  {
-    name: "Cypress",
-    description: "Scenic suburban living with beautiful parks and nature preserves",
-    homes: "950+",
-    avgPrice: "$395K",
-    gradient: "from-accent via-gold-dark to-accent",
-  },
-  {
-    name: "Richmond",
-    description: "Historic charm meets modern living in this growing Texas community",
-    homes: "600+",
-    avgPrice: "$365K",
-    gradient: "from-charcoal via-charcoal-light to-charcoal",
-  },
-];
+import { neighborhoods } from "@/lib/siteConfig";
 
 export function NeighborhoodSection() {
+  const displayNeighborhoods = neighborhoods.slice(0, 7);
+  
   return (
     <section className="section-padding bg-background">
       <div className="container-custom">
@@ -59,63 +23,58 @@ export function NeighborhoodSection() {
         </div>
 
         {/* Neighborhoods Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {neighborhoods.map((neighborhood, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {displayNeighborhoods.map((neighborhood) => (
             <Link
               key={neighborhood.name}
-              to="/neighborhoods"
-              className={cn(
-                "group relative overflow-hidden rounded-2xl p-8 transition-all duration-500 hover:scale-[1.02]",
-                index === 0 && "md:col-span-2 lg:col-span-1",
-                index === 1 && "lg:row-span-2"
-              )}
+              to={`/neighborhoods/${neighborhood.slug}`}
+              className="group relative overflow-hidden rounded-2xl aspect-[4/5] transition-all duration-500 hover:scale-[1.02]"
             >
-              {/* Background */}
-              <div
-                className={cn(
-                  "absolute inset-0 bg-gradient-to-br opacity-90 group-hover:opacity-100 transition-opacity",
-                  neighborhood.gradient
-                )}
+              {/* Background Image */}
+              <img
+                src={neighborhood.image}
+                alt={`${neighborhood.name} neighborhood`}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                loading="lazy"
               />
+              
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-transparent" />
 
               {/* Content */}
-              <div className="relative z-10 h-full flex flex-col justify-between min-h-[200px]">
-                <div>
-                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-primary-foreground mb-2">
-                    {neighborhood.name}
-                  </h3>
-                  <p className="text-primary-foreground/70 text-sm leading-relaxed">
-                    {neighborhood.description}
-                  </p>
-                </div>
+              <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                <h3 className="font-serif text-2xl md:text-3xl font-bold text-primary-foreground mb-2">
+                  {neighborhood.name}
+                </h3>
+                <p className="text-primary-foreground/70 text-sm leading-relaxed mb-4 line-clamp-2">
+                  {neighborhood.description}
+                </p>
 
-                <div className="flex items-end justify-between pt-8">
-                  <div className="flex gap-6">
-                    <div>
-                      <p className="text-primary-foreground/50 text-xs uppercase tracking-wide">
-                        Active Listings
-                      </p>
-                      <p className="text-primary-foreground font-semibold text-lg">
-                        {neighborhood.homes}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-primary-foreground/50 text-xs uppercase tracking-wide">
-                        Avg. Price
-                      </p>
-                      <p className="text-primary-foreground font-semibold text-lg">
-                        {neighborhood.avgPrice}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-full bg-primary-foreground/10 group-hover:bg-primary-foreground/20 transition-colors">
-                    <ArrowRight className="h-5 w-5 text-primary-foreground group-hover:translate-x-1 transition-transform" />
-                  </div>
+                <div className="flex items-center gap-2 text-accent font-medium text-sm group-hover:gap-3 transition-all">
+                  <span>Explore</span>
+                  <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Link>
           ))}
+          
+          {/* View All Card */}
+          <Link
+            to="/neighborhoods"
+            className="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-primary flex items-center justify-center transition-all duration-500 hover:scale-[1.02]"
+          >
+            <div className="text-center p-6">
+              <p className="text-primary-foreground/60 text-sm uppercase tracking-wider mb-2">
+                More Areas
+              </p>
+              <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-4">
+                View All<br />Neighborhoods
+              </h3>
+              <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                <ArrowRight className="h-5 w-5 text-accent-foreground" />
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
     </section>
