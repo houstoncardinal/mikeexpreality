@@ -2,21 +2,11 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Bed, Bath, Square, Heart, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { featuredListings, siteConfig } from "@/lib/siteConfig";
-
-function formatPrice(price: number, priceType: string): string {
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
-  
-  return priceType === "lease" ? `${formatted}/mo` : formatted;
-}
+import { getFeaturedListings, formatPrice, PropertyListing } from "@/lib/listingsData";
+import { siteConfig } from "@/lib/siteConfig";
 
 interface PropertyCardProps {
-  listing: (typeof featuredListings)[0];
+  listing: PropertyListing;
 }
 
 function PropertyCard({ listing }: PropertyCardProps) {
@@ -25,7 +15,7 @@ function PropertyCard({ listing }: PropertyCardProps) {
       {/* Image */}
       <div className="relative overflow-hidden aspect-[4/3]">
         <img
-          src={listing.image}
+          src={listing.images[0]}
           alt={listing.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           loading="lazy"
@@ -44,12 +34,15 @@ function PropertyCard({ listing }: PropertyCardProps) {
             {listing.status}
           </span>
           <span className="px-3 py-1 bg-card/90 backdrop-blur-sm text-foreground text-xs font-medium rounded-full">
-            {listing.type}
+            {listing.propertyType}
           </span>
         </div>
 
         {/* Favorite Button */}
-        <button className="absolute top-4 right-4 p-2 bg-card/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-accent hover:text-accent-foreground">
+        <button 
+          className="absolute top-4 right-4 p-2 bg-card/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-accent hover:text-accent-foreground"
+          onClick={(e) => e.preventDefault()}
+        >
           <Heart className="h-4 w-4" />
         </button>
       </div>
@@ -68,7 +61,7 @@ function PropertyCard({ listing }: PropertyCardProps) {
 
         <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
           <MapPin className="h-4 w-4" />
-          <span>{listing.address}</span>
+          <span>{listing.address}, {listing.city}, {listing.state}</span>
         </div>
 
         {/* Features */}
@@ -99,15 +92,16 @@ function PropertyCard({ listing }: PropertyCardProps) {
           "@type": "RealEstateListing",
           name: listing.title,
           description: listing.beds > 0 
-            ? `${listing.beds} bedroom, ${listing.baths} bathroom ${listing.type.toLowerCase()} in ${listing.address}`
-            : `${listing.sqft.toLocaleString()} sq ft ${listing.type.toLowerCase()} in ${listing.address}`,
-          url: `${siteConfig.url}/properties/${listing.id}`,
-          image: listing.image,
+            ? `${listing.beds} bedroom, ${listing.baths} bathroom ${listing.propertyType.toLowerCase()} in ${listing.city}, ${listing.state}`
+            : `${listing.sqft.toLocaleString()} sq ft ${listing.propertyType.toLowerCase()} in ${listing.city}, ${listing.state}`,
+          url: `${siteConfig.url}/property/${listing.id}`,
+          image: listing.images[0],
           address: {
             "@type": "PostalAddress",
-            streetAddress: listing.address.split(",")[0],
-            addressLocality: listing.address.split(",")[1]?.trim(),
-            addressRegion: "TX",
+            streetAddress: listing.address,
+            addressLocality: listing.city,
+            addressRegion: listing.state,
+            postalCode: listing.zip,
             addressCountry: "US",
           },
           offers: {
@@ -130,6 +124,8 @@ function PropertyCard({ listing }: PropertyCardProps) {
 }
 
 export function FeaturedListings() {
+  const featuredListings = getFeaturedListings();
+
   return (
     <section className="section-padding bg-secondary">
       <div className="container-custom">
@@ -154,8 +150,8 @@ export function FeaturedListings() {
 
         {/* Listings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredListings.map((listing) => (
-            <Link key={listing.id} to={`/listings/${listing.id}`}>
+          {featuredListings.slice(0, 3).map((listing) => (
+            <Link key={listing.id} to={`/property/${listing.id}`}>
               <PropertyCard listing={listing} />
             </Link>
           ))}
