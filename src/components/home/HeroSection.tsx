@@ -66,9 +66,9 @@ export function HeroSection() {
           </div>
 
           {/* Main headline with elegant typography */}
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold text-white leading-[0.95] mb-8 animate-slide-up tracking-tight">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white leading-[0.95] mb-8 animate-slide-up tracking-tight">
             <span className="block text-shadow-lg">{siteConfig.name}</span>
-            <span className="block mt-3 text-gradient-silver font-light italic text-[0.7em]">
+            <span className="block mt-3 text-gradient-silver font-light italic text-[0.65em]">
               Greater Houston Area
             </span>
           </h1>

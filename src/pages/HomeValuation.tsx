@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { siteConfig } from "@/lib/siteConfig";
 import { trackHomeValuation, trackCTAClick } from "@/lib/analytics";
+import { supabase } from "@/integrations/supabase/client";
 import { Home, DollarSign, TrendingUp, Clock, CheckCircle, MapPin, Phone, Mail } from "lucide-react";
 
 const HomeValuation = () => {
@@ -47,41 +48,81 @@ const HomeValuation = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Track the home valuation request
-    trackHomeValuation({
-      address: formData.address,
-      city: formData.city,
-      bedrooms: parseInt(formData.bedrooms) || 0,
-      bathrooms: parseFloat(formData.bathrooms) || 0,
-    });
+    try {
+      // Track the home valuation request
+      trackHomeValuation({
+        address: formData.address,
+        city: formData.city,
+        bedrooms: parseInt(formData.bedrooms) || 0,
+        bathrooms: parseFloat(formData.bathrooms) || 0,
+      });
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+      const propertyAddress = `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
+      const message = `Home Valuation Request\n\nProperty: ${propertyAddress}\nBedrooms: ${formData.bedrooms}\nBathrooms: ${formData.bathrooms}\nSqft: ${formData.squareFeet}\nYear Built: ${formData.yearBuilt}\nProperty Type: ${formData.propertyType}\nCondition: ${formData.condition}\nTimeframe: ${formData.timeframe}\n\nAdditional Info: ${formData.additionalInfo}`;
 
-    toast({
-      title: "Valuation Request Received!",
-      description: "We'll analyze your property and send you a detailed valuation report within 24 hours.",
-    });
+      // Save lead to database
+      const { error: dbError } = await supabase.from("leads").insert({
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        phone: formData.phone || null,
+        message: message,
+        property_address: propertyAddress,
+        lead_source: "home_valuation",
+      });
 
-    setIsSubmitting(false);
-    setFormData({
-      address: "",
-      city: "",
-      state: "TX",
-      zipCode: "",
-      bedrooms: "",
-      bathrooms: "",
-      squareFeet: "",
-      yearBuilt: "",
-      propertyType: "",
-      condition: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      timeframe: "",
-      additionalInfo: "",
-    });
+      if (dbError) {
+        console.error("Error saving lead:", dbError);
+      }
+
+      // Send email notification via edge function
+      const { error: emailError } = await supabase.functions.invoke("send-lead-notification", {
+        body: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          message: message,
+          propertyAddress: propertyAddress,
+          leadSource: "Home Valuation Request",
+        },
+      });
+
+      if (emailError) {
+        console.error("Error sending email notification:", emailError);
+      }
+
+      toast({
+        title: "Valuation Request Received!",
+        description: "We'll analyze your property and send you a detailed valuation report within 24 hours.",
+      });
+
+      setFormData({
+        address: "",
+        city: "",
+        state: "TX",
+        zipCode: "",
+        bedrooms: "",
+        bathrooms: "",
+        squareFeet: "",
+        yearBuilt: "",
+        propertyType: "",
+        condition: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        timeframe: "",
+        additionalInfo: "",
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const benefits = [

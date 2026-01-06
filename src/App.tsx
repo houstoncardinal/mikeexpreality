@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { initGA, trackPageView } from "@/lib/analytics";
+import { ComparisonProvider } from "@/contexts/ComparisonContext";
+import { ComparisonBar } from "@/components/comparison/ComparisonBar";
+import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Listings from "./pages/Listings";
@@ -39,25 +42,29 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnalyticsTracker>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/listings" element={<Listings />} />
-              <Route path="/property/:id" element={<PropertyDetail />} />
-              <Route path="/neighborhoods" element={<Neighborhoods />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/buyer-resources" element={<BuyerResources />} />
-              <Route path="/seller-resources" element={<SellerResources />} />
-              <Route path="/home-valuation" element={<HomeValuation />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnalyticsTracker>
-        </BrowserRouter>
+        <ComparisonProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnalyticsTracker>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/listings" element={<Listings />} />
+                <Route path="/property/:id" element={<PropertyDetail />} />
+                <Route path="/neighborhoods" element={<Neighborhoods />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/buyer-resources" element={<BuyerResources />} />
+                <Route path="/seller-resources" element={<SellerResources />} />
+                <Route path="/home-valuation" element={<HomeValuation />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <ComparisonBar />
+              <ComparisonModal />
+            </AnalyticsTracker>
+          </BrowserRouter>
+        </ComparisonProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>

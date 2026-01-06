@@ -2,19 +2,21 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Layout } from "@/components/layout";
-import { Grid, List, ArrowUpDown, SlidersHorizontal, Home } from "lucide-react";
+import { Grid, List, ArrowUpDown, SlidersHorizontal, Home, Map as MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PropertySearchFilters, type SearchFilters } from "@/components/search";
 import { PropertyCard } from "@/components/listings";
+import { PropertyMap } from "@/components/map/PropertyMap";
 import { allListings, priceRanges } from "@/lib/listingsData";
 import { siteConfig } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
 
 type SortOption = "newest" | "price-asc" | "price-desc" | "sqft-desc";
+type ViewMode = "grid" | "list" | "map";
 
 const Listings = () => {
   const [searchParams] = useSearchParams();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [filters, setFilters] = useState<SearchFilters>({
     search: "",
@@ -119,26 +121,26 @@ const Listings = () => {
         {/* Hero Section */}
         <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
           {/* Background */}
-          <div className="absolute inset-0 bg-gradient-luxury" />
+          <div className="absolute inset-0 bg-gradient-navy" />
           <div className="absolute inset-0 noise-overlay opacity-30" />
           
           {/* Decorative Elements */}
-          <div className="absolute top-20 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 rounded-full blur-2xl" />
+          <div className="absolute top-20 right-0 w-96 h-96 bg-royal/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-royal/20 rounded-full blur-2xl" />
 
           <div className="container-custom relative z-10">
             <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-accent/20 backdrop-blur-sm rounded-full text-accent text-sm font-medium mb-6 animate-fade-in">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-royal/20 backdrop-blur-sm rounded-full text-royal-light text-sm font-medium mb-6 animate-fade-in border border-royal/30">
                 <Home className="h-4 w-4" />
                 {allListings.length} Properties Available
               </span>
               
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 animate-slide-up text-shadow-lg">
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-slide-up text-shadow-lg">
                 Find Your 
-                <span className="block text-gradient-gold">Dream Home</span>
+                <span className="block text-gradient-silver">Dream Home</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 animate-slide-up stagger-1 max-w-2xl">
+              <p className="text-lg md:text-xl text-white/80 mb-10 animate-slide-up stagger-1 max-w-2xl">
                 Explore our curated collection of luxury properties across greater Houston. 
                 From modern estates to charming family homes.
               </p>
@@ -219,12 +221,31 @@ const Listings = () => {
                   >
                     <List className="h-4 w-4" />
                   </button>
+                  <button
+                    onClick={() => setViewMode("map")}
+                    className={cn(
+                      "p-2 rounded-md transition-all",
+                      viewMode === "map" 
+                        ? "bg-primary text-primary-foreground shadow-sm" 
+                        : "hover:bg-secondary"
+                    )}
+                    aria-label="Map view"
+                  >
+                    <MapIcon className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             </div>
 
+            {/* Map View */}
+            {viewMode === "map" && (
+              <div className="mb-8">
+                <PropertyMap properties={filteredAndSortedListings} />
+              </div>
+            )}
+
             {/* Results Grid */}
-            {filteredAndSortedListings.length > 0 ? (
+            {viewMode !== "map" && filteredAndSortedListings.length > 0 ? (
               <div className={cn(
                 viewMode === "grid" 
                   ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" 
@@ -234,12 +255,12 @@ const Listings = () => {
                   <PropertyCard 
                     key={listing.id} 
                     listing={listing} 
-                    variant={viewMode}
+                    variant={viewMode === "list" ? "list" : "grid"}
                     index={index}
                   />
                 ))}
               </div>
-            ) : (
+            ) : viewMode !== "map" && (
               /* No Results */
               <div className="text-center py-16 md:py-24">
                 <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
@@ -279,19 +300,19 @@ const Listings = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-gradient-luxury relative overflow-hidden">
+        <section className="py-16 md:py-24 bg-gradient-navy relative overflow-hidden">
           <div className="absolute inset-0 noise-overlay opacity-20" />
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-accent/5 blur-3xl" />
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-royal/10 blur-3xl" />
           
           <div className="container-custom relative z-10 text-center">
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6 text-shadow">
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 text-shadow">
               Can't Find What You're Looking For?
             </h2>
-            <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-8">
+            <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
               Let us help you find your perfect property. Our team has access to exclusive listings and can search on your behalf.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="gold" size="xl" asChild>
+              <Button variant="royal" size="xl" asChild>
                 <a href="/contact">Contact Us Today</a>
               </Button>
               <Button variant="heroOutline" size="xl" asChild>
