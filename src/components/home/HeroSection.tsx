@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { Search, MapPin, Home, DollarSign, ArrowRight, Sparkles, Crown, Star, Play, ChevronDown, Award, Shield, Users } from "lucide-react";
+import { Search, MapPin, Home, DollarSign, ArrowRight, Crown, Star, Award, Shield, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/siteConfig";
 import heroImage from "@/assets/hero-home.jpg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { SearchAutocomplete } from "@/components/search";
 
 export function HeroSection() {
   const navigate = useNavigate();
@@ -253,7 +254,14 @@ export function HeroSection() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Search Autocomplete */}
+              <SearchAutocomplete 
+                variant="hero"
+                placeholder="Search properties, neighborhoods, or cities..."
+              />
+
+              {/* Quick filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 {[
                   { icon: MapPin, placeholder: "Select City", value: searchCity, onChange: setSearchCity, options: siteConfig.serviceAreas },
                   { icon: Home, placeholder: "Property Type", value: propertyType, onChange: setPropertyType, options: ["Single Family Home", "Condo", "Townhouse", "Land"] },
@@ -262,7 +270,7 @@ export function HeroSection() {
                   <div key={i} className="relative">
                     <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-royal-light z-10" />
                     <select 
-                      className="w-full h-14 pl-12 pr-4 rounded-xl text-white border border-white/10 focus:border-royal/50 focus:ring-2 focus:ring-royal/30 appearance-none cursor-pointer font-medium transition-all duration-200 hover:border-white/20 bg-white/5 backdrop-blur-sm"
+                      className="w-full h-12 pl-12 pr-4 rounded-xl text-white border border-white/10 focus:border-royal/50 focus:ring-2 focus:ring-royal/30 appearance-none cursor-pointer font-medium transition-all duration-200 hover:border-white/20 bg-white/5 backdrop-blur-sm text-sm"
                       value={field.value}
                       onChange={(e) => field.onChange(e.target.value)}
                     >
@@ -273,19 +281,21 @@ export function HeroSection() {
                     </select>
                   </div>
                 ))}
-                <Button 
-                  size="lg"
-                  className="w-full h-14 text-base font-semibold rounded-xl transition-all duration-300"
-                  style={{
-                    background: "linear-gradient(135deg, hsl(220 75% 55%) 0%, hsl(220 60% 45%) 100%)",
-                    boxShadow: "0 10px 40px -10px hsl(220 75% 55% / 0.5)"
-                  }}
-                  onClick={handleSearch}
-                >
-                  <Search className="h-5 w-5 mr-2" />
-                  Search
-                </Button>
               </div>
+
+              {/* Search Button */}
+              <Button 
+                size="lg"
+                className="w-full h-14 text-base font-semibold rounded-xl transition-all duration-300 mt-6"
+                style={{
+                  background: "linear-gradient(135deg, hsl(220 75% 55%) 0%, hsl(220 60% 45%) 100%)",
+                  boxShadow: "0 10px 40px -10px hsl(220 75% 55% / 0.5)"
+                }}
+                onClick={handleSearch}
+              >
+                <Search className="h-5 w-5 mr-2" />
+                Search All Properties
+              </Button>
             </div>
           </motion.div>
 
