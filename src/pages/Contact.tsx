@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { siteConfig } from "@/lib/siteConfig";
 import { trackContactForm, trackPhoneClick, trackEmailClick } from "@/lib/analytics";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -23,15 +24,46 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Track the contact form submission
-    trackContactForm("contact_page");
-    
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast.success("Message sent successfully! We'll be in touch within 24 hours.");
-    setFormData({ name: "", email: "", phone: "", interest: "", message: "" });
-    setIsSubmitting(false);
+    try {
+      // Track the contact form submission
+      trackContactForm("contact_page");
+      
+      // Save lead to database
+      const { error: dbError } = await supabase.from("leads").insert({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        message: `Interest: ${formData.interest}\n\n${formData.message}`,
+        lead_source: "contact_page",
+      });
+
+      if (dbError) {
+        console.error("Error saving lead:", dbError);
+      }
+
+      // Send email notification via edge function
+      const { error: emailError } = await supabase.functions.invoke("send-lead-notification", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: `Interest: ${formData.interest}\n\n${formData.message}`,
+          leadSource: "Contact Page",
+        },
+      });
+
+      if (emailError) {
+        console.error("Error sending email notification:", emailError);
+      }
+
+      toast.success("Message sent successfully! We'll be in touch within 24 hours.");
+      setFormData({ name: "", email: "", phone: "", interest: "", message: "" });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

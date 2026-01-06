@@ -6,6 +6,7 @@ import { Phone, Mail, Calendar } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
 import { trackPropertyInquiry, trackPhoneClick, trackEmailClick, trackCTAClick } from "@/lib/analytics";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PropertyContactFormProps {
   propertyTitle: string;
@@ -26,20 +27,54 @@ export const PropertyContactForm = ({ propertyTitle, propertyAddress, propertyId
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Track the property inquiry
-    trackPropertyInquiry(propertyId || propertyTitle, propertyAddress);
-    
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast.success("Your inquiry has been sent! We'll be in touch soon.");
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      message: `I'm interested in ${propertyTitle} at ${propertyAddress}. Please contact me with more information.`,
-    });
-    setIsSubmitting(false);
+    try {
+      // Track the property inquiry
+      trackPropertyInquiry(propertyId || propertyTitle, propertyAddress);
+      
+      // Save lead to database
+      const { error: dbError } = await supabase.from("leads").insert({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        message: formData.message,
+        property_id: propertyId || null,
+        property_address: propertyAddress,
+        lead_source: "property_contact_form",
+      });
+
+      if (dbError) {
+        console.error("Error saving lead:", dbError);
+      }
+
+      // Send email notification via edge function
+      const { error: emailError } = await supabase.functions.invoke("send-lead-notification", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          propertyAddress: propertyAddress,
+          leadSource: "Property Inquiry",
+        },
+      });
+
+      if (emailError) {
+        console.error("Error sending email notification:", emailError);
+      }
+
+      toast.success("Your inquiry has been sent! We'll be in touch soon.");
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: `I'm interested in ${propertyTitle} at ${propertyAddress}. Please contact me with more information.`,
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

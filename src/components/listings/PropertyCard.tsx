@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react";
+import { MapPin, Bed, Bath, Square, Heart, Eye, Scale } from "lucide-react";
 import { PropertyListing, formatPrice } from "@/lib/listingsData";
 import { cn } from "@/lib/utils";
 import { trackCTAClick } from "@/lib/analytics";
+import { useComparison } from "@/contexts/ComparisonContext";
 
 interface PropertyCardProps {
   listing: PropertyListing;
@@ -14,11 +15,22 @@ interface PropertyCardProps {
 export function PropertyCard({ listing, variant = "grid", className, index = 0 }: PropertyCardProps) {
   const isList = variant === "list";
   const isFeatured = variant === "featured";
+  const { addToComparison, isInComparison, removeFromComparison } = useComparison();
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     trackCTAClick("favorite_property", listing.id);
+  };
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isInComparison(listing.id)) {
+      removeFromComparison(listing.id);
+    } else {
+      addToComparison(listing);
+    }
   };
 
   return (
@@ -75,6 +87,18 @@ export function PropertyCard({ listing, variant = "grid", className, index = 0 }
             aria-label="Save to favorites"
           >
             <Heart className="h-4 w-4" />
+          </button>
+          <button 
+            onClick={handleCompare}
+            className={cn(
+              "p-2.5 backdrop-blur-md rounded-full transition-colors shadow-md",
+              isInComparison(listing.id) 
+                ? "bg-royal text-white" 
+                : "bg-card/90 hover:bg-royal hover:text-white"
+            )}
+            aria-label={isInComparison(listing.id) ? "Remove from comparison" : "Add to comparison"}
+          >
+            <Scale className="h-4 w-4" />
           </button>
           <button 
             className="p-2.5 bg-card/90 backdrop-blur-md rounded-full hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
