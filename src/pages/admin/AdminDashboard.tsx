@@ -34,7 +34,7 @@ interface DashboardStats {
   monthlyTrend: number[];
 }
 
-export function AdminDashboard() {
+function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalLeads: 0,
     activeListings: 0,
@@ -349,3 +349,5 @@ export function AdminDashboard() {
     </>
   );
 }
+
+export default AdminDashboard;

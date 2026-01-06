@@ -83,7 +83,7 @@ const priorityConfig = {
   high: { label: 'High', color: 'bg-red-100 text-red-800' },
 };
 
-export function AdminLeads() {
+function AdminLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -528,3 +528,5 @@ export function AdminLeads() {
     </>
   );
 }
+
+export default AdminLeads;
