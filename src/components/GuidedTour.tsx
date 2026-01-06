@@ -4,11 +4,26 @@ import {
   X, ChevronRight, ChevronLeft, Sparkles, Home, Search, Phone, MapPin,
   Heart, Star, TrendingUp, Award, Users, Calendar, DollarSign,
   Camera, Video, Calculator, MessageSquare, Target, Zap, Crown,
-  Building, Compass, Shield, Clock, Gift, Lightbulb, UserCheck
+  Building, Compass, Shield, Clock, Gift, Lightbulb, UserCheck,
+  CheckCircle, AlertCircle, Info, HelpCircle, ThumbsUp, ThumbsDown,
+  Settings, User, Briefcase, GraduationCap, TrendingDown, BarChart3,
+  PieChart, Activity, Globe, Navigation, Filter, Sliders, Bookmark,
+  Share, Download, Upload, RefreshCw, Play, Pause, SkipForward,
+  Volume2, VolumeX, Eye, EyeOff, Maximize, Minimize, RotateCcw,
+  RotateCw, ZoomIn, ZoomOut, Move, Copy, Scissors, Palette, Layers,
+  Grid, List, Columns, Rows, Layout, Box, Circle, Square, Triangle,
+  Hexagon, Star as StarIcon, Heart as HeartIcon, Diamond, Club, Spade
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
 import { trackCTAClick, trackFormSubmission } from "@/lib/analytics";
 import { trackUserAction } from "@/lib/adaptiveLearning";
@@ -21,12 +36,26 @@ interface TourStep {
   icon: React.ElementType;
   action?: () => void;
   highlight?: string;
-  category: 'welcome' | 'discovery' | 'search' | 'luxury' | 'personalization' | 'action';
+  category: 'welcome' | 'discovery' | 'search' | 'luxury' | 'personalization' | 'questionnaire' | 'action';
   priority: number; // 1-10, higher = more important
   userInterest?: string[]; // What user behaviors indicate interest
   estimatedTime: number; // seconds
   interactive?: boolean;
   smartSuggestions?: string[];
+  questionnaire?: {
+    type: 'single' | 'multiple' | 'scale' | 'input' | 'budget';
+    question: string;
+    options?: string[];
+    placeholder?: string;
+    required?: boolean;
+    field: keyof UserProfile['tourProgress']['preferences'];
+  };
+  conditionalLogic?: {
+    basedOn: keyof UserProfile['tourProgress']['preferences'];
+    value: any;
+    nextStepId?: string;
+    skipToStepId?: string;
+  };
 }
 
 interface UserProfile {
@@ -103,147 +132,252 @@ export function GuidedTour() {
     localStorage.setItem("user-profile", JSON.stringify(newProfile));
   };
 
-  // Adaptive tour steps based on user profile
+  // Enhanced adaptive tour steps with questionnaires and interactive elements
   const generateAdaptiveSteps = useCallback((profile: UserProfile): TourStep[] => {
     const baseSteps: TourStep[] = [
+      // Welcome & Personalization
       {
         id: "welcome",
-        title: "Welcome to Your Luxury Journey",
-        description: "Discover exceptional properties curated just for you in Houston's most prestigious neighborhoods.",
-        detailedDescription: "As your personal luxury real estate concierge, I'm here to guide you through an extraordinary property experience. Whether you're searching for your dream home or making a strategic investment, we'll tailor every recommendation to your unique preferences.",
+        title: "Welcome to Your Personal Luxury Concierge",
+        description: "I'm delighted to be your guide through Houston's most exclusive real estate opportunities.",
+        detailedDescription: "As your personal luxury real estate concierge, I've been trained to understand your unique preferences and guide you toward properties that perfectly match your lifestyle, budget, and aspirations. Let's begin this personalized journey together.",
         icon: Crown,
         category: 'welcome',
         priority: 10,
-        estimatedTime: 15,
-        interactive: false,
-        smartSuggestions: ["Personalized recommendations", "VIP concierge service", "Expert market insights"],
-      },
-      {
-        id: "discovery",
-        title: "Explore Exclusive Properties",
-        description: "Browse our hand-curated collection of luxury homes, from contemporary masterpieces to timeless estates.",
-        detailedDescription: "Each property in our portfolio has been personally selected for its exceptional quality, unique character, and investment potential. Our collection features everything from modern urban lofts to sprawling countryside retreats.",
-        icon: Building,
-        action: () => {
-          navigate("/listings");
-          trackCTAClick("tour_discovery", "guided_tour", "/listings");
-        },
-        category: 'discovery',
-        priority: 9,
-        userInterest: ['properties', 'luxury', 'investment'],
         estimatedTime: 20,
         interactive: true,
-        smartSuggestions: ["Featured luxury homes", "New listings", "Price range matches"],
-      },
-      {
-        id: "smart-search",
-        title: "AI-Powered Property Search",
-        description: "Tell us your preferences and let our intelligent system find your perfect match.",
-        detailedDescription: "Our advanced search algorithm learns from your preferences to deliver increasingly accurate recommendations. Simply describe your ideal property, and we'll handle the rest with precision and sophistication.",
-        icon: Target,
-        action: () => navigate("/listings"),
-        category: 'search',
-        priority: 8,
-        userInterest: ['search', 'efficiency', 'technology'],
-        estimatedTime: 25,
-        interactive: true,
-        smartSuggestions: ["Smart filtering", "Saved searches", "Price alerts"],
-      },
-      {
-        id: "neighborhoods",
-        title: "Premier Houston Neighborhoods",
-        description: "Discover the city's most coveted communities, from River Oaks elegance to The Woodlands serenity.",
-        detailedDescription: "Houston offers unparalleled diversity in its neighborhoods. Whether you seek the vibrant energy of downtown living, the tranquility of suburban enclaves, or the prestige of established communities, we know every corner of this magnificent city.",
-        icon: Compass,
-        action: () => {
-          navigate("/neighborhoods");
-          trackCTAClick("tour_neighborhoods", "guided_tour", "/neighborhoods");
+        questionnaire: {
+          type: 'single',
+          question: 'What brings you to our luxury real estate experience today?',
+          options: ['Finding my dream home', 'Making an investment', 'Exploring options', 'Just browsing'],
+          required: true,
+          field: 'primaryGoal'
         },
-        category: 'discovery',
+        smartSuggestions: ["Personalized recommendations", "VIP concierge service", "Expert market insights"],
+      },
+
+      // Experience Level Assessment
+      {
+        id: "experience-assessment",
+        title: "Tell Me About Your Real Estate Journey",
+        description: "Understanding your experience level helps me provide the perfect level of guidance.",
+        detailedDescription: "Every client has a unique background in real estate. Whether you're a first-time buyer, seasoned investor, or somewhere in between, I'll tailor my recommendations and explanations to match your expertise level perfectly.",
+        icon: GraduationCap,
+        category: 'questionnaire',
+        priority: 9,
+        estimatedTime: 15,
+        interactive: true,
+        questionnaire: {
+          type: 'single',
+          question: 'What is your real estate experience level?',
+          options: ['First-time buyer', 'Have bought before', 'Experienced investor', 'Real estate professional'],
+          required: true,
+          field: 'experienceLevel'
+        },
+        conditionalLogic: {
+          basedOn: 'primaryGoal',
+          value: 'Making an investment',
+          nextStepId: 'investment-focus'
+        }
+      },
+
+      // Timeline Assessment
+      {
+        id: "timeline-assessment",
+        title: "When Are You Looking to Make Your Move?",
+        description: "Your timeline helps me prioritize the most relevant opportunities for you.",
+        detailedDescription: "Real estate decisions are often time-sensitive. Whether you're ready to move immediately or planning for the future, I'll focus on properties and strategies that align perfectly with your schedule and goals.",
+        icon: Calendar,
+        category: 'questionnaire',
+        priority: 8,
+        estimatedTime: 12,
+        interactive: true,
+        questionnaire: {
+          type: 'single',
+          question: 'When are you planning to purchase?',
+          options: ['Immediately (within 3 months)', 'Soon (3-6 months)', 'Planning ahead (6-12 months)', 'Just researching'],
+          required: true,
+          field: 'timeline'
+        }
+      },
+
+      // Budget Discovery
+      {
+        id: "budget-discovery",
+        title: "Let's Discuss Your Investment Range",
+        description: "Understanding your budget helps me curate the perfect selection of properties.",
+        detailedDescription: "Every price range offers exceptional opportunities in Houston's luxury market. From elegant starter estates to palatial mansions, I'll show you properties that not only fit your budget but exceed your expectations.",
+        icon: DollarSign,
+        category: 'questionnaire',
         priority: 7,
-        userInterest: ['location', 'community', 'lifestyle'],
         estimatedTime: 18,
         interactive: true,
-        smartSuggestions: ["School districts", "Amenity highlights", "Market trends"],
+        questionnaire: {
+          type: 'budget',
+          question: 'What is your approximate budget range for this purchase?',
+          options: ['Under $500K', '$500K - $1M', '$1M - $2M', '$2M - $5M', '$5M+', 'Flexible'],
+          required: true,
+          field: 'budgetRange'
+        }
       },
+
+      // Property Type Preferences
       {
-        id: "luxury-services",
-        title: "VIP Concierge Services",
-        description: "Experience white-glove service with our luxury concierge team, available 24/7 for your needs.",
-        detailedDescription: "From private showings and market analysis to financing guidance and move coordination, our dedicated concierge team ensures every aspect of your real estate journey is handled with the utmost care and discretion.",
+        id: "property-preferences",
+        title: "What Type of Property Speaks to You?",
+        description: "Different properties offer different lifestyles. Let's find your perfect match.",
+        detailedDescription: "From modern urban lofts with city views to sprawling countryside estates with private lakes, Houston offers every conceivable luxury lifestyle. Your preferences will guide me to the properties that will become your personal sanctuary.",
+        icon: Home,
+        category: 'questionnaire',
+        priority: 6,
+        estimatedTime: 20,
+        interactive: true,
+        questionnaire: {
+          type: 'multiple',
+          question: 'Which property types interest you most? (Select all that apply)',
+          options: ['Modern Contemporary', 'Traditional Estate', 'Urban Loft/Penthouse', 'Waterfront Property', 'Golf Course Community', 'Historic Home', 'Custom Build Opportunity'],
+          required: true,
+          field: 'propertyTypes'
+        }
+      },
+
+      // Location Preferences
+      {
+        id: "location-preferences",
+        title: "Where Would You Like to Call Home?",
+        description: "Location is everything in real estate. Let's find your ideal neighborhood.",
+        detailedDescription: "Houston's neighborhoods each offer their own unique character, amenities, and lifestyle. From the sophisticated elegance of River Oaks to the serene tranquility of The Woodlands, I'll help you discover the community that feels like home.",
+        icon: MapPin,
+        category: 'questionnaire',
+        priority: 5,
+        estimatedTime: 22,
+        interactive: true,
+        questionnaire: {
+          type: 'multiple',
+          question: 'Which Houston areas interest you most?',
+          options: ['River Oaks', 'West University', 'The Heights', 'Montrose', 'Midtown', 'Downtown', 'Memorial', 'Sugar Land', 'Katy', 'Cypress', 'The Woodlands'],
+          required: true,
+          field: 'preferredAreas'
+        }
+      },
+
+      // Investment Focus (Conditional)
+      {
+        id: "investment-focus",
+        title: "Investment Strategy & Goals",
+        description: "Let's align your investment objectives with the perfect opportunities.",
+        detailedDescription: "Smart investors have clear objectives. Whether you're seeking appreciation potential, rental income, or a combination of both, I'll connect you with properties that align with your investment strategy and risk tolerance.",
+        icon: TrendingUp,
+        category: 'questionnaire',
+        priority: 9,
+        estimatedTime: 25,
+        interactive: true,
+        questionnaire: {
+          type: 'multiple',
+          question: 'What are your primary investment goals?',
+          options: ['Long-term appreciation', 'Rental income', 'Development potential', 'Tax advantages', 'Diversification', 'Legacy planning'],
+          required: true,
+          field: 'investmentGoals'
+        }
+      },
+
+      // Luxury Services Introduction
+      {
+        id: "luxury-services-intro",
+        title: "Your VIP Concierge Experience",
+        description: "Discover the white-glove services that make your journey extraordinary.",
+        detailedDescription: "Beyond exceptional properties, we provide comprehensive concierge services to ensure every aspect of your real estate journey is handled with the utmost care. From private showings to financing guidance, we're with you every step of the way.",
         icon: Shield,
         category: 'luxury',
-        priority: 9,
-        userInterest: ['service', 'luxury', 'personalized'],
-        estimatedTime: 22,
+        priority: 8,
+        estimatedTime: 20,
         interactive: false,
-        smartSuggestions: ["Private showings", "Market analysis", "Financing guidance"],
+        smartSuggestions: ["Private showings", "Market analysis", "Financing guidance", "Move coordination"],
       },
+
+      // Technology Showcase
       {
-        id: "virtual-tours",
-        title: "Immersive Virtual Experiences",
-        description: "Experience properties remotely with our cutting-edge virtual tours and 3D walkthroughs.",
-        detailedDescription: "Never miss a property again. Our professional virtual tours capture every detail, from architectural nuances to natural light patterns, giving you a true sense of each home before your visit.",
+        id: "technology-showcase",
+        title: "Cutting-Edge Property Technology",
+        description: "Experience properties like never before with our immersive technology.",
+        detailedDescription: "Our professional virtual tours, 3D walkthroughs, and interactive floor plans allow you to experience every property remotely. Never miss an opportunity again with our comprehensive digital property experience.",
         icon: Video,
         category: 'luxury',
         priority: 6,
-        userInterest: ['technology', 'convenience', 'remote'],
-        estimatedTime: 16,
+        estimatedTime: 18,
         interactive: false,
-        smartSuggestions: ["3D walkthroughs", "Virtual staging", "Drone footage"],
+        smartSuggestions: ["3D walkthroughs", "Virtual staging", "Drone footage", "Interactive floor plans"],
       },
+
+      // Market Intelligence
       {
-        id: "market-insights",
-        title: "Exclusive Market Intelligence",
-        description: "Access proprietary market data and insights to make informed investment decisions.",
-        detailedDescription: "Stay ahead with our comprehensive market analysis, featuring real-time pricing trends, neighborhood appreciation data, and expert predictions for Houston's luxury real estate market.",
-        icon: TrendingUp,
+        id: "market-intelligence",
+        title: "Proprietary Market Insights",
+        description: "Access exclusive data and trends that informed buyers use to make decisions.",
+        detailedDescription: "Stay ahead of the market with our proprietary analytics, neighborhood appreciation data, and expert predictions. Make confident decisions backed by comprehensive market intelligence that others don't have access to.",
+        icon: BarChart3,
         category: 'personalization',
         priority: 7,
-        userInterest: ['investment', 'data', 'strategy'],
-        estimatedTime: 20,
+        estimatedTime: 22,
         interactive: false,
-        smartSuggestions: ["Market reports", "Investment analysis", "Price trends"],
+        smartSuggestions: ["Market reports", "Investment analysis", "Price trends", "Neighborhood data"],
       },
+
+      // Personalized Recommendations
       {
         id: "personalized-recommendations",
-        title: "Your Curated Experience",
-        description: "Based on your interests, we've personalized this tour to highlight what matters most to you.",
-        detailedDescription: `I've noticed your interest in ${profile.interests.slice(0, 3).join(', ')}. Let me show you properties and services tailored specifically to your preferences.`,
+        title: "Your Curated Luxury Experience",
+        description: "Based on everything you've shared, here's what I've prepared especially for you.",
+        detailedDescription: `Thank you for sharing your preferences with me. Based on your ${profile.tourProgress.preferences?.experienceLevel || 'unique'} background, ${profile.tourProgress.preferences?.timeline || 'timeline'}, and ${profile.tourProgress.preferences?.budgetRange || 'budget considerations'}, I've curated a personalized experience that showcases the perfect properties and services for you.`,
         icon: UserCheck,
         category: 'personalization',
-        priority: 8,
-        estimatedTime: 12,
+        priority: 9,
+        estimatedTime: 15,
         interactive: false,
-        smartSuggestions: profile.interests.map(interest => `More ${interest} options`),
+        smartSuggestions: ["View curated properties", "Schedule private showing", "Connect with concierge"],
       },
+
+      // Final Connection
       {
-        id: "connect",
-        title: "Let's Begin Your Journey",
-        description: "Ready to experience luxury real estate like never before? Our team awaits your call.",
-        detailedDescription: "Whether you're ready to start searching immediately or prefer to learn more about our services, we're here to provide the personalized attention you deserve. Your luxury real estate journey starts now.",
+        id: "final-connection",
+        title: "Ready to Begin Your Luxury Journey?",
+        description: "Your personal concierge is standing by to make this extraordinary experience happen.",
+        detailedDescription: "You've taken the first step toward finding your perfect property. Now let me connect you with our luxury concierge team who will handle every detail with the white-glove service you deserve. Your dream property awaits.",
         icon: MessageSquare,
+        category: 'action',
+        priority: 10,
+        estimatedTime: 20,
+        interactive: true,
         action: () => {
-          // Open floating action widget
           const event = new CustomEvent('openConcierge');
           window.dispatchEvent(event);
         },
-        category: 'action',
-        priority: 10,
-        estimatedTime: 15,
-        interactive: true,
-        smartSuggestions: ["Schedule consultation", "Request property alerts", "VIP concierge access"],
+        smartSuggestions: ["Schedule consultation", "Request property alerts", "VIP concierge access", "View saved properties"],
       },
     ];
 
-    // Adaptive ordering based on user profile
+    // Advanced adaptive ordering based on user responses
     let orderedSteps = [...baseSteps];
 
-    // Prioritize based on user interests
-    if (profile.interests.includes('luxury') || profile.interests.includes('investment')) {
+    // Dynamic ordering based on questionnaire responses
+    const preferences = profile.tourProgress.preferences;
+
+    if (preferences?.primaryGoal === 'Making an investment') {
+      // Prioritize investment-focused steps
       orderedSteps = orderedSteps.sort((a, b) => {
-        if (a.category === 'luxury' && b.category !== 'luxury') return -1;
-        if (b.category === 'luxury' && a.category !== 'luxury') return 1;
+        if (a.id === 'investment-focus') return -1;
+        if (b.id === 'investment-focus') return 1;
+        if (a.category === 'personalization' && b.category !== 'personalization') return -1;
+        if (b.category === 'personalization' && a.category !== 'personalization') return 1;
+        return b.priority - a.priority;
+      });
+    }
+
+    if (preferences?.timeline === 'Immediately (within 3 months)') {
+      // Prioritize action-oriented steps for urgent buyers
+      orderedSteps = orderedSteps.sort((a, b) => {
+        if (a.category === 'action' && b.category !== 'action') return -1;
+        if (b.category === 'action' && a.category !== 'action') return 1;
         return b.priority - a.priority;
       });
     }
@@ -251,19 +385,33 @@ export function GuidedTour() {
     // Skip completed steps
     orderedSteps = orderedSteps.filter(step => !profile.tourProgress.completedSteps.includes(step.id));
 
-    // Always include welcome and connect
+    // Apply conditional logic
+    orderedSteps = orderedSteps.filter(step => {
+      if (!step.conditionalLogic) return true;
+
+      const { basedOn, value, skipToStepId } = step.conditionalLogic;
+      const currentValue = preferences?.[basedOn];
+
+      if (skipToStepId && currentValue === value) {
+        return false; // Skip this step
+      }
+
+      return true;
+    });
+
+    // Always include welcome and final connection
     const welcomeStep = baseSteps.find(s => s.id === 'welcome')!;
-    const connectStep = baseSteps.find(s => s.id === 'connect')!;
+    const finalStep = baseSteps.find(s => s.id === 'final-connection')!;
 
     if (!orderedSteps.find(s => s.id === 'welcome')) {
       orderedSteps.unshift(welcomeStep);
     }
-    if (!orderedSteps.find(s => s.id === 'connect')) {
-      orderedSteps.push(connectStep);
+    if (!orderedSteps.find(s => s.id === 'final-connection')) {
+      orderedSteps.push(finalStep);
     }
 
-    // Limit to 6 steps for optimal UX
-    return orderedSteps.slice(0, 6);
+    // Limit to 8 steps for comprehensive experience
+    return orderedSteps.slice(0, 8);
   }, []);
 
   // Track user interactions and learn preferences
@@ -418,6 +566,48 @@ export function GuidedTour() {
     }
   };
 
+  const handleQuestionnaireResponse = (field: keyof UserProfile['tourProgress']['preferences'], value: any) => {
+    if (!userProfile) return;
+
+    const updatedProfile = { ...userProfile };
+    updatedProfile.tourProgress.preferences[field] = value;
+
+    // Learn from responses and adapt future behavior
+    if (field === 'primaryGoal' && value === 'Making an investment') {
+      updatedProfile.interests.push('investment', 'strategy', 'returns');
+    } else if (field === 'experienceLevel') {
+      if (value === 'First-time buyer') {
+        updatedProfile.interests.push('guidance', 'education', 'support');
+      } else if (value === 'Experienced investor') {
+        updatedProfile.interests.push('advanced', 'analysis', 'opportunities');
+      }
+    } else if (field === 'timeline' && value === 'Immediately (within 3 months)') {
+      updatedProfile.interests.push('urgent', 'available', 'quick-close');
+    } else if (field === 'budgetRange') {
+      if (value.includes('$5M+')) {
+        updatedProfile.interests.push('luxury', 'exclusive', 'premium');
+      } else if (value.includes('Under $500K')) {
+        updatedProfile.interests.push('affordable', 'value', 'starter');
+      }
+    } else if (field === 'propertyTypes') {
+      updatedProfile.interests.push(...value.map((type: string) => type.toLowerCase().replace(/\s+/g, '-')));
+    } else if (field === 'preferredAreas') {
+      updatedProfile.interests.push(...value.map((area: string) => area.toLowerCase().replace(/\s+/g, '-')));
+    }
+
+    // Remove duplicates
+    updatedProfile.interests = [...new Set(updatedProfile.interests)];
+
+    setUserProfile(updatedProfile);
+    localStorage.setItem("user-profile", JSON.stringify(updatedProfile));
+
+    trackInteraction('questionnaire_response', { field, value });
+    trackUserAction('questionnaire_completed', location.pathname, { field, value });
+
+    // Auto-advance to next step after response
+    setTimeout(() => handleNext(), 500);
+  };
+
   if (!isVisible || isLoading || tourSteps.length === 0) return null;
 
   const step = tourSteps[currentStep];
@@ -504,6 +694,125 @@ export function GuidedTour() {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {step.detailedDescription}
                 </p>
+              </motion.div>
+            )}
+
+            {/* Interactive Questionnaire */}
+            {step.questionnaire && (
+              <motion.div
+                key={`questionnaire-${currentStep}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="bg-accent/5 rounded-lg p-4 mb-4 border border-accent/20"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <HelpCircle className="h-4 w-4 text-accent" />
+                    <p className="text-sm font-medium text-accent">
+                      {step.questionnaire.question}
+                    </p>
+                  </div>
+
+                  {step.questionnaire.type === 'single' && step.questionnaire.options && (
+                    <RadioGroup
+                      onValueChange={(value) => handleQuestionnaireResponse(step.questionnaire!.field, value)}
+                      className="space-y-2"
+                    >
+                      {step.questionnaire.options.map((option, index) => (
+                        <motion.div
+                          key={option}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + index * 0.1 }}
+                          className="flex items-center space-x-2"
+                        >
+                          <RadioGroupItem value={option} id={`${step.id}-${option}`} />
+                          <Label
+                            htmlFor={`${step.id}-${option}`}
+                            className="text-sm cursor-pointer hover:text-accent transition-colors"
+                          >
+                            {option}
+                          </Label>
+                        </motion.div>
+                      ))}
+                    </RadioGroup>
+                  )}
+
+                  {step.questionnaire.type === 'multiple' && step.questionnaire.options && (
+                    <div className="space-y-2">
+                      {step.questionnaire.options.map((option, index) => (
+                        <motion.div
+                          key={option}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + index * 0.1 }}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`${step.id}-${option}`}
+                            onCheckedChange={(checked) => {
+                              const currentValues = userProfile?.tourProgress.preferences[step.questionnaire!.field] || [];
+                              const newValues = checked
+                                ? [...currentValues, option]
+                                : currentValues.filter((v: string) => v !== option);
+                              handleQuestionnaireResponse(step.questionnaire!.field, newValues);
+                            }}
+                          />
+                          <Label
+                            htmlFor={`${step.id}-${option}`}
+                            className="text-sm cursor-pointer hover:text-accent transition-colors"
+                          >
+                            {option}
+                          </Label>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  {step.questionnaire.type === 'budget' && step.questionnaire.options && (
+                    <Select onValueChange={(value) => handleQuestionnaireResponse(step.questionnaire!.field, value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select your budget range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {step.questionnaire.options.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {step.questionnaire.type === 'input' && (
+                    <Input
+                      placeholder={step.questionnaire.placeholder || "Enter your response"}
+                      onChange={(e) => handleQuestionnaireResponse(step.questionnaire!.field, e.target.value)}
+                      className="w-full"
+                    />
+                  )}
+
+                  {step.questionnaire.type === 'scale' && step.questionnaire.options && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Not interested</span>
+                        <span>Very interested</span>
+                      </div>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((rating) => (
+                          <button
+                            key={rating}
+                            onClick={() => handleQuestionnaireResponse(step.questionnaire!.field, rating)}
+                            className="flex-1 h-10 rounded border border-border hover:border-accent hover:bg-accent/10 transition-colors flex items-center justify-center"
+                          >
+                            <Star className={`h-4 w-4 ${rating <= (userProfile?.tourProgress.preferences[step.questionnaire!.field] || 0) ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
 
