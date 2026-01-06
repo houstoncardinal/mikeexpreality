@@ -5,25 +5,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-charcoal-light",
+        default: "bg-primary text-primary-foreground hover:bg-navy-light",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-cream-dark",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-muted",
         ghost: "hover:bg-secondary hover:text-secondary-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        gold: "bg-accent text-accent-foreground font-semibold hover:shadow-gold hover:scale-[1.02]",
-        hero: "bg-accent text-accent-foreground font-semibold hover:shadow-gold hover:scale-[1.02] tracking-wide",
-        heroOutline: "border-2 border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/50",
+        link: "text-accent underline-offset-4 hover:underline",
+        royal: "bg-royal text-white font-semibold hover:bg-royal-dark hover:shadow-royal hover:scale-[1.02]",
+        royalOutline: "border-2 border-royal bg-transparent text-royal hover:bg-royal hover:text-white",
+        premium: "bg-gradient-to-r from-royal to-royal-dark text-white font-semibold hover:shadow-glow hover:scale-[1.02]",
+        heroOutline: "border-2 border-white/30 bg-transparent text-white hover:bg-white/10 hover:border-white/50",
+        gold: "bg-gold text-navy font-semibold hover:bg-gold-light hover:shadow-lg hover:scale-[1.02]",
       },
       size: {
         default: "h-10 px-5 py-2",
         sm: "h-9 rounded-md px-4",
-        lg: "h-12 rounded-md px-8 text-base",
-        xl: "h-14 rounded-md px-10 text-lg",
+        lg: "h-12 rounded-lg px-8 text-base",
+        xl: "h-14 rounded-xl px-10 text-lg",
         icon: "h-10 w-10",
       },
     },

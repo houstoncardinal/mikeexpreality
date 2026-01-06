@@ -164,7 +164,7 @@ export function Header() {
               {siteConfig.phone}
             </a>
             <Link to="/contact">
-              <Button variant={isScrolled || !isHomePage ? "gold" : "hero"} size="lg">
+              <Button variant={isScrolled || !isHomePage ? "royal" : "premium"} size="lg">
                 Let's Connect
               </Button>
             </Link>
