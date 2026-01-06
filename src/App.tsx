@@ -11,6 +11,7 @@ import { ComparisonBar } from "@/components/comparison/ComparisonBar";
 import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Listings from "./pages/Listings";
@@ -56,6 +57,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <ComparisonProvider>
+              <ScrollToTop />
               <Toaster />
               <Sonner />
               <AnalyticsTracker>
