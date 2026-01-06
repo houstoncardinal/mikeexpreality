@@ -1,25 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  MessageCircle, 
-  X, 
-  Phone, 
-  Mail, 
-  Calendar, 
-  MapPin, 
+import {
+  MessageCircle,
+  X,
+  Phone,
+  Mail,
+  Calendar,
+  MapPin,
   Send,
   User,
   Clock,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Star,
+  Award,
+  Shield,
+  Heart,
+  Zap,
+  CheckCircle,
+  Home,
+  Building2,
+  Camera,
+  Video
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/lib/siteConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { trackUserAction } from "@/lib/adaptiveLearning";
 
 const quickActions = [
   {
@@ -28,6 +40,9 @@ const quickActions = [
     description: "Speak directly with Mike",
     action: "phone",
     href: `tel:${siteConfig.phoneRaw}`,
+    color: "from-emerald-500 to-emerald-600",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
+    textColor: "text-emerald-700 dark:text-emerald-300",
   },
   {
     icon: Calendar,
@@ -35,6 +50,9 @@ const quickActions = [
     description: "Book a property viewing",
     action: "tour",
     href: "/contact",
+    color: "from-blue-500 to-blue-600",
+    bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    textColor: "text-blue-700 dark:text-blue-300",
   },
   {
     icon: Mail,
@@ -42,6 +60,37 @@ const quickActions = [
     description: "Send us a message",
     action: "email",
     href: `mailto:${siteConfig.email}`,
+    color: "from-amber-500 to-amber-600",
+    bgColor: "bg-amber-50 dark:bg-amber-950/20",
+    textColor: "text-amber-700 dark:text-amber-300",
+  },
+  {
+    icon: Video,
+    label: "Virtual Tour",
+    description: "Experience properties remotely",
+    action: "virtual",
+    href: "/listings",
+    color: "from-purple-500 to-purple-600",
+    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    textColor: "text-purple-700 dark:text-purple-300",
+  },
+];
+
+const testimonials = [
+  {
+    name: "Sarah M.",
+    text: "Mike found us our dream home in just 2 weeks!",
+    rating: 5,
+  },
+  {
+    name: "David L.",
+    text: "Professional, knowledgeable, and truly cares about his clients.",
+    rating: 5,
+  },
+  {
+    name: "Jennifer K.",
+    text: "The best real estate experience we've ever had.",
+    rating: 5,
   },
 ];
 
@@ -49,13 +98,33 @@ export function ContactFlyout() {
   const [isOpen, setIsOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [pulseEffect, setPulseEffect] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     message: "",
     preferredTime: "morning",
+    propertyType: "any",
+    budget: "",
   });
+
+  // Auto-rotate testimonials
+  useEffect(() => {
+    if (isOpen) {
+      const interval = setInterval(() => {
+        setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [isOpen]);
+
+  // Disable pulse after interaction
+  useEffect(() => {
+    const timer = setTimeout(() => setPulseEffect(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,47 +135,71 @@ export function ContactFlyout() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        message: `Callback Request (Preferred: ${formData.preferredTime})\n\n${formData.message}`,
-        lead_source: "contact_flyout",
+        message: `Enhanced Contact Form Submission\n\nPreferred Time: ${formData.preferredTime}\nProperty Type: ${formData.propertyType}\nBudget: ${formData.budget}\n\nMessage: ${formData.message}`,
+        lead_source: "enhanced_contact_flyout",
       });
 
       if (error) throw error;
 
-      toast.success("Request submitted! We'll contact you soon.");
+      toast.success("Thank you! We'll be in touch within 30 minutes.");
+      trackUserAction('contact_form_submitted', window.location.pathname, {
+        preferredTime: formData.preferredTime,
+        propertyType: formData.propertyType,
+        hasBudget: !!formData.budget,
+      });
+
       setFormData({
         name: "",
         phone: "",
         email: "",
         message: "",
         preferredTime: "morning",
+        propertyType: "any",
+        budget: "",
       });
       setShowForm(false);
       setIsOpen(false);
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to submit. Please try again.");
+      toast.error("Something went wrong. Please try again.");
+      trackUserAction('contact_form_failed', window.location.pathname, { error: 'submission_error' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleQuickAction = (action: typeof quickActions[0]) => {
+    trackUserAction('quick_action_clicked', window.location.pathname, {
+      action: action.action,
+      label: action.label,
+    });
+
+    if (action.href.startsWith('http') || action.href.startsWith('mailto:') || action.href.startsWith('tel:')) {
+      window.open(action.href, '_blank');
+    } else {
+      window.location.href = action.href;
+    }
+  };
+
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Mobile Optimized */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 1, type: "spring", stiffness: 200 }}
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3.5 rounded-full",
+          "fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40",
+          "flex items-center justify-center",
+          "w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-3.5 rounded-full",
           "bg-gradient-royal text-primary-foreground shadow-royal",
-          "hover:shadow-glow-lg transition-all duration-300 group",
+          "hover:shadow-glow-lg active:scale-95 transition-all duration-300 group",
           isOpen && "scale-0 opacity-0"
         )}
       >
-        <MessageCircle className="h-5 w-5" />
-        <span className="font-semibold">Contact Us</span>
+        <MessageCircle className="h-6 w-6 md:h-5 md:w-5" />
+        <span className="hidden md:inline font-semibold ml-2">Contact Us</span>
         <motion.span
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}
@@ -130,13 +223,13 @@ export function ContactFlyout() {
               className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40"
             />
 
-            {/* Panel */}
+            {/* Panel - Mobile Optimized */}
             <motion.div
               initial={{ x: "100%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full sm:w-[420px] bg-card shadow-2xl z-50 flex flex-col overflow-hidden"
+              className="fixed right-0 top-0 bottom-0 w-full max-w-sm sm:max-w-md md:w-[420px] bg-card shadow-2xl z-50 flex flex-col overflow-hidden"
             >
               {/* Header */}
               <div className="relative bg-gradient-navy p-6 pb-8">
@@ -202,29 +295,87 @@ export function ContactFlyout() {
                         Quick Actions
                       </p>
                       
-                      {quickActions.map((action, index) => (
-                        <motion.a
-                          key={action.label}
-                          href={action.href}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="flex items-center gap-4 p-4 bg-secondary hover:bg-accent/10 rounded-xl transition-all group"
-                        >
-                          <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                            <action.icon className="h-5 w-5 text-accent" />
+                      {/* Enhanced Quick Actions Grid */}
+                      <div className="grid grid-cols-2 gap-3 mb-6">
+                        {quickActions.map((action, index) => (
+                          <motion.button
+                            key={action.label}
+                            onClick={() => handleQuickAction(action)}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                            className={cn(
+                              "flex flex-col items-center gap-3 p-4 rounded-2xl transition-all duration-300 group",
+                              "hover:scale-105 active:scale-95",
+                              action.bgColor,
+                              "border border-border/50 hover:border-border"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-all",
+                              action.color,
+                              "group-hover:scale-110"
+                            )}>
+                              <action.icon className="h-6 w-6 text-white" />
+                            </div>
+                            <div className="text-center">
+                              <p className={cn(
+                                "font-semibold text-sm leading-tight",
+                                action.textColor
+                              )}>
+                                {action.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1 leading-tight">
+                                {action.description}
+                              </p>
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Social Proof - Rotating Testimonials */}
+                      <motion.div
+                        key={`testimonial-${currentTestimonial}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-xl p-4 mb-6 border border-accent/20"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                              <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            ))}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-foreground group-hover:text-accent transition-colors">
-                              {action.label}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {action.description}
-                            </p>
-                          </div>
-                          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
-                        </motion.a>
-                      ))}
+                          <span className="text-xs font-medium text-accent">
+                            {testimonials[currentTestimonial].name}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground italic leading-relaxed">
+                          "{testimonials[currentTestimonial].text}"
+                        </p>
+                      </motion.div>
+
+                      {/* Trust Indicators */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="flex items-center justify-center gap-4 mb-6"
+                      >
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Shield className="h-3 w-3 text-green-500" />
+                          <span>Licensed</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Award className="h-3 w-3 text-blue-500" />
+                          <span>Top Producer</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Heart className="h-3 w-3 text-red-500" />
+                          <span>5-Star Service</span>
+                        </div>
+                      </motion.div>
 
                       {/* Callback Request Button */}
                       <motion.button
