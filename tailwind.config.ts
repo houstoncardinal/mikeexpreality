@@ -64,6 +64,15 @@ export default {
           DEFAULT: "hsl(var(--cream))",
           dark: "hsl(var(--cream-dark))",
         },
+        emerald: {
+          500: "hsl(160 60% 40%)",
+        },
+        sapphire: {
+          500: "hsl(220 70% 50%)",
+        },
+        rose: {
+          500: "hsl(350 70% 55%)",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
