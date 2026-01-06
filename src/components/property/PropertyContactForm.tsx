@@ -5,13 +5,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, Calendar } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
+import { trackPropertyInquiry, trackPhoneClick, trackEmailClick, trackCTAClick } from "@/lib/analytics";
 
 interface PropertyContactFormProps {
   propertyTitle: string;
   propertyAddress: string;
+  propertyId?: string;
 }
 
-export const PropertyContactForm = ({ propertyTitle, propertyAddress }: PropertyContactFormProps) => {
+export const PropertyContactForm = ({ propertyTitle, propertyAddress, propertyId }: PropertyContactFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,6 +25,9 @@ export const PropertyContactForm = ({ propertyTitle, propertyAddress }: Property
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // Track the property inquiry
+    trackPropertyInquiry(propertyId || propertyTitle, propertyAddress);
     
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -80,6 +85,7 @@ export const PropertyContactForm = ({ propertyTitle, propertyAddress }: Property
         
         <a
           href={`tel:${siteConfig.phoneRaw}`}
+          onClick={() => trackPhoneClick("property_contact_form")}
           className="flex items-center justify-center gap-2 p-3 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
         >
           <Phone className="h-4 w-4 text-accent" />
@@ -88,13 +94,19 @@ export const PropertyContactForm = ({ propertyTitle, propertyAddress }: Property
         
         <a
           href={`mailto:${siteConfig.email}?subject=Inquiry: ${propertyTitle}`}
+          onClick={() => trackEmailClick("property_contact_form")}
           className="flex items-center justify-center gap-2 p-3 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
         >
           <Mail className="h-4 w-4 text-accent" />
           <span className="font-medium text-foreground">{siteConfig.email}</span>
         </a>
 
-        <Button variant="outline" className="w-full" asChild>
+        <Button 
+          variant="outline" 
+          className="w-full" 
+          asChild
+          onClick={() => trackCTAClick("schedule_showing", "property_contact_form")}
+        >
           <a href={`/contact?property=${encodeURIComponent(propertyTitle)}`}>
             <Calendar className="h-4 w-4 mr-2" />
             Schedule a Showing
