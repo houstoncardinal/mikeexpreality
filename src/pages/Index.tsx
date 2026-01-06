@@ -61,7 +61,7 @@ const Index = () => {
           url: siteConfig.url,
           telephone: siteConfig.phone,
           email: siteConfig.email,
-          image: `${siteConfig.url}/images/mike-ogunkeye.jpg`,
+          image: "https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=1280/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2",
           logo: `${siteConfig.url}/logo.png`,
           priceRange: "$$-$$$$",
           address: {

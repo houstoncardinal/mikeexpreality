@@ -260,7 +260,7 @@ export function ContactFlyout() {
                 {/* Agent Info */}
                 <div className="flex items-center gap-3 bg-primary-foreground/10 rounded-xl p-3 backdrop-blur-sm">
                   <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
+                    src="https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=400/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2"
                     alt={siteConfig.agent.name}
                     className="w-12 h-12 rounded-full object-cover border-2 border-gold"
                   />
