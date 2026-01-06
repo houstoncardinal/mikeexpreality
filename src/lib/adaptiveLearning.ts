@@ -293,8 +293,18 @@ class AdaptiveLearningEngine {
       const data = localStorage.getItem('adaptive-learning-data');
       if (data) {
         const parsed = JSON.parse(data);
-        this.behaviors = parsed.behaviors || [];
-        this.patterns = new Map(parsed.patterns || []);
+        // Convert timestamp strings back to Date objects
+        this.behaviors = (parsed.behaviors || []).map((b: any) => ({
+          ...b,
+          timestamp: new Date(b.timestamp),
+        }));
+        // Convert pattern lastSeen strings back to Date objects
+        this.patterns = new Map(
+          (parsed.patterns || []).map(([key, pattern]: [string, any]) => [
+            key,
+            { ...pattern, lastSeen: new Date(pattern.lastSeen) },
+          ])
+        );
         this.recommendations = parsed.recommendations || [];
       }
     } catch (error) {
