@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { initGA, trackPageView } from "@/lib/analytics";
+import { trackUserAction } from "@/lib/adaptiveLearning";
 import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
@@ -23,15 +24,21 @@ const queryClient = new QueryClient();
 // Analytics wrapper component
 const AnalyticsTracker = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  
+
   useEffect(() => {
     initGA();
   }, []);
-  
+
   useEffect(() => {
     trackPageView(location.pathname);
+    // Track with adaptive learning system
+    trackUserAction('page_view', location.pathname, {
+      referrer: document.referrer,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    });
   }, [location]);
-  
+
   return <>{children}</>;
 };
 

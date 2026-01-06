@@ -24,6 +24,7 @@ import { siteConfig } from "@/lib/siteConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { trackUserAction } from "@/lib/adaptiveLearning";
 
 type WidgetView = "menu" | "callback" | "concierge" | "success";
 
@@ -62,6 +63,17 @@ export function FloatingActionWidget() {
   useEffect(() => {
     const timer = setTimeout(() => setPulseEffect(false), 5000);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Listen for concierge open events from guided tour
+  useEffect(() => {
+    const handleOpenConcierge = () => {
+      setIsOpen(true);
+      setCurrentView('concierge');
+    };
+
+    window.addEventListener('openConcierge', handleOpenConcierge);
+    return () => window.removeEventListener('openConcierge', handleOpenConcierge);
   }, []);
 
   const resetForms = () => {
@@ -103,19 +115,24 @@ export function FloatingActionWidget() {
 
     if (error) {
       toast.error("Failed to submit request");
+      trackUserAction('callback_submit_failed', window.location.pathname, { error: error.message });
     } else {
       setCurrentView("success");
+      trackUserAction('callback_submitted', window.location.pathname, {
+        name: callbackName,
+        preferredTime: preferredTime || "Any time"
+      });
     }
     setIsSubmitting(false);
   };
 
   const handleConciergeSubmit = async () => {
     try {
-      conciergeSchema.parse({ 
-        name: conciergeName, 
-        email: conciergeEmail, 
+      conciergeSchema.parse({
+        name: conciergeName,
+        email: conciergeEmail,
         phone: conciergePhone,
-        preferences: conciergePreferences 
+        preferences: conciergePreferences
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -135,8 +152,14 @@ export function FloatingActionWidget() {
 
     if (error) {
       toast.error("Failed to submit request");
+      trackUserAction('concierge_submit_failed', window.location.pathname, { error: error.message });
     } else {
       setCurrentView("success");
+      trackUserAction('concierge_submitted', window.location.pathname, {
+        name: conciergeName,
+        email: conciergeEmail,
+        preferences: conciergePreferences.substring(0, 100) + (conciergePreferences.length > 100 ? '...' : '')
+      });
     }
     setIsSubmitting(false);
   };
