@@ -29,7 +29,7 @@ const navigation = [
     children: [
       { name: "Buyer Resources", href: "/buyer-resources" },
       { name: "Seller Resources", href: "/seller-resources" },
-      { name: "Home Valuation", href: "/seller-resources" },
+      { name: "Home Valuation", href: "/home-valuation" },
     ],
   },
   { name: "Blog", href: "/blog" },

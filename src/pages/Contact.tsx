@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { siteConfig } from "@/lib/siteConfig";
+import { trackContactForm, trackPhoneClick, trackEmailClick } from "@/lib/analytics";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +22,9 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // Track the contact form submission
+    trackContactForm("contact_page");
     
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -77,7 +81,11 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                      <a href={`tel:${siteConfig.phoneRaw}`} className="text-muted-foreground hover:text-accent transition-colors">
+                      <a 
+                        href={`tel:${siteConfig.phoneRaw}`} 
+                        onClick={() => trackPhoneClick("contact_page")}
+                        className="text-muted-foreground hover:text-accent transition-colors"
+                      >
                         {siteConfig.phone}
                       </a>
                     </div>
@@ -89,7 +97,11 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                      <a href={`mailto:${siteConfig.email}`} className="text-muted-foreground hover:text-accent transition-colors">
+                      <a 
+                        href={`mailto:${siteConfig.email}`} 
+                        onClick={() => trackEmailClick("contact_page")}
+                        className="text-muted-foreground hover:text-accent transition-colors"
+                      >
                         {siteConfig.email}
                       </a>
                     </div>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Layout } from "@/components/layout";
@@ -10,6 +11,7 @@ import {
 } from "@/components/property";
 import { getListingById, formatPrice, allListings } from "@/lib/listingsData";
 import { siteConfig } from "@/lib/siteConfig";
+import { trackPropertyView, trackCTAClick } from "@/lib/analytics";
 import { 
   MapPin, 
   Bed, 
@@ -55,6 +57,19 @@ const PropertyDetailPage = () => {
   const currentIndex = allListings.findIndex((l) => l.id === property.id);
   const prevProperty = currentIndex > 0 ? allListings[currentIndex - 1] : null;
   const nextProperty = currentIndex < allListings.length - 1 ? allListings[currentIndex + 1] : null;
+
+  // Track property view
+  useEffect(() => {
+    if (property) {
+      trackPropertyView({
+        id: property.id,
+        address: property.address,
+        price: property.price,
+        type: property.propertyType,
+        city: property.city,
+      });
+    }
+  }, [property]);
 
   const similarListings = allListings
     .filter((l) => l.id !== property.id && l.city === property.city)
@@ -284,15 +299,15 @@ const PropertyDetailPage = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Button variant="outline" size="sm" onClick={() => { trackCTAClick("share", "property_detail"); handleShare(); }}>
                     <Share2 className="h-4 w-4 mr-2" />
                     Share
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => trackCTAClick("save_property", "property_detail")}>
                     <Heart className="h-4 w-4 mr-2" />
                     Save
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handlePrint}>
+                  <Button variant="outline" size="sm" onClick={() => { trackCTAClick("print", "property_detail"); handlePrint(); }}>
                     <Printer className="h-4 w-4 mr-2" />
                     Print
                   </Button>
@@ -339,11 +354,11 @@ const PropertyDetailPage = () => {
                 </div>
               </div>
 
-              {/* Right Column - Contact Form & Calculator */}
               <div className="lg:col-span-1 space-y-8">
                 <PropertyContactForm 
                   propertyTitle={property.title} 
-                  propertyAddress={fullAddress} 
+                  propertyAddress={fullAddress}
+                  propertyId={property.id}
                 />
                 
                 {property.priceType === "sale" && (

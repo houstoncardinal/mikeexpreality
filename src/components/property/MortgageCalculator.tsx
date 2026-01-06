@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Calculator, DollarSign, Percent, Calendar } from "lucide-react";
+import { trackMortgageCalculator } from "@/lib/analytics";
 
 interface MortgageCalculatorProps {
   propertyPrice: number;
@@ -14,6 +15,15 @@ export const MortgageCalculator = ({ propertyPrice }: MortgageCalculatorProps) =
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [interestRate, setInterestRate] = useState(6.5);
   const [loanTerm, setLoanTerm] = useState(30);
+  const hasTracked = useRef(false);
+
+  // Track calculator usage on first interaction
+  useEffect(() => {
+    if (!hasTracked.current && homePrice !== propertyPrice) {
+      trackMortgageCalculator(homePrice, downPaymentPercent, loanTerm);
+      hasTracked.current = true;
+    }
+  }, [homePrice, downPaymentPercent, loanTerm, propertyPrice]);
 
   const downPayment = useMemo(() => (homePrice * downPaymentPercent) / 100, [homePrice, downPaymentPercent]);
   const loanAmount = useMemo(() => homePrice - downPayment, [homePrice, downPayment]);
