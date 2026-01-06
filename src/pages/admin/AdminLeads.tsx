@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Download, Search, Mail, Phone, Home, MessageSquare } from "lucide-react";
+import { Download, Search, Mail, Phone, Home, Eye } from "lucide-react";
+import { LeadDetailModal } from "@/components/admin/LeadDetailModal";
 
 interface Lead {
   id: string;
@@ -284,8 +285,10 @@ const AdminLeads = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelectedLead(lead)}
+                            className="gap-2"
                           >
-                            <MessageSquare className="h-4 w-4" />
+                            <Eye className="h-4 w-4" />
+                            View
                           </Button>
                         </td>
                       </tr>
@@ -298,68 +301,14 @@ const AdminLeads = () => {
 
           {/* Lead Detail Modal */}
           {selectedLead && (
-            <div
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() => setSelectedLead(null)}
-            >
-              <Card
-                className="w-full max-w-lg p-6"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h2 className="font-serif text-xl font-bold text-foreground mb-4">
-                  Lead Details
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Name</p>
-                    <p className="font-medium text-foreground">{selectedLead.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium text-foreground">{selectedLead.email}</p>
-                  </div>
-                  {selectedLead.phone && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Phone</p>
-                      <p className="font-medium text-foreground">{selectedLead.phone}</p>
-                    </div>
-                  )}
-                  {selectedLead.message && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Message</p>
-                      <p className="text-foreground">{selectedLead.message}</p>
-                    </div>
-                  )}
-                  {selectedLead.property_address && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Property</p>
-                      <p className="text-foreground">{selectedLead.property_address}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm text-muted-foreground">Submitted</p>
-                    <p className="text-foreground">
-                      {format(new Date(selectedLead.created_at), "MMMM d, yyyy 'at' h:mm a")}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-6 flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setSelectedLead(null)}
-                  >
-                    Close
-                  </Button>
-                  <a href={`mailto:${selectedLead.email}`} className="flex-1">
-                    <Button variant="royal" className="w-full">
-                      <Mail className="h-4 w-4 mr-2" />
-                      Send Email
-                    </Button>
-                  </a>
-                </div>
-              </Card>
-            </div>
+            <LeadDetailModal
+              lead={selectedLead}
+              onClose={() => setSelectedLead(null)}
+              onUpdate={(updatedLead) => {
+                setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
+                setSelectedLead(updatedLead);
+              }}
+            />
           )}
         </div>
       </AdminLayout>
