@@ -289,7 +289,7 @@
 
   /* Property card specific */
   .property-card {
-    @apply group relative overflow-hidden rounded-xl bg-card;
+    @apply relative overflow-hidden rounded-xl bg-card;
     box-shadow: var(--shadow-md);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
