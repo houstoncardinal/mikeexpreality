@@ -49,7 +49,7 @@ const About = () => {
 
       <Layout>
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 bg-primary">
+        <section className="relative pt-40 pb-20 bg-primary">
           <div className="container-custom">
             <div className="max-w-3xl">
               <p className="text-accent font-medium tracking-wider uppercase mb-4">

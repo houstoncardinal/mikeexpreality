@@ -70,7 +70,7 @@ const BlogPostPage = () => {
   if (loading) {
     return (
       <Layout>
-        <section className="pt-32 pb-16 bg-background">
+        <section className="pt-40 pb-16 bg-background">
           <div className="container-custom max-w-4xl">
             <Skeleton className="h-8 w-48 mb-4" />
             <Skeleton className="h-12 w-full mb-4" />
@@ -90,7 +90,7 @@ const BlogPostPage = () => {
   if (error || !post) {
     return (
       <Layout>
-        <section className="pt-32 pb-16 min-h-screen bg-background">
+        <section className="pt-40 pb-16 min-h-screen bg-background">
           <div className="container-custom text-center">
             <h1 className="font-serif text-4xl font-bold text-foreground mb-4">
               {error || "Article Not Found"}
@@ -125,7 +125,7 @@ const BlogPostPage = () => {
       </Helmet>
 
       <Layout>
-        <article className="pt-32 pb-16 bg-background">
+        <article className="pt-40 pb-16 bg-background">
           <div className="container-custom max-w-4xl">
             {/* Back Link */}
             <Link

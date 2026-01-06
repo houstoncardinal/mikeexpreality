@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  Menu, 
-  X, 
-  Phone, 
-  ChevronDown, 
-  Home, 
-  Building2, 
-  MapPin, 
-  Users, 
-  FileText, 
-  BookOpen, 
+import {
+  Menu,
+  X,
+  Phone,
+  ChevronDown,
+  Home,
+  Building2,
+  MapPin,
+  Users,
+  FileText,
+  BookOpen,
   Mail,
   TrendingUp,
   DollarSign,
@@ -23,7 +23,10 @@ import {
   Clock,
   Award,
   BadgeCheck,
-  Heart
+  Heart,
+  Facebook,
+  Instagram,
+  Linkedin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig, neighborhoods } from "@/lib/siteConfig";
@@ -165,54 +168,92 @@ export function Header() {
   const isHomePage = location.pathname === "/";
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled || !isHomePage
-          ? "bg-background/98 backdrop-blur-xl shadow-lg border-b border-border/50"
-          : "bg-transparent"
-      )}
-    >
-      <div className="container-custom">
+    <>
+      {/* Top Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white border-b border-slate-800">
+        <div className="container-custom">
+          <div className="flex items-center justify-between h-10 text-xs">
+            {/* Left: Contact Info */}
+            <div className="hidden md:flex items-center gap-6">
+              <a
+                href={`tel:${siteConfig.phoneRaw}`}
+                className="flex items-center gap-2 hover:text-accent transition-colors"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                <span>{siteConfig.phone}</span>
+              </a>
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="flex items-center gap-2 hover:text-accent transition-colors"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                <span>{siteConfig.email}</span>
+              </a>
+              <div className="flex items-center gap-2 text-slate-300">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Mon-Fri: {siteConfig.hours.weekdays}</span>
+              </div>
+            </div>
+
+            {/* Right: Social Links & Trust Badge */}
+            <div className="flex items-center gap-4 ml-auto">
+              <div className="hidden lg:flex items-center gap-2 text-slate-300">
+                <Crown className="h-3.5 w-3.5 text-accent" />
+                <span className="text-xs font-medium">Top 1% Houston Realtor</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href={siteConfig.social.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href={siteConfig.social.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a
+                  href={siteConfig.social.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent transition-colors"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header */}
+      <header className="fixed top-10 left-0 right-0 z-50 bg-white shadow-md border-b border-gray-200">
+        <div className="container-custom">
         <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className={cn(
-                "absolute -inset-2 rounded-xl blur-xl transition-opacity duration-500",
-                isScrolled || !isHomePage 
-                  ? "bg-accent/20 opacity-0 group-hover:opacity-100" 
-                  : "bg-primary-foreground/10 opacity-0 group-hover:opacity-100"
-              )} />
-              <div className={cn(
-                "relative w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-300",
-                isScrolled || !isHomePage
-                  ? "bg-gradient-to-br from-accent to-accent/80 border-accent/30"
-                  : "bg-primary-foreground/10 border-primary-foreground/20 backdrop-blur-sm"
-              )}>
-                <span className={cn(
-                  "font-serif text-xl font-bold",
-                  isScrolled || !isHomePage ? "text-accent-foreground" : "text-primary-foreground"
-                )}>
+              <div className="absolute -inset-2 rounded-xl bg-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent/80 border border-accent/30 flex items-center justify-center transition-all duration-300">
+                <span className="font-serif text-xl font-bold text-accent-foreground">
                   M
                 </span>
               </div>
             </div>
             <div className="flex flex-col">
-              <span
-                className={cn(
-                  "font-serif text-lg md:text-xl font-bold tracking-tight transition-colors",
-                  isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"
-                )}
-              >
+              <span className="font-serif text-lg md:text-xl font-bold tracking-tight text-slate-900">
                 {siteConfig.agent.name}
               </span>
-              <span
-                className={cn(
-                  "text-[10px] md:text-xs tracking-[0.2em] uppercase transition-colors",
-                  isScrolled || !isHomePage ? "text-muted-foreground" : "text-primary-foreground/70"
-                )}
-              >
+              <span className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-slate-600">
                 {siteConfig.brokerage}
               </span>
             </div>
@@ -230,14 +271,10 @@ export function Header() {
                 {item.children ? (
                   <button
                     className={cn(
-                      "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300",
-                      openDropdown === item.name 
-                        ? isScrolled || !isHomePage
-                          ? "text-accent bg-accent/10"
-                          : "text-primary-foreground bg-primary-foreground/10"
-                        : isScrolled || !isHomePage
-                          ? "text-foreground hover:text-accent hover:bg-secondary/50"
-                          : "text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                      "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
+                      openDropdown === item.name
+                        ? "text-accent bg-accent/10"
+                        : "text-slate-700 hover:text-accent hover:bg-gray-50"
                     )}
                   >
                     {item.name}
@@ -250,12 +287,10 @@ export function Header() {
                   <Link
                     to={item.href}
                     className={cn(
-                      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300",
+                      "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
                       location.pathname === item.href
                         ? "text-accent bg-accent/10"
-                        : isScrolled || !isHomePage
-                          ? "text-foreground hover:text-accent hover:bg-secondary/50"
-                          : "text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                        : "text-slate-700 hover:text-accent hover:bg-gray-50"
                     )}
                   >
                     {item.name}
@@ -280,11 +315,11 @@ export function Header() {
                       onMouseLeave={handleMouseLeave}
                     >
                       <div className={cn(
-                        "bg-card/98 backdrop-blur-2xl rounded-2xl shadow-2xl border border-border/50 overflow-hidden",
+                        "bg-white backdrop-blur-3xl rounded-2xl shadow-2xl border border-border/30 overflow-hidden",
                         item.name === "Neighborhoods" ? "w-[800px]" : "w-[380px]"
                       )}>
                         {/* Header Banner */}
-                        <div className="bg-gradient-to-r from-accent/10 via-accent/5 to-transparent px-6 py-4 border-b border-border/50">
+                        <div className="bg-white px-6 py-4 border-b border-gray-200/80">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               {item.icon && <item.icon className="h-5 w-5 text-accent" />}
@@ -311,7 +346,7 @@ export function Header() {
                         </div>
 
                         {/* Menu Content */}
-                        <div className="p-4">
+                        <div className="p-4 bg-white">
                           {item.name === "Neighborhoods" ? (
                             <div className="grid grid-cols-4 gap-2">
                               {item.children.map((child, idx) => (
@@ -378,7 +413,7 @@ export function Header() {
                         </div>
 
                         {/* Footer with trust badges */}
-                        <div className="bg-secondary/30 px-6 py-3 border-t border-border/50">
+                        <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-200/80">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               {trustBadges.slice(0, 2).map((badge, idx) => (
@@ -409,29 +444,16 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-3">
             <a
               href={`tel:${siteConfig.phoneRaw}`}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300",
-                isScrolled || !isHomePage 
-                  ? "text-foreground hover:bg-secondary/50" 
-                  : "text-primary-foreground hover:bg-primary-foreground/10"
-              )}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
             >
-              <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center",
-                isScrolled || !isHomePage 
-                  ? "bg-accent/10" 
-                  : "bg-primary-foreground/10"
-              )}>
-                <Phone className={cn(
-                  "h-4 w-4",
-                  isScrolled || !isHomePage ? "text-accent" : "text-primary-foreground"
-                )} />
+              <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                <Phone className="h-4 w-4 text-accent" />
               </div>
               <span className="hidden xl:block">{siteConfig.phone}</span>
             </a>
             <Link to="/contact">
-              <Button 
-                variant={isScrolled || !isHomePage ? "royal" : "premium"} 
+              <Button
+                variant="royal"
                 size="lg"
                 className="gap-2 shadow-lg hover:shadow-xl transition-shadow"
               >
@@ -443,26 +465,13 @@ export function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className={cn(
-              "lg:hidden p-2 rounded-lg transition-colors",
-              isScrolled || !isHomePage ? "hover:bg-secondary" : "hover:bg-primary-foreground/10"
-            )}
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (
-              <X
-                className={cn(
-                  "h-6 w-6",
-                  isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"
-                )}
-              />
+              <X className="h-6 w-6 text-slate-700" />
             ) : (
-              <Menu
-                className={cn(
-                  "h-6 w-6",
-                  isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"
-                )}
-              />
+              <Menu className="h-6 w-6 text-slate-700" />
             )}
           </button>
         </div>
@@ -475,7 +484,7 @@ export function Header() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden overflow-hidden bg-card rounded-b-2xl border-t border-border/50"
+              className="lg:hidden overflow-hidden bg-white rounded-b-2xl border-t border-gray-200"
             >
               <div className="p-4 max-h-[70vh] overflow-y-auto">
                 {/* Trust badges mobile */}
@@ -599,7 +608,8 @@ export function Header() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </header>
+        </div>
+      </header>
+    </>
   );
 }

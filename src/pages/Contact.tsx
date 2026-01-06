@@ -79,7 +79,7 @@ const Contact = () => {
 
       <Layout>
         {/* Hero */}
-        <section className="pt-32 pb-20 bg-primary">
+        <section className="pt-40 pb-20 bg-primary">
           <div className="container-custom">
             <div className="max-w-3xl">
               <p className="text-accent font-medium tracking-wider uppercase mb-4">

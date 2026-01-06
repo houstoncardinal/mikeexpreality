@@ -119,7 +119,7 @@ const Listings = () => {
 
       <Layout>
         {/* Hero Section */}
-        <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
+        <section className="relative pt-36 pb-16 md:pt-40 md:pb-24 overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0 bg-gradient-navy" />
           <div className="absolute inset-0 noise-overlay opacity-30" />

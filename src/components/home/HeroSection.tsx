@@ -105,7 +105,7 @@ export function HeroSection() {
       </div>
 
       {/* Main Content */}
-      <div className="container-custom relative z-10 pt-28 pb-40">
+      <div className="container-custom relative z-10 pt-36 pb-40">
         <div className="max-w-5xl">
           {/* Prestige Badge */}
           <motion.div 

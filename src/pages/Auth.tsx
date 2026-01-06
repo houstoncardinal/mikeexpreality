@@ -96,7 +96,7 @@ const Auth = () => {
       </Helmet>
 
       <Layout>
-        <section className="pt-32 pb-16 min-h-screen bg-gradient-to-b from-secondary to-background">
+        <section className="pt-40 pb-16 min-h-screen bg-gradient-to-b from-secondary to-background">
           <div className="container-custom">
             <div className="max-w-md mx-auto">
               <Card className="p-8 shadow-luxury">
