@@ -5,7 +5,8 @@ import {
   PropertyGallery, 
   PropertyDetails, 
   VirtualTour, 
-  PropertyContactForm 
+  PropertyContactForm,
+  MortgageCalculator
 } from "@/components/property";
 import { getListingById, formatPrice, allListings } from "@/lib/listingsData";
 import { siteConfig } from "@/lib/siteConfig";
@@ -338,12 +339,16 @@ const PropertyDetailPage = () => {
                 </div>
               </div>
 
-              {/* Right Column - Contact Form */}
-              <div className="lg:col-span-1">
+              {/* Right Column - Contact Form & Calculator */}
+              <div className="lg:col-span-1 space-y-8">
                 <PropertyContactForm 
                   propertyTitle={property.title} 
                   propertyAddress={fullAddress} 
                 />
+                
+                {property.priceType === "sale" && (
+                  <MortgageCalculator propertyPrice={property.price} />
+                )}
               </div>
             </div>
           </div>
