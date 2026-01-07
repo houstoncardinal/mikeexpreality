@@ -282,7 +282,8 @@ export function Header() {
               <img 
                 src="/logo-primary.jpeg" 
                 alt="M.O.R.E. - Mike Ogunkeye Real Estate"
-                className="relative h-16 md:h-20 w-auto object-contain transition-all duration-300"
+                className="relative h-16 md:h-20 w-auto object-contain transition-all duration-300 rounded-lg"
+                style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
               />
             </div>
           </Link>
