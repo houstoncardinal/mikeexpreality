@@ -1,13 +1,12 @@
 import { Helmet } from "react-helmet-async";
-import { Layout } from "@/components/layout";
 import {
-  HeroSection,
   FeaturedListings,
   NeighborhoodSection,
   TestimonialsSection,
   ServicesSection,
   CTASection,
 } from "@/components/home";
+import { Hero3DSection } from "@/components/ui/3d-hero-section-boxes";
 import { siteConfig, testimonials } from "@/lib/siteConfig";
 
 const Index = () => {
@@ -38,14 +37,12 @@ const Index = () => {
         <meta name="twitter:description" content={siteConfig.tagline} />
       </Helmet>
 
-      <Layout>
-        <HeroSection />
-        <FeaturedListings />
-        <NeighborhoodSection />
-        <ServicesSection />
-        <TestimonialsSection />
-        <CTASection />
-      </Layout>
+      <Hero3DSection showSpline={true} />
+      <FeaturedListings />
+      <NeighborhoodSection />
+      <ServicesSection />
+      <TestimonialsSection />
+      <CTASection />
 
       {/* Advanced Schema Markup */}
       
