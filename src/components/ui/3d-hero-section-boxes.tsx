@@ -1,20 +1,36 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
-import Spline from '@splinetool/react-spline';
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight, Play, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './button';
 
+// Lazy load Spline to avoid build issues
+const Spline = lazy(() => import('@splinetool/react-spline'));
+
 function HeroSplineBackground() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <div className="absolute inset-0 z-0">
       <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background z-10" />
-      <Spline
-        scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
-        className="w-full h-full"
-      />
+      {isClient && (
+        <Suspense fallback={
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        }>
+          <Spline
+            scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
+            className="w-full h-full"
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
