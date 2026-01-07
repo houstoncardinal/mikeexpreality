@@ -8,12 +8,17 @@ import { Button } from './button';
 
 // Property images for the rotating hero background
 const heroPropertyImages = [
-  "/imgi_7_3e061cc4-19fe-4964-9802-0ef4ec5783d2.jpeg",
-  "/imgi_8_850ed524-fbef-4776-b1d2-b1b958fbde94.jpeg",
-  "/imgi_120_5790e188-0ef9-47ea-9126-068fbac0eb7c.webp",
-  "/imgi_125_20190322153144208228000000-o.jpg",
-  "/imgi_39_3e061cc4-19fe-4964-9802-0ef4ec5783d2.webp",
-  "/imgi_38_a8a39dab-73b2-45e6-9158-d7c58ec33a4d.webp",
+  "/imgi_10_7120993268281597033.jpg",
+  "/imgi_12_-7189515740131590123.jpg",
+  "/imgi_13_-3252337621568236283.jpg",
+  "/imgi_14_1887428145382298790.jpg",
+  "/imgi_16_-8442027838136868696.jpg",
+  "/imgi_17_-5243027874929875930.jpg",
+  "/imgi_18_8564039198595028051.jpg",
+  "/imgi_19_-1281652502502408257.jpg",
+  "/imgi_20_6008241602089556706.jpg",
+  "/imgi_21_-4979929816751632401.jpg",
+  "/imgi_22_-3680443779631392670.jpg",
 ];
 
 function HeroImageBackground() {
