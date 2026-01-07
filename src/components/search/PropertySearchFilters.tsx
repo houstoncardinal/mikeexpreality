@@ -1,10 +1,32 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Search, MapPin, Home, DollarSign, Bed, Bath, SlidersHorizontal, X } from "lucide-react";
+import { 
+  Search, 
+  MapPin, 
+  Home, 
+  DollarSign, 
+  Bed, 
+  Bath, 
+  SlidersHorizontal, 
+  X,
+  Building2,
+  TreeDeciduous,
+  Users,
+  Warehouse,
+  Sparkles,
+  TrendingUp,
+  Crown,
+  Palmtree,
+  Mountain,
+  Waves,
+  Factory,
+  Castle
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cities, propertyTypes, priceRanges, bedOptions, bathOptions } from "@/lib/listingsData";
 import { cn } from "@/lib/utils";
+import { LuxurySelect, LuxurySelectOption } from "./LuxurySelect";
 
 interface PropertySearchFiltersProps {
   variant?: "hero" | "sticky" | "inline";
@@ -30,6 +52,56 @@ const defaultFilters: SearchFilters = {
   minBeds: 0,
   minBaths: 0,
 };
+
+// City options with icons and descriptions
+const cityOptions: LuxurySelectOption[] = [
+  { value: "", label: "All Cities", icon: <MapPin className="h-4 w-4" />, description: "Browse all available locations" },
+  { value: "Houston", label: "Houston", icon: <Building2 className="h-4 w-4" />, description: "Downtown & Metro Area", badge: "Popular" },
+  { value: "Sugar Land", label: "Sugar Land", icon: <Palmtree className="h-4 w-4" />, description: "Master-Planned Communities" },
+  { value: "Katy", label: "Katy", icon: <Crown className="h-4 w-4" />, description: "Top-Rated School Districts", badge: "Hot" },
+  { value: "Cypress", label: "Cypress", icon: <TreeDeciduous className="h-4 w-4" />, description: "Nature & Modern Living" },
+  { value: "Richmond", label: "Richmond", icon: <Castle className="h-4 w-4" />, description: "Historic Charm & Elegance" },
+  { value: "Missouri City", label: "Missouri City", icon: <TrendingUp className="h-4 w-4" />, description: "Growing Family Community" },
+  { value: "Pearland", label: "Pearland", icon: <Sparkles className="h-4 w-4" />, description: "Vibrant & Dynamic" },
+  { value: "Rosenberg", label: "Rosenberg", icon: <Mountain className="h-4 w-4" />, description: "Affordable Luxury" },
+  { value: "Rosharon", label: "Rosharon", icon: <Waves className="h-4 w-4" />, description: "Peaceful Countryside" },
+  { value: "Beaumont", label: "Beaumont", icon: <Factory className="h-4 w-4" />, description: "Industrial Heritage" },
+];
+
+// Property type options with icons and descriptions
+const propertyTypeOptions: LuxurySelectOption[] = [
+  { value: "", label: "All Types", icon: <Home className="h-4 w-4" />, description: "Browse all property types" },
+  { value: "Single Family Home", label: "Single Family", icon: <Home className="h-4 w-4" />, description: "Detached homes with private yards", badge: "Popular" },
+  { value: "Townhouse", label: "Townhouse", icon: <Building2 className="h-4 w-4" />, description: "Multi-level attached living" },
+  { value: "Condo", label: "Condominium", icon: <Warehouse className="h-4 w-4" />, description: "Low-maintenance luxury living" },
+  { value: "Land", label: "Land", icon: <TreeDeciduous className="h-4 w-4" />, description: "Build your dream home" },
+  { value: "Multi-Family", label: "Multi-Family", icon: <Users className="h-4 w-4" />, description: "Investment properties" },
+];
+
+// Price range options with icons
+const priceRangeOptions: LuxurySelectOption[] = priceRanges.map((range, index) => ({
+  value: range.label,
+  label: range.label,
+  icon: <DollarSign className="h-4 w-4" />,
+  description: index === 0 ? "No price limit" : index === priceRanges.length - 1 ? "Luxury estates" : "Great selection available",
+  badge: index === 2 || index === 3 ? "Most Popular" : undefined,
+}));
+
+// Bedroom options with visual indicators
+const bedroomOptions: LuxurySelectOption[] = bedOptions.map((opt) => ({
+  value: String(opt.value),
+  label: opt.value === 0 ? "Any Bedrooms" : `${opt.label} Bedrooms`,
+  icon: <Bed className="h-4 w-4" />,
+  description: opt.value === 0 ? "No minimum" : opt.value >= 4 ? "Spacious family homes" : "Comfortable living space",
+}));
+
+// Bathroom options with visual indicators
+const bathroomOptions: LuxurySelectOption[] = bathOptions.map((opt) => ({
+  value: String(opt.value),
+  label: opt.value === 0 ? "Any Bathrooms" : `${opt.label} Bathrooms`,
+  icon: <Bath className="h-4 w-4" />,
+  description: opt.value === 0 ? "No minimum" : opt.value >= 3 ? "Luxury amenities" : "Essential comfort",
+}));
 
 export function PropertySearchFilters({
   variant = "inline",
@@ -103,8 +175,8 @@ export function PropertySearchFilters({
             <Input
               placeholder="Search address, neighborhood, or keyword..."
               className={cn(
-                "pl-10 h-12 border-0 transition-all",
-                isHero ? "bg-secondary focus:bg-background" : "bg-secondary"
+                "pl-10 h-12 border border-border/50 hover:border-accent/30 transition-all duration-300",
+                isHero ? "bg-secondary/80 focus:bg-background" : "bg-secondary/80"
               )}
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
@@ -112,35 +184,23 @@ export function PropertySearchFilters({
             />
           </div>
 
-          {/* City */}
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
-            <select
-              className="w-full h-12 pl-10 pr-4 rounded-md bg-secondary text-foreground border-0 focus:ring-2 focus:ring-ring appearance-none cursor-pointer"
-              value={filters.city}
-              onChange={(e) => updateFilter("city", e.target.value)}
-            >
-              <option value="">All Cities</option>
-              {cities.map((city) => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
-          </div>
+          {/* City - Luxury Select */}
+          <LuxurySelect
+            options={cityOptions}
+            value={filters.city}
+            onChange={(value) => updateFilter("city", value)}
+            placeholder="All Cities"
+            icon={<MapPin className="h-5 w-5" />}
+          />
 
-          {/* Property Type */}
-          <div className="relative">
-            <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
-            <select
-              className="w-full h-12 pl-10 pr-4 rounded-md bg-secondary text-foreground border-0 focus:ring-2 focus:ring-ring appearance-none cursor-pointer"
-              value={filters.propertyType}
-              onChange={(e) => updateFilter("propertyType", e.target.value)}
-            >
-              <option value="">All Types</option>
-              {propertyTypes.map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
+          {/* Property Type - Luxury Select */}
+          <LuxurySelect
+            options={propertyTypeOptions}
+            value={filters.propertyType}
+            onChange={(value) => updateFilter("propertyType", value)}
+            placeholder="All Types"
+            icon={<Home className="h-5 w-5" />}
+          />
 
           {/* Search Button */}
           <Button 
@@ -178,53 +238,34 @@ export function PropertySearchFilters({
         {/* Advanced Filters */}
         {isAdvancedOpen && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-border animate-slide-down">
-            {/* Price Range */}
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
-              <select
-                className="w-full h-12 pl-10 pr-4 rounded-md bg-secondary text-foreground border-0 focus:ring-2 focus:ring-ring appearance-none cursor-pointer"
-                value={filters.priceRange}
-                onChange={(e) => updateFilter("priceRange", e.target.value)}
-              >
-                {priceRanges.map((range) => (
-                  <option key={range.label} value={range.label}>{range.label}</option>
-                ))}
-              </select>
-            </div>
+            {/* Price Range - Luxury Select */}
+            <LuxurySelect
+              options={priceRangeOptions}
+              value={filters.priceRange}
+              onChange={(value) => updateFilter("priceRange", value)}
+              placeholder="Any Price"
+              icon={<DollarSign className="h-5 w-5" />}
+            />
 
-            {/* Bedrooms */}
-            <div className="relative">
-              <Bed className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
-              <select
-                className="w-full h-12 pl-10 pr-4 rounded-md bg-secondary text-foreground border-0 focus:ring-2 focus:ring-ring appearance-none cursor-pointer"
-                value={filters.minBeds}
-                onChange={(e) => updateFilter("minBeds", parseInt(e.target.value))}
-              >
-                {bedOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.value === 0 ? "Beds" : `${opt.label} Beds`}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Bedrooms - Luxury Select */}
+            <LuxurySelect
+              options={bedroomOptions}
+              value={String(filters.minBeds)}
+              onChange={(value) => updateFilter("minBeds", parseInt(value))}
+              placeholder="Beds"
+              icon={<Bed className="h-5 w-5" />}
+            />
 
-            {/* Bathrooms */}
-            <div className="relative">
-              <Bath className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
-              <select
-                className="w-full h-12 pl-10 pr-4 rounded-md bg-secondary text-foreground border-0 focus:ring-2 focus:ring-ring appearance-none cursor-pointer"
-                value={filters.minBaths}
-                onChange={(e) => updateFilter("minBaths", parseInt(e.target.value))}
-              >
-                {bathOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.value === 0 ? "Baths" : `${opt.label} Baths`}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Bathrooms - Luxury Select */}
+            <LuxurySelect
+              options={bathroomOptions}
+              value={String(filters.minBaths)}
+              onChange={(value) => updateFilter("minBaths", parseInt(value))}
+              placeholder="Baths"
+              icon={<Bath className="h-5 w-5" />}
+            />
 
-            {/* Status filter placeholder for future */}
+            {/* Apply Button */}
             <div className="flex items-center gap-2">
               <Button 
                 variant="outline" 
