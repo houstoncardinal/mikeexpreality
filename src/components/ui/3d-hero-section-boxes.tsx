@@ -49,18 +49,14 @@ function HeroImageBackground() {
 
   return (
     <div className="absolute inset-0 z-0">
-      {/* Luxury overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background z-10" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60 z-10" />
-      
-      {/* Image slideshow */}
+      {/* Image slideshow - full visibility */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, scale: 1.1 }}
+          initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+          exit={{ opacity: 0, scale: 1.02 }}
+          transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0"
         >
           <img
@@ -71,19 +67,25 @@ function HeroImageBackground() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Subtle vignette effect */}
-      <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+      {/* Minimal overlay - just enough for text readability */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
+      
+      {/* Subtle vignette for cinematic feel */}
+      <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.25)_100%)]" />
+      
+      {/* Bottom gradient for content area */}
+      <div className="absolute inset-x-0 bottom-0 h-48 z-10 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
       
       {/* Image indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
         {heroPropertyImages.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`h-1.5 rounded-full transition-all duration-500 ${
               index === currentIndex 
-                ? 'bg-primary w-8' 
-                : 'bg-white/50 hover:bg-white/70'
+                ? 'bg-white w-10 shadow-lg shadow-white/30' 
+                : 'bg-white/40 w-1.5 hover:bg-white/60'
             }`}
             aria-label={`View property ${index + 1}`}
           />
