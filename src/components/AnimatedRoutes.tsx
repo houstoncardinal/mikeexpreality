@@ -17,6 +17,7 @@ import SellerResources from "@/pages/SellerResources";
 import HomeValuation from "@/pages/HomeValuation";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
+import Hero3DDemo from "@/pages/Hero3DDemo";
 import {
   AdminDashboard,
   AdminLeads,
@@ -133,6 +134,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <Auth />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/3d-demo"
+          element={
+            <PageTransition>
+              <Hero3DDemo />
             </PageTransition>
           }
         />
