@@ -15,9 +15,10 @@ export function HeroSection() {
   const [priceRange, setPriceRange] = useState("");
   const { scrollY } = useScroll();
   
-  const backgroundY = useTransform(scrollY, [0, 1000], [0, 300]);
-  const contentOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const contentY = useTransform(scrollY, [0, 400], [0, -50]);
+  const backgroundY = useTransform(scrollY, [0, 1200], [0, 250]);
+  const contentOpacity = useTransform(scrollY, [0, 600, 900], [1, 0.85, 0]);
+  const contentY = useTransform(scrollY, [0, 800], [0, -80]);
+  const contentScale = useTransform(scrollY, [0, 700], [1, 0.95]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -153,7 +154,7 @@ export function HeroSection() {
       {/* Main Content with Parallax */}
       <motion.div 
         className="container-custom relative z-10 pt-32 pb-44"
-        style={{ opacity: contentOpacity, y: contentY }}
+        style={{ opacity: contentOpacity, y: contentY, scale: contentScale }}
       >
         <div className="max-w-5xl">
           {/* Ultra Premium Badge */}

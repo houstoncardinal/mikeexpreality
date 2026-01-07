@@ -61,7 +61,7 @@ const App = () => {
                   <Toaster />
                   <Sonner />
                   <GuidedTour />
-                  <LanguageSwitcher variant="floating" />
+                  
                   <ContactFlyout />
                   <AnalyticsTracker>
                     <Layout>
