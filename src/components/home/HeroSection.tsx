@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { Search, MapPin, Home, DollarSign, ArrowRight, Crown, Star, Award, Shield, Users, Sparkles, Gem, TrendingUp } from "lucide-react";
+import { Search, MapPin, Home, DollarSign, ArrowRight, Crown, Award, Shield, Users, Sparkles, Gem, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/siteConfig";
 import heroImage from "@/assets/hero-home.jpg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { SearchAutocomplete } from "@/components/search";
 
 export function HeroSection() {
@@ -15,10 +15,20 @@ export function HeroSection() {
   const [priceRange, setPriceRange] = useState("");
   const { scrollY } = useScroll();
   
-  const backgroundY = useTransform(scrollY, [0, 1200], [0, 250]);
-  const contentOpacity = useTransform(scrollY, [0, 600, 900], [1, 0.85, 0]);
-  const contentY = useTransform(scrollY, [0, 800], [0, -80]);
-  const contentScale = useTransform(scrollY, [0, 700], [1, 0.95]);
+  // Ultra-smooth spring config for buttery animations
+  const springConfig = { stiffness: 50, damping: 30, mass: 1 };
+  
+  // Raw transforms
+  const backgroundYRaw = useTransform(scrollY, [0, 1500], [0, 200]);
+  const contentOpacityRaw = useTransform(scrollY, [0, 400, 800], [1, 0.9, 0]);
+  const contentYRaw = useTransform(scrollY, [0, 1000], [0, -60]);
+  const contentScaleRaw = useTransform(scrollY, [0, 1000], [1, 0.97]);
+  
+  // Apply springs for ultra-smooth movement
+  const backgroundY = useSpring(backgroundYRaw, springConfig);
+  const contentOpacity = useSpring(contentOpacityRaw, { stiffness: 80, damping: 40 });
+  const contentY = useSpring(contentYRaw, springConfig);
+  const contentScale = useSpring(contentScaleRaw, springConfig);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -33,17 +43,17 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-navy-dark">
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-navy-dark will-change-transform">
       {/* Ultra Premium Background with Parallax */}
       <motion.div 
-        className="absolute inset-0 z-0"
-        style={{ y: backgroundY }}
+        className="absolute inset-0 z-0 will-change-transform"
+        style={{ y: backgroundY, willChange: "transform" }}
       >
         <motion.div 
-          className="w-full h-[120%]"
-          initial={{ scale: 1.15 }}
+          className="w-full h-[130%]"
+          initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 25, ease: "easeOut" }}
+          transition={{ duration: 20, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <img
             src={heroImage}
@@ -153,8 +163,8 @@ export function HeroSection() {
 
       {/* Main Content with Parallax */}
       <motion.div 
-        className="container-custom relative z-10 pt-32 pb-44"
-        style={{ opacity: contentOpacity, y: contentY, scale: contentScale }}
+        className="container-custom relative z-10 pt-32 pb-44 will-change-transform"
+        style={{ opacity: contentOpacity, y: contentY, scale: contentScale, willChange: "transform, opacity" }}
       >
         <div className="max-w-5xl">
           {/* Ultra Premium Badge */}
@@ -466,7 +476,7 @@ export function HeroSection() {
                 { value: "15+", label: "Years Excellence", icon: Crown, color: "from-amber-500 to-amber-600" },
                 { value: "500+", label: "Properties Sold", icon: Home, color: "from-royal to-royal-dark" },
                 { value: "$100M+", label: "Sales Volume", icon: DollarSign, color: "from-emerald-500 to-emerald-600" },
-                { value: "5.0★", label: "Client Rating", icon: Star, color: "from-cyan-400 to-cyan-500" },
+                { value: "5.0★", label: "Client Rating", icon: Award, color: "from-cyan-400 to-cyan-500" },
               ].map((stat, index) => (
                 <motion.div 
                   key={index} 
