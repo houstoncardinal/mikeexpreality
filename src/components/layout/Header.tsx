@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { siteConfig, neighborhoods } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface NavChild {
   name: string;
@@ -195,7 +196,7 @@ export function Header() {
               </div>
             </div>
 
-            {/* Right: Social Links & Trust Badge */}
+            {/* Right: Social Links, Language & Trust Badge */}
             <div className="flex items-center gap-4 ml-auto">
               <div className="hidden lg:flex items-center gap-2 text-slate-300">
                 <Crown className="h-3.5 w-3.5 text-accent" />
@@ -229,6 +230,8 @@ export function Header() {
                 >
                   <Linkedin className="h-4 w-4" />
                 </a>
+                <div className="h-4 w-px bg-slate-600" />
+                <LanguageSwitcher variant="topbar" />
               </div>
             </div>
           </div>
@@ -442,6 +445,7 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
+            <LanguageSwitcher variant="header" />
             <a
               href={`tel:${siteConfig.phoneRaw}`}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
@@ -585,6 +589,9 @@ export function Header() {
                 </nav>
 
                 <div className="mt-6 pt-4 border-t border-border/50 space-y-3">
+                  {/* Mobile Language Switcher */}
+                  <LanguageSwitcher variant="mobile" />
+                  
                   <a
                     href={`tel:${siteConfig.phoneRaw}`}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/30 text-foreground"
