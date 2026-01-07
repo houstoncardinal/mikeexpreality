@@ -31,7 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { siteConfig, neighborhoods } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface NavChild {
@@ -133,6 +133,7 @@ const trustBadges = [
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
@@ -141,9 +142,12 @@ export function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 20);
+      // Calculate scroll progress for glass effect (0 to 1, maxes at 300px scroll)
+      setScrollProgress(Math.min(scrollY / 300, 1));
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -170,8 +174,14 @@ export function Header() {
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white border-b border-slate-800">
+      {/* Top Bar - fades out on scroll */}
+      <motion.div 
+        className="fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white border-b border-slate-800"
+        style={{
+          opacity: 1 - scrollProgress * 0.5,
+          y: -scrollProgress * 40,
+        }}
+      >
         <div className="container-custom">
           <div className="flex items-center justify-between h-10 text-xs">
             {/* Left: Contact Info */}
@@ -236,10 +246,25 @@ export function Header() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Main Header */}
-      <header className="fixed top-10 left-0 right-0 z-50 bg-white shadow-md border-b border-gray-200">
+      {/* Main Header with Glass Morphism */}
+      <motion.header 
+        className={cn(
+          "fixed left-0 right-0 z-50 transition-all duration-500 will-change-transform",
+          isScrolled ? "shadow-xl" : ""
+        )}
+        style={{
+          top: `${Math.max(40 - scrollProgress * 40, 0)}px`,
+          backgroundColor: `rgba(255, 255, 255, ${0.85 + scrollProgress * 0.15})`,
+          backdropFilter: `blur(${8 + scrollProgress * 16}px) saturate(${1.2 + scrollProgress * 0.6})`,
+          WebkitBackdropFilter: `blur(${8 + scrollProgress * 16}px) saturate(${1.2 + scrollProgress * 0.6})`,
+          borderBottom: `1px solid rgba(0, 0, 0, ${0.05 + scrollProgress * 0.05})`,
+          boxShadow: scrollProgress > 0.3 
+            ? `0 4px 30px rgba(0, 0, 0, ${scrollProgress * 0.08}), 0 1px 3px rgba(0, 0, 0, ${scrollProgress * 0.05})`
+            : 'none',
+        }}
+      >
         <div className="container-custom">
         <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo */}
@@ -616,7 +641,7 @@ export function Header() {
           )}
         </AnimatePresence>
         </div>
-      </header>
+      </motion.header>
     </>
   );
 }
