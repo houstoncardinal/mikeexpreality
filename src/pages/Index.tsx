@@ -7,6 +7,7 @@ import {
   CTASection,
 } from "@/components/home";
 import { Hero3DSection } from "@/components/ui/3d-hero-section-boxes";
+import CombinedFeaturedSection from "@/components/ui/combined-featured-section";
 import { siteConfig, testimonials } from "@/lib/siteConfig";
 
 const Index = () => {
@@ -39,6 +40,7 @@ const Index = () => {
 
       <Hero3DSection />
       <FeaturedListings />
+      <CombinedFeaturedSection />
       <NeighborhoodSection />
       <ServicesSection />
       <TestimonialsSection />
