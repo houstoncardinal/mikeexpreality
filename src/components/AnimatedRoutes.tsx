@@ -15,6 +15,7 @@ import Contact from "@/pages/Contact";
 import BuyerResources from "@/pages/BuyerResources";
 import SellerResources from "@/pages/SellerResources";
 import HomeValuation from "@/pages/HomeValuation";
+import MortgageCalculatorPage from "@/pages/MortgageCalculator";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import Hero3DDemo from "@/pages/Hero3DDemo";
@@ -142,6 +143,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <Hero3DDemo />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/mortgage-calculator"
+          element={
+            <PageTransition>
+              <MortgageCalculatorPage />
             </PageTransition>
           }
         />

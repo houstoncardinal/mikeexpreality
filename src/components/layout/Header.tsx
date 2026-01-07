@@ -14,6 +14,7 @@ import {
   Mail,
   TrendingUp,
   DollarSign,
+  Calculator,
   Briefcase,
   Star,
   ArrowRight,
@@ -107,6 +108,13 @@ const navigation: NavItem[] = [
         href: "/home-valuation",
         description: "Get a free, accurate estimate of your property",
         icon: DollarSign,
+        featured: true
+      },
+      { 
+        name: "Mortgage Calculator", 
+        href: "/mortgage-calculator",
+        description: "Advanced calculator with rate scenarios & compliance",
+        icon: Calculator,
         featured: true
       },
     ],
