@@ -279,11 +279,11 @@ export function Header() {
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
               <div className="absolute -inset-2 rounded-xl bg-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent/80 border border-accent/30 flex items-center justify-center transition-all duration-300">
-                <span className="font-serif text-xl font-bold text-accent-foreground">
-                  M
-                </span>
-              </div>
+              <img 
+                src="/imgi_35_b517d231-d9f5-4e15-870d-852a977c9204.png" 
+                alt="Mike Ogunkeye Real Estate"
+                className="relative w-12 h-12 object-contain transition-all duration-300"
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-serif text-lg md:text-xl font-bold tracking-tight text-slate-900">

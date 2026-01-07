@@ -37,7 +37,7 @@ const Index = () => {
         <meta name="twitter:description" content={siteConfig.tagline} />
       </Helmet>
 
-      <Hero3DSection showSpline={true} />
+      <Hero3DSection />
       <FeaturedListings />
       <NeighborhoodSection />
       <ServicesSection />

@@ -1,36 +1,89 @@
 "use client";
 
-import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, Play, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './button';
 
-// Lazy load Spline to avoid build issues
-const Spline = lazy(() => import('@splinetool/react-spline'));
+// Property images for the rotating hero background
+const heroPropertyImages = [
+  "/imgi_7_3e061cc4-19fe-4964-9802-0ef4ec5783d2.jpeg",
+  "/imgi_8_850ed524-fbef-4776-b1d2-b1b958fbde94.jpeg",
+  "/imgi_120_5790e188-0ef9-47ea-9126-068fbac0eb7c.webp",
+  "/imgi_125_20190322153144208228000000-o.jpg",
+  "/imgi_39_3e061cc4-19fe-4964-9802-0ef4ec5783d2.webp",
+  "/imgi_38_a8a39dab-73b2-45e6-9158-d7c58ec33a4d.webp",
+];
 
-function HeroSplineBackground() {
-  const [isClient, setIsClient] = useState(false);
+function HeroImageBackground() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    // Preload first image
+    const img = new Image();
+    img.src = heroPropertyImages[0];
+    img.onload = () => setIsLoaded(true);
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % heroPropertyImages.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Preload next image
+  useEffect(() => {
+    const nextIndex = (currentIndex + 1) % heroPropertyImages.length;
+    const img = new Image();
+    img.src = heroPropertyImages[nextIndex];
+  }, [currentIndex]);
 
   return (
     <div className="absolute inset-0 z-0">
-      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background z-10" />
-      {isClient && (
-        <Suspense fallback={
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        }>
-          <Spline
-            scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
-            className="w-full h-full"
+      {/* Luxury overlay gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background z-10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60 z-10" />
+      
+      {/* Image slideshow */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute inset-0"
+        >
+          <img
+            src={heroPropertyImages[currentIndex]}
+            alt="Luxury Property"
+            className="w-full h-full object-cover"
           />
-        </Suspense>
-      )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Subtle vignette effect */}
+      <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+      
+      {/* Image indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        {heroPropertyImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'bg-primary w-8' 
+                : 'bg-white/50 hover:bg-white/70'
+            }`}
+            aria-label={`View property ${index + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -57,7 +110,7 @@ function ScreenshotSection({ screenshotRef }: { screenshotRef: React.RefObject<H
         </div>
         <div className="aspect-video bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 flex items-center justify-center">
           <img 
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=675&fit=crop"
+            src="/imgi_7_3e061cc4-19fe-4964-9802-0ef4ec5783d2.jpeg"
             alt="Luxury Home Preview"
             className="w-full h-full object-cover"
           />
@@ -85,7 +138,7 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium backdrop-blur-sm">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm font-medium backdrop-blur-sm shadow-lg">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             Houston's Premier Real Estate
           </span>
@@ -97,9 +150,9 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold tracking-tight mb-6"
         >
-          <span className="text-foreground">Find Your</span>
+          <span className="text-white drop-shadow-lg">Find Your</span>
           <br />
-          <span className="bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent drop-shadow-lg">
             Dream Home
           </span>
         </motion.h1>
@@ -108,7 +161,7 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="inline-flex items-center gap-3 text-sm md:text-base font-mono text-muted-foreground tracking-wider mb-8"
+          className="inline-flex items-center gap-3 text-sm md:text-base font-mono text-white/80 tracking-wider mb-8"
         >
           LUXURY • RESIDENTIAL • COMMERCIAL • INVESTMENT
         </motion.p>
@@ -117,7 +170,7 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md"
         >
           Experience elevated real estate with personalized service, 
           expert market insights, and a commitment to finding your perfect property.
@@ -129,13 +182,13 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Button asChild size="lg" className="group px-8 h-14 text-base">
+          <Button asChild size="lg" className="group px-8 h-14 text-base shadow-xl">
             <Link to="/contact">
               Schedule Consultation
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="group px-8 h-14 text-base backdrop-blur-sm">
+          <Button asChild variant="outline" size="lg" className="group px-8 h-14 text-base backdrop-blur-md bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">
             <Link to="/listings">
               <Play className="mr-2 h-5 w-5" />
               Browse Listings
@@ -152,7 +205,7 @@ interface Hero3DProps {
   showSpline?: boolean;
 }
 
-const Hero3DSection = ({ showScreenshot = false, showSpline = true }: Hero3DProps) => {
+const Hero3DSection = ({ showScreenshot = false }: Hero3DProps) => {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
 
@@ -181,10 +234,7 @@ const Hero3DSection = ({ showScreenshot = false, showSpline = true }: Hero3DProp
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-background">
-      {showSpline && <HeroSplineBackground />}
-      
-      {/* Fallback gradient if Spline doesn't load */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 -z-10" />
+      <HeroImageBackground />
       
       <HeroContent heroContentRef={heroContentRef} />
       
@@ -193,4 +243,4 @@ const Hero3DSection = ({ showScreenshot = false, showSpline = true }: Hero3DProp
   );
 };
 
-export { Hero3DSection, HeroSplineBackground, HeroContent, ScreenshotSection };
+export { Hero3DSection, HeroImageBackground, HeroContent, ScreenshotSection };

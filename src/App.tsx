@@ -14,7 +14,6 @@ import { preloadCriticalImages } from "@/lib/images";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { GuidedTour } from "@/components/GuidedTour";
 import { ScrollProgress } from "@/components/InteractiveEffects";
-import { ContactFlyout } from "@/components/ContactFlyout";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
 import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import { MobileToolbar } from "@/components/MobileToolbar";
@@ -65,7 +64,6 @@ const App = () => {
                   <Sonner />
                   <GuidedTour />
                   
-                  <ContactFlyout />
                   <AnalyticsTracker>
                     <Layout>
                       <AnimatedRoutes />
