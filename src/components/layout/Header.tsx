@@ -276,22 +276,14 @@ export function Header() {
         <div className="container-custom">
         <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center group">
             <div className="relative">
               <div className="absolute -inset-2 rounded-xl bg-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <img 
-                src="/imgi_35_b517d231-d9f5-4e15-870d-852a977c9204.png" 
-                alt="Mike Ogunkeye Real Estate"
-                className="relative w-12 h-12 object-contain transition-all duration-300"
+                src="/logo-primary.jpeg" 
+                alt="M.O.R.E. - Mike Ogunkeye Real Estate"
+                className="relative h-16 md:h-20 w-auto object-contain transition-all duration-300"
               />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-lg md:text-xl font-bold tracking-tight text-slate-900">
-                {siteConfig.agent.name}
-              </span>
-              <span className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-slate-600">
-                {siteConfig.brokerage}
-              </span>
             </div>
           </Link>
 
