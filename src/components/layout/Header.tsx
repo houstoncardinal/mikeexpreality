@@ -491,14 +491,17 @@ export function Header() {
               className="lg:hidden overflow-hidden bg-white rounded-b-2xl border-t border-gray-200"
             >
               <div className="p-4 max-h-[70vh] overflow-y-auto">
-                {/* Trust badges mobile */}
-                <div className="flex items-center justify-center gap-4 py-3 mb-4 border-b border-border/50">
-                  {trustBadges.map((badge, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <badge.icon className="h-3.5 w-3.5 text-accent" />
-                      <span>{badge.label}</span>
-                    </div>
-                  ))}
+                {/* Language Switcher & Trust badges mobile */}
+                <div className="flex items-center justify-between py-3 mb-4 border-b border-border/50">
+                  <div className="flex items-center gap-3">
+                    {trustBadges.slice(0, 2).map((badge, idx) => (
+                      <div key={idx} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <badge.icon className="h-3.5 w-3.5 text-accent" />
+                        <span>{badge.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <LanguageSwitcher variant="mobile" />
                 </div>
 
                 <nav className="flex flex-col gap-1">
@@ -589,9 +592,6 @@ export function Header() {
                 </nav>
 
                 <div className="mt-6 pt-4 border-t border-border/50 space-y-3">
-                  {/* Mobile Language Switcher */}
-                  <LanguageSwitcher variant="mobile" />
-                  
                   <a
                     href={`tel:${siteConfig.phoneRaw}`}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/30 text-foreground"
