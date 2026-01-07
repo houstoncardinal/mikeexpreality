@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,7 +13,6 @@ import { trackUserAction } from "@/lib/adaptiveLearning";
 import { preloadCriticalImages } from "@/lib/images";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { GuidedTour } from "@/components/GuidedTour";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ScrollProgress } from "@/components/InteractiveEffects";
 import { ContactFlyout } from "@/components/ContactFlyout";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
@@ -21,6 +20,7 @@ import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import { MobileToolbar } from "@/components/MobileToolbar";
 import { Layout } from "@/components/layout";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const queryClient = new QueryClient();
 
@@ -48,11 +48,14 @@ const AnalyticsTracker = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <TranslationProvider>
+            {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
             <BrowserRouter>
               <AuthProvider>
                 <ComparisonProvider>
