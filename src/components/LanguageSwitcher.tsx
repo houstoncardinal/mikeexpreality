@@ -22,7 +22,7 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
 
   if (variant === "floating") {
     return (
-      <div className={cn("fixed bottom-6 left-4 md:left-6 z-50", className)}>
+      <div className={cn("fixed bottom-20 md:bottom-6 left-4 md:left-6 z-40", className)}>
         <div className="relative">
           <motion.button
             whileHover={{ scale: 1.05 }}

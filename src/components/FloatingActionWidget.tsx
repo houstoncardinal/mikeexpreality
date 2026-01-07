@@ -232,7 +232,7 @@ export function FloatingActionWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-24 right-4 md:right-6 z-50 w-[calc(100vw-2rem)] max-w-sm"
+            className="fixed bottom-36 md:bottom-24 right-4 md:right-6 z-50 w-[calc(100vw-2rem)] max-w-sm"
           >
             <Card className="overflow-hidden shadow-2xl border-0 bg-card">
               {/* Header */}
@@ -442,15 +442,15 @@ export function FloatingActionWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Action Button */}
+      {/* Floating Action Button - positioned to avoid mobile toolbar */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: "spring", delay: 0.5 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-4 md:right-6 z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
-          isOpen 
-            ? "bg-secondary text-foreground rotate-0" 
+        className={`fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+          isOpen
+            ? "bg-secondary text-foreground rotate-0"
             : "bg-gradient-to-br from-accent to-accent/80 text-accent-foreground hover:shadow-accent/30 hover:shadow-xl"
         }`}
       >

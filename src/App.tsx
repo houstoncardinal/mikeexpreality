@@ -1,22 +1,25 @@
-import { useEffect } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React, { useEffect } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { initGA, trackPageView } from "@/lib/analytics";
-import { trackUserAction } from "@/lib/adaptiveLearning";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { TranslationProvider } from "@/contexts/TranslationContext";
-import { ComparisonBar } from "@/components/comparison/ComparisonBar";
-import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import { AuthProvider } from "@/hooks/useAuth";
+import { initGA, trackPageView } from "@/lib/analytics";
+import { trackUserAction } from "@/lib/adaptiveLearning";
+import { preloadCriticalImages } from "@/lib/images";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { GuidedTour } from "@/components/GuidedTour";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ScrollProgress } from "@/components/InteractiveEffects";
 import { ContactFlyout } from "@/components/ContactFlyout";
+import { ComparisonBar } from "@/components/comparison/ComparisonBar";
+import { ComparisonModal } from "@/components/comparison/ComparisonModal";
+import { MobileToolbar } from "@/components/MobileToolbar";
+import { Layout } from "@/components/layout";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,8 @@ const AnalyticsTracker = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     initGA();
+    // Preload critical images for better performance
+    preloadCriticalImages();
   }, []);
 
   useEffect(() => {
@@ -42,33 +47,38 @@ const AnalyticsTracker = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App = () => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <TranslationProvider>
-          <BrowserRouter>
-            <AuthProvider>
-              <ComparisonProvider>
-                <ScrollToTop />
-                <ScrollProgress />
-                <Toaster />
-                <Sonner />
-                <GuidedTour />
-                <LanguageSwitcher variant="floating" />
-                <ContactFlyout />
-                <AnalyticsTracker>
-                  <AnimatedRoutes />
-                  <ComparisonBar />
-                  <ComparisonModal />
-                </AnalyticsTracker>
-              </ComparisonProvider>
-            </AuthProvider>
-          </BrowserRouter>
-        </TranslationProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
-);
+const App = () => {
+  return (
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <TranslationProvider>
+            <BrowserRouter>
+              <AuthProvider>
+                <ComparisonProvider>
+                  <ScrollToTop />
+                  <ScrollProgress />
+                  <Toaster />
+                  <Sonner />
+                  <GuidedTour />
+                  <LanguageSwitcher variant="floating" />
+                  <ContactFlyout />
+                  <AnalyticsTracker>
+                    <Layout>
+                      <AnimatedRoutes />
+                      <ComparisonBar />
+                      <ComparisonModal />
+                    </Layout>
+                  </AnalyticsTracker>
+                  <MobileToolbar />
+                </ComparisonProvider>
+              </AuthProvider>
+            </BrowserRouter>
+          </TranslationProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
+};
 
 export default App;

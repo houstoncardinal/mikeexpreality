@@ -4,6 +4,7 @@ import { Award, Users, Target, Heart, CheckCircle, Phone, Mail } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { siteConfig } from "@/lib/siteConfig";
+import { mikeImages, brandImages } from "@/lib/images";
 
 const stats = [
   { label: "Service Areas", value: "9+" },
@@ -138,16 +139,30 @@ const About = () => {
               </div>
 
               <div className="relative">
-                <div className="aspect-[4/5] rounded-2xl bg-secondary overflow-hidden">
+                <div className="aspect-[4/5] rounded-2xl bg-secondary overflow-hidden shadow-2xl">
                   <img
-                    src="https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=1280/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2"
-                    alt={siteConfig.agent.name}
+                    src={mikeImages.profile}
+                    alt={`${siteConfig.agent.name} - Professional Real Estate Agent`}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to alt profile image if primary fails
+                      e.currentTarget.src = mikeImages.profileAlt1;
+                    }}
                   />
                 </div>
                 <div className="absolute -bottom-8 -left-8 bg-accent text-accent-foreground p-6 rounded-xl shadow-gold">
                   <p className="font-serif text-3xl font-bold">{siteConfig.brokerage}</p>
                   <p className="text-sm">Real Estate Professional</p>
+                </div>
+                {/* Professional certifications */}
+                <div className="absolute -top-4 -right-4 flex flex-col gap-2">
+                  <div className="bg-white p-3 rounded-lg shadow-xl">
+                    <img
+                      src={brandImages.realtorLogo}
+                      alt="Realtor Logo"
+                      className="h-8 w-auto"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

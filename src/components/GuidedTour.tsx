@@ -27,6 +27,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
 import { trackCTAClick, trackFormSubmission } from "@/lib/analytics";
 import { trackUserAction } from "@/lib/adaptiveLearning";
+import { mikeImages, propertyImages } from "@/lib/images";
+import { siteConfig } from "@/lib/siteConfig";
 
 interface TourStep {
   id: string;
@@ -651,16 +653,36 @@ export function GuidedTour() {
             <X className="h-5 w-5 text-muted-foreground" />
           </button>
 
-          {/* Header with icon */}
+          {/* Header with icon or Mike's image for welcome */}
           <div className="pt-12 pb-6 px-8 text-center">
             <motion.div
               key={currentStep}
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", damping: 15, stiffness: 200 }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent/70 text-accent-foreground mb-6 shadow-lg"
+              className={step.id === 'welcome' || step.id === 'final-connection'
+                ? "relative inline-block w-24 h-24 mb-6"
+                : "inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent/70 text-accent-foreground mb-6 shadow-lg"}
             >
-              <Icon className="h-10 w-10" />
+              {step.id === 'welcome' || step.id === 'final-connection' ? (
+                <>
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-accent shadow-2xl">
+                    <img
+                      src={mikeImages.profile}
+                      alt={siteConfig.agent.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = mikeImages.profileAlt1;
+                      }}
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-accent flex items-center justify-center border-2 border-card">
+                    <Icon className="h-4 w-4 text-accent-foreground" />
+                  </div>
+                </>
+              ) : (
+                <Icon className="h-10 w-10" />
+              )}
             </motion.div>
 
             <motion.h2
