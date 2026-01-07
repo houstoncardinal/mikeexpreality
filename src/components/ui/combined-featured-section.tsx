@@ -1,15 +1,30 @@
 'use client'
 
 import * as React from "react"
-import { Activity, ArrowRight, Home, MapPin, TrendingUp, Users, DollarSign, Building2, Calendar, Star } from 'lucide-react'
-import DottedMap from 'dotted-map'
+import { Activity, ArrowRight, Home, MapPin, TrendingUp, Users, Calculator, Video, Compass, Building2, Star } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Card } from '@/components/ui/card'
 import * as RechartsPrimitive from "recharts"
 import { cn } from "@/lib/utils"
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
+
+// Houston neighborhoods with listing counts
+const neighborhoods = [
+  { id: 'sugar-land', name: 'Sugar Land', listings: 24, avgPrice: '$485K', coords: { x: 30, y: 55 }, color: 'from-emerald-500 to-teal-500' },
+  { id: 'katy', name: 'Katy', listings: 31, avgPrice: '$425K', coords: { x: 15, y: 35 }, color: 'from-blue-500 to-indigo-500' },
+  { id: 'cypress', name: 'Cypress', listings: 18, avgPrice: '$510K', coords: { x: 20, y: 20 }, color: 'from-violet-500 to-purple-500' },
+  { id: 'richmond', name: 'Richmond', listings: 15, avgPrice: '$380K', coords: { x: 40, y: 60 }, color: 'from-amber-500 to-orange-500' },
+  { id: 'missouri-city', name: 'Missouri City', listings: 22, avgPrice: '$395K', coords: { x: 45, y: 50 }, color: 'from-rose-500 to-pink-500' },
+  { id: 'pearland', name: 'Pearland', listings: 19, avgPrice: '$365K', coords: { x: 55, y: 55 }, color: 'from-cyan-500 to-blue-500' },
+  { id: 'memorial', name: 'Memorial', listings: 12, avgPrice: '$1.2M', coords: { x: 40, y: 30 }, color: 'from-primary to-accent' },
+  { id: 'river-oaks', name: 'River Oaks', listings: 8, avgPrice: '$2.8M', coords: { x: 50, y: 35 }, color: 'from-amber-400 to-yellow-500' },
+]
 
 export default function CombinedFeaturedSection() {
+  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState<typeof neighborhoods[0] | null>(null)
+  const [hoveredNeighborhood, setHoveredNeighborhood] = React.useState<string | null>(null)
+
   const featuredCasestudy = {
     company: 'M.O.R.E. Real Estate',
     tags: 'Success Story',
@@ -40,33 +55,144 @@ export default function CombinedFeaturedSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 1. MAP - Top Left */}
+          {/* 1. INTERACTIVE MAP - Top Left */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl bg-card border border-border p-8 shadow-xl"
+            className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-xl"
           >
             <div>
               <div className="mb-3 flex w-fit items-center gap-2 rounded-full border border-border bg-muted px-3 py-1">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Houston Coverage</span>
+                <span className="text-sm font-medium text-foreground">Interactive Coverage Map</span>
               </div>
 
-              <p className="text-muted-foreground">
-                Comprehensive coverage across Greater Houston.{" "}
-                <span className="text-foreground font-medium">From The Woodlands to Sugar Land, we've got you covered.</span>
+              <p className="text-muted-foreground text-sm">
+                Click on neighborhoods to explore listings.{" "}
+                <span className="text-foreground font-medium">Real-time inventory across Greater Houston.</span>
               </p>
             </div>
 
-            <div className="flex flex-col gap-6 md:flex-row">
-              <div className="flex flex-1 flex-col gap-4 rounded-2xl border border-border bg-secondary/30 p-4">
-                <span className="text-xs font-medium text-primary">
-                  🏠 Active in 25+ neighborhoods
-                </span>
+            {/* Interactive Map */}
+            <div className="relative h-[280px] bg-gradient-to-br from-secondary/50 to-muted/30 rounded-2xl overflow-hidden">
+              {/* Grid background */}
+              <div className="absolute inset-0 opacity-20" style={{
+                backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary)/0.3) 1px, transparent 0)',
+                backgroundSize: '20px 20px'
+              }} />
+              
+              {/* Neighborhood markers */}
+              {neighborhoods.map((hood) => (
+                <motion.button
+                  key={hood.id}
+                  className={cn(
+                    "absolute transform -translate-x-1/2 -translate-y-1/2 z-10 group",
+                    selectedNeighborhood?.id === hood.id && "z-20"
+                  )}
+                  style={{ left: `${hood.coords.x}%`, top: `${hood.coords.y}%` }}
+                  onClick={() => setSelectedNeighborhood(selectedNeighborhood?.id === hood.id ? null : hood)}
+                  onMouseEnter={() => setHoveredNeighborhood(hood.id)}
+                  onMouseLeave={() => setHoveredNeighborhood(null)}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Pulse ring */}
+                  <motion.div
+                    className={cn(
+                      "absolute inset-0 rounded-full bg-gradient-to-br opacity-30",
+                      hood.color
+                    )}
+                    animate={{
+                      scale: [1, 1.8, 1],
+                      opacity: [0.3, 0, 0.3],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: Math.random() * 2,
+                    }}
+                  />
+                  
+                  {/* Marker dot */}
+                  <div className={cn(
+                    "w-4 h-4 rounded-full bg-gradient-to-br shadow-lg border-2 border-white transition-all duration-300",
+                    hood.color,
+                    (selectedNeighborhood?.id === hood.id || hoveredNeighborhood === hood.id) && "w-5 h-5"
+                  )} />
+                  
+                  {/* Listing count badge */}
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">
+                    {hood.listings}
+                  </div>
+
+                  {/* Hover tooltip */}
+                  <AnimatePresence>
+                    {(hoveredNeighborhood === hood.id && selectedNeighborhood?.id !== hood.id) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-card border border-border rounded-lg shadow-lg whitespace-nowrap z-30"
+                      >
+                        <p className="text-xs font-semibold text-foreground">{hood.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{hood.listings} listings • {hood.avgPrice}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              ))}
+
+              {/* Selected neighborhood panel */}
+              <AnimatePresence>
+                {selectedNeighborhood && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="absolute left-4 top-4 bottom-4 w-48 bg-card/95 backdrop-blur-xl border border-border rounded-xl p-4 shadow-xl"
+                  >
+                    <div className={cn("w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center mb-3", selectedNeighborhood.color)}>
+                      <Building2 className="h-4 w-4 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-foreground mb-1">{selectedNeighborhood.name}</h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Active Listings</span>
+                        <span className="font-semibold text-primary">{selectedNeighborhood.listings}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Avg. Price</span>
+                        <span className="font-semibold text-foreground">{selectedNeighborhood.avgPrice}</span>
+                      </div>
+                    </div>
+                    <Link
+                      to={`/neighborhoods/${selectedNeighborhood.id}`}
+                      className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      View Listings
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Quick stats */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center p-3 rounded-xl bg-secondary/50">
+                <p className="text-2xl font-bold text-primary">149</p>
+                <p className="text-xs text-muted-foreground">Active Listings</p>
               </div>
-              <Map />
+              <div className="text-center p-3 rounded-xl bg-secondary/50">
+                <p className="text-2xl font-bold text-foreground">8</p>
+                <p className="text-xs text-muted-foreground">Neighborhoods</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-secondary/50">
+                <p className="text-2xl font-bold text-foreground">$520K</p>
+                <p className="text-xs text-muted-foreground">Median Price</p>
+              </div>
             </div>
           </motion.div>
 
@@ -124,27 +250,45 @@ export default function CombinedFeaturedSection() {
             <MonitoringChart />
           </motion.div>
 
-          {/* 4. FEATURE CARDS - Bottom Right */}
+          {/* 4. FEATURE CARDS - Bottom Right (Now with 4 cards) */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            className="grid grid-cols-2 gap-4"
           >
             <FeatureCard
               icon={<Home className="h-5 w-5 text-primary" />}
               image="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=300&fit=crop"
               title="Luxury Listings"
-              subtitle="Premium Properties"
-              description="Exclusive access to Houston's finest luxury homes and estates."
+              subtitle="Premium"
+              description="Houston's finest homes"
+              href="/listings"
             />
             <FeatureCard
-              icon={<Users className="h-5 w-5 text-primary" />}
-              image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop"
-              title="Personal Service"
-              subtitle="White Glove"
-              description="Dedicated support from search to closing and beyond."
+              icon={<Calculator className="h-5 w-5 text-primary" />}
+              image="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop"
+              title="Mortgage Calc"
+              subtitle="Plan"
+              description="Calculate payments"
+              href="/mortgage-calculator"
+            />
+            <FeatureCard
+              icon={<Video className="h-5 w-5 text-primary" />}
+              image="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"
+              title="Virtual Tours"
+              subtitle="360° View"
+              description="Explore from home"
+              href="/listings"
+            />
+            <FeatureCard
+              icon={<Compass className="h-5 w-5 text-primary" />}
+              image="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop"
+              title="Area Guides"
+              subtitle="Discover"
+              description="Neighborhood insights"
+              href="/neighborhoods"
             />
           </motion.div>
         </div>
@@ -154,65 +298,43 @@ export default function CombinedFeaturedSection() {
 }
 
 // ----------------- Feature Card Component -------------------
-function FeatureCard({ icon, image, title, subtitle, description }: { icon: React.ReactNode, image: string, title: string, subtitle: string, description: string }) {
+function FeatureCard({ icon, image, title, subtitle, description, href }: { 
+  icon: React.ReactNode
+  image: string
+  title: string
+  subtitle: string
+  description: string
+  href: string
+}) {
   return (
-    <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-primary/30">
+    <Link to={href} className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-primary/30 hover:-translate-y-1">
       <div className="relative z-10">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              {icon}
-            </div>
-            <span className="font-semibold text-foreground">{title}</span>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-1.5 rounded-lg bg-primary/10">
+            {icon}
           </div>
-          <p className="text-sm text-muted-foreground">
-            <span className="text-primary font-medium">{subtitle}</span>{" "}
-            {description}
-          </p>
+          <span className="font-semibold text-sm text-foreground">{title}</span>
         </div>
+        <p className="text-xs text-muted-foreground">
+          <span className="text-primary font-medium">{subtitle}</span> — {description}
+        </p>
       </div>
 
       {/* Card image */}
-      <Card className="relative mt-4 h-32 overflow-hidden rounded-xl border-0">
+      <Card className="relative mt-3 h-24 overflow-hidden rounded-xl border-0">
         <img 
           src={image} 
           alt={title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-      </Card>
-
-      {/* Arrow icon */}
-      <div className="absolute right-4 top-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="p-2 rounded-full bg-primary/10">
-          <ArrowRight className="h-4 w-4 text-primary" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute bottom-2 right-2 p-1.5 rounded-full bg-white/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+          <ArrowRight className="h-3 w-3 text-white" />
         </div>
-      </div>
-    </div>
+      </Card>
+    </Link>
   )
 }
-
-// ----------------- Map -------------------
-const map = new DottedMap({ height: 55, grid: 'diagonal' })
-const points = map.getPoints()
-
-const Map = () => (
-  <svg viewBox="0 0 120 60" className="h-full w-full flex-1 text-primary/60">
-    {points.map((point, i) => (
-      <circle 
-        key={i} 
-        cx={point.x} 
-        cy={point.y} 
-        r={0.4} 
-        fill="currentColor" 
-        className="opacity-40"
-      />
-    ))}
-    {/* Houston marker */}
-    <circle cx={25} cy={35} r={2} fill="hsl(var(--primary))" className="animate-pulse" />
-    <circle cx={25} cy={35} r={4} fill="hsl(var(--primary))" className="opacity-30 animate-ping" />
-  </svg>
-)
 
 // ----------------- Chart -------------------
 const chartData = [
