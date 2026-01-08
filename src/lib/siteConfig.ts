@@ -45,7 +45,7 @@ export const siteConfig = {
   // Agent Info
   agent: {
     name: "Mike Ogunkeye",
-    fullName: "Mikhael Ogunkeye",
+    fullName: "Mike Ogunkeye",
     title: "Real Estate Agent",
     license: "TREC #",
   },
@@ -71,14 +71,14 @@ export const testimonials = [
     id: 2,
     name: "Bola J.",
     rating: 5,
-    text: "Outstanding Experience. Mikhael Ogunkeye and his team with EXP has done it again, this is why he kept getting returning customers and referral from me. I have had nothing but outstanding experience with Mikhael.",
+    text: "Outstanding Experience. Mike Ogunkeye and his team with EXP has done it again, this is why he kept getting returning customers and referral from me. I have had nothing but outstanding experience with Mike.",
     type: "Buyer",
   },
   {
     id: 3,
     name: "Gregory M.",
     rating: 5,
-    text: "Mikhael is communicative and experienced. These qualities gave my wife and I great calm in a sometimes anxious process. We had owned our home for 23 years and when it was time to sell it we trusted Mikhael to guide us through the process.",
+    text: "Mike is communicative and experienced. These qualities gave my wife and I great calm in a sometimes anxious process. We had owned our home for 23 years and when it was time to sell it we trusted Mike to guide us through the process.",
     type: "Seller",
   },
   {
