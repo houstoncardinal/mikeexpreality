@@ -1,35 +1,139 @@
 'use client'
 
 import * as React from "react"
-import { Activity, ArrowRight, Home, MapPin, TrendingUp, Users, Calculator, Video, Compass, Building2, Star } from 'lucide-react'
+import { Activity, ArrowRight, Home, MapPin, TrendingUp, Users, Calculator, Video, Compass, Building2, Star, Search } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Card } from '@/components/ui/card'
 import * as RechartsPrimitive from "recharts"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '@/integrations/supabase/client'
+import { SearchAutocomplete } from '@/components/search/SearchAutocomplete'
 
-// Houston neighborhoods with listing counts
-const neighborhoods = [
-  { id: 'sugar-land', name: 'Sugar Land', listings: 24, avgPrice: '$485K', coords: { x: 30, y: 55 }, color: 'from-emerald-500 to-teal-500' },
-  { id: 'katy', name: 'Katy', listings: 31, avgPrice: '$425K', coords: { x: 15, y: 35 }, color: 'from-blue-500 to-indigo-500' },
-  { id: 'cypress', name: 'Cypress', listings: 18, avgPrice: '$510K', coords: { x: 20, y: 20 }, color: 'from-violet-500 to-purple-500' },
-  { id: 'richmond', name: 'Richmond', listings: 15, avgPrice: '$380K', coords: { x: 40, y: 60 }, color: 'from-amber-500 to-orange-500' },
-  { id: 'missouri-city', name: 'Missouri City', listings: 22, avgPrice: '$395K', coords: { x: 45, y: 50 }, color: 'from-rose-500 to-pink-500' },
-  { id: 'pearland', name: 'Pearland', listings: 19, avgPrice: '$365K', coords: { x: 55, y: 55 }, color: 'from-cyan-500 to-blue-500' },
-  { id: 'memorial', name: 'Memorial', listings: 12, avgPrice: '$1.2M', coords: { x: 40, y: 30 }, color: 'from-primary to-accent' },
-  { id: 'river-oaks', name: 'River Oaks', listings: 8, avgPrice: '$2.8M', coords: { x: 50, y: 35 }, color: 'from-amber-400 to-yellow-500' },
-]
+// Neighborhood coordinate mapping for the map visualization
+const neighborhoodCoords: Record<string, { x: number; y: number; color: string }> = {
+  'Sugar Land': { x: 30, y: 55, color: 'from-emerald-500 to-teal-500' },
+  'Katy': { x: 15, y: 35, color: 'from-blue-500 to-indigo-500' },
+  'Cypress': { x: 20, y: 20, color: 'from-violet-500 to-purple-500' },
+  'Richmond': { x: 40, y: 60, color: 'from-amber-500 to-orange-500' },
+  'Missouri City': { x: 45, y: 50, color: 'from-rose-500 to-pink-500' },
+  'Pearland': { x: 55, y: 55, color: 'from-cyan-500 to-blue-500' },
+  'Houston': { x: 50, y: 35, color: 'from-primary to-accent' },
+  'Fulshear': { x: 10, y: 45, color: 'from-amber-400 to-yellow-500' },
+  'Rosenberg': { x: 25, y: 65, color: 'from-teal-500 to-cyan-500' },
+  'Stafford': { x: 40, y: 45, color: 'from-indigo-500 to-violet-500' },
+}
+
+interface NeighborhoodData {
+  id: string
+  name: string
+  listings: number
+  avgPrice: string
+  coords: { x: number; y: number }
+  color: string
+}
+
+// Helper function to format price in short form (e.g., $485K, $1.2M)
+function formatPriceShort(price: number): string {
+  if (price >= 1000000) {
+    return `$${(price / 1000000).toFixed(1)}M`
+  } else if (price >= 1000) {
+    return `$${Math.round(price / 1000)}K`
+  }
+  return `$${price}`
+}
 
 export default function CombinedFeaturedSection() {
-  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState<typeof neighborhoods[0] | null>(null)
+  const navigate = useNavigate()
+  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState<NeighborhoodData | null>(null)
   const [hoveredNeighborhood, setHoveredNeighborhood] = React.useState<string | null>(null)
+  const [neighborhoods, setNeighborhoods] = React.useState<NeighborhoodData[]>([])
+  const [totalListings, setTotalListings] = React.useState(0)
+  const [medianPrice, setMedianPrice] = React.useState('$0')
+  const [isLoading, setIsLoading] = React.useState(true)
+
+  // Fetch real listings data from Supabase
+  React.useEffect(() => {
+    async function fetchListingsData() {
+      setIsLoading(true)
+      try {
+        const { data: properties, error } = await supabase
+          .from('properties')
+          .select('city, price, status')
+          .eq('status', 'active')
+
+        if (error) {
+          console.error('Error fetching properties:', error)
+          return
+        }
+
+        if (!properties || properties.length === 0) {
+          setIsLoading(false)
+          return
+        }
+
+        // Aggregate by city
+        const cityAggregation: Record<string, { count: number; prices: number[] }> = {}
+        
+        properties.forEach(prop => {
+          const city = prop.city || 'Houston'
+          if (!cityAggregation[city]) {
+            cityAggregation[city] = { count: 0, prices: [] }
+          }
+          cityAggregation[city].count++
+          if (prop.price) {
+            cityAggregation[city].prices.push(Number(prop.price))
+          }
+        })
+
+        // Create neighborhood data with real stats
+        const neighborhoodData: NeighborhoodData[] = Object.entries(cityAggregation)
+          .filter(([city]) => neighborhoodCoords[city]) // Only include cities we have coordinates for
+          .map(([city, data]) => {
+            const avgPrice = data.prices.length > 0 
+              ? data.prices.reduce((a, b) => a + b, 0) / data.prices.length 
+              : 0
+            
+            return {
+              id: city.toLowerCase().replace(/\s+/g, '-'),
+              name: city,
+              listings: data.count,
+              avgPrice: formatPriceShort(avgPrice),
+              coords: neighborhoodCoords[city] || { x: 50, y: 50 },
+              color: neighborhoodCoords[city]?.color || 'from-primary to-accent',
+            }
+          })
+          .sort((a, b) => b.listings - a.listings)
+
+        // Calculate totals
+        const allPrices = properties.map(p => Number(p.price)).filter(p => p > 0)
+        const median = allPrices.length > 0 
+          ? allPrices.sort((a, b) => a - b)[Math.floor(allPrices.length / 2)]
+          : 0
+
+        setNeighborhoods(neighborhoodData)
+        setTotalListings(properties.length)
+        setMedianPrice(formatPriceShort(median))
+      } catch (err) {
+        console.error('Error:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchListingsData()
+  }, [])
 
   const featuredCasestudy = {
     company: 'M.O.R.E. Real Estate',
     tags: 'Success Story',
     title: 'Sold $2.5M luxury estate in Sugar Land',
     subtitle: 'in just 14 days with 3 competing offers, exceeding asking price by 8%',
+  }
+
+  const handleNeighborhoodClick = (city: string) => {
+    navigate(`/listings?city=${encodeURIComponent(city)}`)
   }
 
   return (
@@ -69,20 +173,34 @@ export default function CombinedFeaturedSection() {
                 <span className="text-sm font-medium text-foreground">Interactive Coverage Map</span>
               </div>
 
-              <p className="text-muted-foreground text-sm">
-                Click on neighborhoods to explore listings.{" "}
+              <p className="text-muted-foreground text-sm mb-4">
+                Search properties or click on neighborhoods to explore listings.{" "}
                 <span className="text-foreground font-medium">Real-time inventory across Greater Houston.</span>
               </p>
+
+              {/* Search Bar */}
+              <SearchAutocomplete 
+                variant="compact" 
+                placeholder="Search properties, neighborhoods..."
+                className="mb-4"
+              />
             </div>
 
             {/* Interactive Map */}
-            <div className="relative h-[280px] bg-gradient-to-br from-secondary/50 to-muted/30 rounded-2xl overflow-hidden">
+            <div className="relative h-[240px] bg-gradient-to-br from-secondary/50 to-muted/30 rounded-2xl overflow-hidden">
               {/* Grid background */}
               <div className="absolute inset-0 opacity-20" style={{
                 backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary)/0.3) 1px, transparent 0)',
                 backgroundSize: '20px 20px'
               }} />
               
+              {/* Loading state */}
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-30">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              )}
+
               {/* Neighborhood markers */}
               {neighborhoods.map((hood) => (
                 <motion.button
@@ -144,6 +262,16 @@ export default function CombinedFeaturedSection() {
                 </motion.button>
               ))}
 
+              {/* Empty state */}
+              {!isLoading && neighborhoods.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No active listings found</p>
+                  </div>
+                </div>
+              )}
+
               {/* Selected neighborhood panel */}
               <AnimatePresence>
                 {selectedNeighborhood && (
@@ -167,13 +295,13 @@ export default function CombinedFeaturedSection() {
                         <span className="font-semibold text-foreground">{selectedNeighborhood.avgPrice}</span>
                       </div>
                     </div>
-                    <Link
-                      to={`/neighborhoods/${selectedNeighborhood.id}`}
+                    <button
+                      onClick={() => handleNeighborhoodClick(selectedNeighborhood.name)}
                       className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors"
                     >
                       View Listings
                       <ArrowRight className="h-3 w-3" />
-                    </Link>
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -182,15 +310,15 @@ export default function CombinedFeaturedSection() {
             {/* Quick stats */}
             <div className="grid grid-cols-3 gap-3">
               <div className="text-center p-3 rounded-xl bg-secondary/50">
-                <p className="text-2xl font-bold text-primary">149</p>
+                <p className="text-2xl font-bold text-primary">{isLoading ? '...' : totalListings}</p>
                 <p className="text-xs text-muted-foreground">Active Listings</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-secondary/50">
-                <p className="text-2xl font-bold text-foreground">8</p>
+                <p className="text-2xl font-bold text-foreground">{isLoading ? '...' : neighborhoods.length}</p>
                 <p className="text-xs text-muted-foreground">Neighborhoods</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-secondary/50">
-                <p className="text-2xl font-bold text-foreground">$520K</p>
+                <p className="text-2xl font-bold text-foreground">{isLoading ? '...' : medianPrice}</p>
                 <p className="text-xs text-muted-foreground">Median Price</p>
               </div>
             </div>
