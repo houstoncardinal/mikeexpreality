@@ -67,14 +67,14 @@ function HeroImageBackground() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Minimal overlay - just enough for text readability */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
+      {/* Strong overlay for text readability */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
       
-      {/* Subtle vignette for cinematic feel */}
-      <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.25)_100%)]" />
+      {/* Vignette for cinematic feel */}
+      <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)]" />
       
       {/* Bottom gradient for content area */}
-      <div className="absolute inset-x-0 bottom-0 h-48 z-10 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-48 z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
       
       {/* Image indicators */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
