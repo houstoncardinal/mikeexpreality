@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { Activity, ArrowRight, Home, MapPin, TrendingUp, Users, Calculator, Video, Compass, Building2, Star, Search } from 'lucide-react'
+import { Activity, ArrowRight, Home, MapPin, TrendingUp, Users, Calculator, Video, Compass, Building2, Star, Search, Filter, Zap } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Card } from '@/components/ui/card'
 import * as RechartsPrimitive from "recharts"
@@ -10,6 +10,22 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '@/integrations/supabase/client'
 import { SearchAutocomplete } from '@/components/search/SearchAutocomplete'
+import { Slider } from '@/components/ui/slider'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Database } from '@/integrations/supabase/types'
+
+type PropertyType = Database['public']['Enums']['property_type']
+
+// Property type labels
+const propertyTypeLabels: Record<PropertyType | 'all', string> = {
+  'all': 'All Types',
+  'single_family': 'Single Family',
+  'condo': 'Condo',
+  'townhouse': 'Townhouse',
+  'multi_family': 'Multi-Family',
+  'land': 'Land',
+  'commercial': 'Commercial',
+}
 
 // Neighborhood coordinate mapping for the map visualization
 const neighborhoodCoords: Record<string, { x: number; y: number; color: string }> = {
@@ -30,8 +46,15 @@ interface NeighborhoodData {
   name: string
   listings: number
   avgPrice: string
+  avgPriceNum: number
   coords: { x: number; y: number }
   color: string
+}
+
+interface PropertyData {
+  city: string
+  price: number
+  property_type: PropertyType
 }
 
 // Helper function to format price in short form (e.g., $485K, $1.2M)
@@ -49,9 +72,75 @@ export default function CombinedFeaturedSection() {
   const [selectedNeighborhood, setSelectedNeighborhood] = React.useState<NeighborhoodData | null>(null)
   const [hoveredNeighborhood, setHoveredNeighborhood] = React.useState<string | null>(null)
   const [neighborhoods, setNeighborhoods] = React.useState<NeighborhoodData[]>([])
+  const [filteredNeighborhoods, setFilteredNeighborhoods] = React.useState<NeighborhoodData[]>([])
   const [totalListings, setTotalListings] = React.useState(0)
   const [medianPrice, setMedianPrice] = React.useState('$0')
   const [isLoading, setIsLoading] = React.useState(true)
+  const [isLive, setIsLive] = React.useState(false)
+  
+  // Filter states
+  const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 5000000])
+  const [propertyType, setPropertyType] = React.useState<PropertyType | 'all'>('all')
+  const [allProperties, setAllProperties] = React.useState<PropertyData[]>([])
+
+  // Process properties into neighborhoods
+  const processProperties = React.useCallback((properties: PropertyData[]) => {
+    // Apply filters
+    let filtered = properties
+    
+    if (propertyType !== 'all') {
+      filtered = filtered.filter(p => p.property_type === propertyType)
+    }
+    
+    filtered = filtered.filter(p => {
+      const price = Number(p.price) || 0
+      return price >= priceRange[0] && price <= priceRange[1]
+    })
+
+    // Aggregate by city
+    const cityAggregation: Record<string, { count: number; prices: number[] }> = {}
+    
+    filtered.forEach(prop => {
+      const city = prop.city || 'Houston'
+      if (!cityAggregation[city]) {
+        cityAggregation[city] = { count: 0, prices: [] }
+      }
+      cityAggregation[city].count++
+      if (prop.price) {
+        cityAggregation[city].prices.push(Number(prop.price))
+      }
+    })
+
+    // Create neighborhood data with real stats
+    const neighborhoodData: NeighborhoodData[] = Object.entries(cityAggregation)
+      .filter(([city]) => neighborhoodCoords[city])
+      .map(([city, data]) => {
+        const avgPrice = data.prices.length > 0 
+          ? data.prices.reduce((a, b) => a + b, 0) / data.prices.length 
+          : 0
+        
+        return {
+          id: city.toLowerCase().replace(/\s+/g, '-'),
+          name: city,
+          listings: data.count,
+          avgPrice: formatPriceShort(avgPrice),
+          avgPriceNum: avgPrice,
+          coords: neighborhoodCoords[city] || { x: 50, y: 50 },
+          color: neighborhoodCoords[city]?.color || 'from-primary to-accent',
+        }
+      })
+      .sort((a, b) => b.listings - a.listings)
+
+    // Calculate totals
+    const allPrices = filtered.map(p => Number(p.price)).filter(p => p > 0)
+    const median = allPrices.length > 0 
+      ? allPrices.sort((a, b) => a - b)[Math.floor(allPrices.length / 2)]
+      : 0
+
+    setFilteredNeighborhoods(neighborhoodData)
+    setTotalListings(filtered.length)
+    setMedianPrice(formatPriceShort(median))
+  }, [propertyType, priceRange])
 
   // Fetch real listings data from Supabase
   React.useEffect(() => {
@@ -60,7 +149,7 @@ export default function CombinedFeaturedSection() {
       try {
         const { data: properties, error } = await supabase
           .from('properties')
-          .select('city, price, status')
+          .select('city, price, property_type')
           .eq('status', 'active')
 
         if (error) {
@@ -73,48 +162,10 @@ export default function CombinedFeaturedSection() {
           return
         }
 
-        // Aggregate by city
-        const cityAggregation: Record<string, { count: number; prices: number[] }> = {}
-        
-        properties.forEach(prop => {
-          const city = prop.city || 'Houston'
-          if (!cityAggregation[city]) {
-            cityAggregation[city] = { count: 0, prices: [] }
-          }
-          cityAggregation[city].count++
-          if (prop.price) {
-            cityAggregation[city].prices.push(Number(prop.price))
-          }
-        })
-
-        // Create neighborhood data with real stats
-        const neighborhoodData: NeighborhoodData[] = Object.entries(cityAggregation)
-          .filter(([city]) => neighborhoodCoords[city]) // Only include cities we have coordinates for
-          .map(([city, data]) => {
-            const avgPrice = data.prices.length > 0 
-              ? data.prices.reduce((a, b) => a + b, 0) / data.prices.length 
-              : 0
-            
-            return {
-              id: city.toLowerCase().replace(/\s+/g, '-'),
-              name: city,
-              listings: data.count,
-              avgPrice: formatPriceShort(avgPrice),
-              coords: neighborhoodCoords[city] || { x: 50, y: 50 },
-              color: neighborhoodCoords[city]?.color || 'from-primary to-accent',
-            }
-          })
-          .sort((a, b) => b.listings - a.listings)
-
-        // Calculate totals
-        const allPrices = properties.map(p => Number(p.price)).filter(p => p > 0)
-        const median = allPrices.length > 0 
-          ? allPrices.sort((a, b) => a - b)[Math.floor(allPrices.length / 2)]
-          : 0
-
-        setNeighborhoods(neighborhoodData)
-        setTotalListings(properties.length)
-        setMedianPrice(formatPriceShort(median))
+        const typedProperties = properties as PropertyData[]
+        setAllProperties(typedProperties)
+        setNeighborhoods(processPropertiesToNeighborhoods(typedProperties))
+        processProperties(typedProperties)
       } catch (err) {
         console.error('Error:', err)
       } finally {
@@ -124,6 +175,87 @@ export default function CombinedFeaturedSection() {
 
     fetchListingsData()
   }, [])
+
+  // Re-process when filters change
+  React.useEffect(() => {
+    if (allProperties.length > 0) {
+      processProperties(allProperties)
+    }
+  }, [propertyType, priceRange, allProperties, processProperties])
+
+  // Real-time subscription
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('properties-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'properties'
+        },
+        (payload) => {
+          console.log('Real-time update:', payload)
+          setIsLive(true)
+          
+          // Refetch data on changes
+          supabase
+            .from('properties')
+            .select('city, price, property_type')
+            .eq('status', 'active')
+            .then(({ data }) => {
+              if (data) {
+                const typedProperties = data as PropertyData[]
+                setAllProperties(typedProperties)
+                processProperties(typedProperties)
+              }
+            })
+
+          // Flash indicator briefly
+          setTimeout(() => setIsLive(false), 2000)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [processProperties])
+
+  // Helper to process properties to neighborhoods (without filters)
+  function processPropertiesToNeighborhoods(properties: PropertyData[]): NeighborhoodData[] {
+    const cityAggregation: Record<string, { count: number; prices: number[] }> = {}
+    
+    properties.forEach(prop => {
+      const city = prop.city || 'Houston'
+      if (!cityAggregation[city]) {
+        cityAggregation[city] = { count: 0, prices: [] }
+      }
+      cityAggregation[city].count++
+      if (prop.price) {
+        cityAggregation[city].prices.push(Number(prop.price))
+      }
+    })
+
+    return Object.entries(cityAggregation)
+      .filter(([city]) => neighborhoodCoords[city])
+      .map(([city, data]) => {
+        const avgPrice = data.prices.length > 0 
+          ? data.prices.reduce((a, b) => a + b, 0) / data.prices.length 
+          : 0
+        
+        return {
+          id: city.toLowerCase().replace(/\s+/g, '-'),
+          name: city,
+          listings: data.count,
+          avgPrice: formatPriceShort(avgPrice),
+          avgPriceNum: avgPrice,
+          coords: neighborhoodCoords[city] || { x: 50, y: 50 },
+          color: neighborhoodCoords[city]?.color || 'from-primary to-accent',
+        }
+      })
+      .sort((a, b) => b.listings - a.listings)
+  }
 
   const featuredCasestudy = {
     company: 'M.O.R.E. Real Estate',
@@ -168,9 +300,26 @@ export default function CombinedFeaturedSection() {
             className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-xl"
           >
             <div>
-              <div className="mb-3 flex w-fit items-center gap-2 rounded-full border border-border bg-muted px-3 py-1">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Interactive Coverage Map</span>
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-muted px-3 py-1">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">Interactive Coverage Map</span>
+                </div>
+                
+                {/* Live indicator */}
+                <AnimatePresence>
+                  {isLive && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20"
+                    >
+                      <Zap className="h-3 w-3 text-emerald-500 animate-pulse" />
+                      <span className="text-xs font-medium text-emerald-500">Live Update</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <p className="text-muted-foreground text-sm mb-4">
@@ -184,10 +333,44 @@ export default function CombinedFeaturedSection() {
                 placeholder="Search properties, neighborhoods..."
                 className="mb-4"
               />
+
+              {/* Filters Row */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                {/* Property Type Filter */}
+                <Select value={propertyType} onValueChange={(val) => setPropertyType(val as PropertyType | 'all')}>
+                  <SelectTrigger className="w-full sm:w-[180px] bg-secondary/50 border-border">
+                    <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Property Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(propertyTypeLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Price Range Slider */}
+                <div className="flex-1 px-3 py-2 bg-secondary/50 rounded-lg border border-border">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-muted-foreground">Price Range</span>
+                    <span className="text-xs font-medium text-foreground">
+                      {formatPriceShort(priceRange[0])} - {formatPriceShort(priceRange[1])}
+                    </span>
+                  </div>
+                  <Slider
+                    value={priceRange}
+                    onValueChange={(val) => setPriceRange(val as [number, number])}
+                    min={0}
+                    max={5000000}
+                    step={50000}
+                    className="w-full"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Interactive Map */}
-            <div className="relative h-[240px] bg-gradient-to-br from-secondary/50 to-muted/30 rounded-2xl overflow-hidden">
+            <div className="relative h-[200px] bg-gradient-to-br from-secondary/50 to-muted/30 rounded-2xl overflow-hidden">
               {/* Grid background */}
               <div className="absolute inset-0 opacity-20" style={{
                 backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary)/0.3) 1px, transparent 0)',
@@ -202,7 +385,7 @@ export default function CombinedFeaturedSection() {
               )}
 
               {/* Neighborhood markers */}
-              {neighborhoods.map((hood) => (
+              {filteredNeighborhoods.map((hood) => (
                 <motion.button
                   key={hood.id}
                   className={cn(
@@ -263,11 +446,13 @@ export default function CombinedFeaturedSection() {
               ))}
 
               {/* Empty state */}
-              {!isLoading && neighborhoods.length === 0 && (
+              {!isLoading && filteredNeighborhoods.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No active listings found</p>
+                    <p className="text-sm text-muted-foreground">
+                      {allProperties.length === 0 ? 'No active listings found' : 'No listings match your filters'}
+                    </p>
                   </div>
                 </div>
               )}
@@ -314,7 +499,7 @@ export default function CombinedFeaturedSection() {
                 <p className="text-xs text-muted-foreground">Active Listings</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-secondary/50">
-                <p className="text-2xl font-bold text-foreground">{isLoading ? '...' : neighborhoods.length}</p>
+                <p className="text-2xl font-bold text-foreground">{isLoading ? '...' : filteredNeighborhoods.length}</p>
                 <p className="text-xs text-muted-foreground">Neighborhoods</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-secondary/50">
