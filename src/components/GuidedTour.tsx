@@ -619,9 +619,28 @@ export function GuidedTour() {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tour-title"
       >
-        {/* Overlay with spotlight effect */}
-        <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
+        {/* Overlay - tap to close on mobile */}
+        <div 
+          className="absolute inset-0 bg-background/90 backdrop-blur-sm cursor-pointer"
+          onClick={handleClose}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            handleClose();
+          }}
+          role="button"
+          aria-label="Close guided tour"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+              e.preventDefault();
+              handleClose();
+            }
+          }}
+        />
         
         {/* Tour Card */}
         <motion.div
@@ -630,6 +649,7 @@ export function GuidedTour() {
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className="relative w-full max-w-lg bg-card rounded-2xl shadow-2xl overflow-hidden border border-border"
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Progress bar */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-secondary">
@@ -641,12 +661,19 @@ export function GuidedTour() {
             />
           </div>
 
-          {/* Close button */}
+          {/* Close button - larger touch target for mobile */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-secondary transition-colors z-10"
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleClose();
+            }}
+            className="absolute top-3 right-3 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-secondary/80 hover:bg-secondary active:bg-secondary/90 transition-colors z-20 flex items-center justify-center touch-manipulation"
+            aria-label="Close guided tour"
+            type="button"
           >
-            <X className="h-5 w-5 text-muted-foreground" />
+            <X className="h-6 w-6 text-foreground" />
           </button>
 
           {/* Header with icon or Mike's image for welcome */}
