@@ -9,6 +9,23 @@ import { toast } from "sonner";
 import { siteConfig } from "@/lib/siteConfig";
 import { trackContactForm, trackPhoneClick, trackEmailClick } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { getContactPageSchemas, getFAQSchema, getRealEstateAgentSchema } from "@/lib/schema";
+
+const contactFAQs = [
+  {
+    question: "How quickly will I receive a response after contacting Mike Ogunkeye?",
+    answer: "We aim to respond to all inquiries within 24 hours. For urgent matters, we recommend calling directly at (832) 340-8787 for immediate assistance.",
+  },
+  {
+    question: "What should I prepare before my consultation?",
+    answer: "For buyers, have an idea of your budget, preferred areas, and must-have features. For sellers, gather information about your property including any recent improvements. We'll guide you through the rest during our consultation.",
+  },
+  {
+    question: "Is the initial consultation free?",
+    answer: "Yes! We offer free, no-obligation consultations for both buyers and sellers. This allows us to understand your needs and explain how we can help you achieve your real estate goals.",
+  },
+];
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -25,10 +42,8 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Track the contact form submission
       trackContactForm("contact_page");
       
-      // Save lead to database
       const { error: dbError } = await supabase.from("leads").insert({
         name: formData.name,
         email: formData.email,
@@ -41,7 +56,6 @@ const Contact = () => {
         console.error("Error saving lead:", dbError);
       }
 
-      // Send email notification via edge function
       const { error: emailError } = await supabase.functions.invoke("send-lead-notification", {
         body: {
           name: formData.name,
@@ -75,6 +89,10 @@ const Contact = () => {
           content={`Get in touch with ${siteConfig.agent.name} at ${siteConfig.brokerage}. Schedule a free consultation for buying, selling, or investing in Houston area real estate. Call ${siteConfig.phone}.`}
         />
         <link rel="canonical" href={`${siteConfig.url}/contact`} />
+        <meta property="og:title" content={`Contact ${siteConfig.agent.name}`} />
+        <meta property="og:description" content={`Schedule a free consultation with ${siteConfig.agent.name} for all your real estate needs.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteConfig.url}/contact`} />
       </Helmet>
 
       <Layout>
@@ -290,40 +308,8 @@ const Contact = () => {
         </section>
       </Layout>
 
-      {/* Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ContactPage",
-          name: `Contact ${siteConfig.agent.name}`,
-          url: `${siteConfig.url}/contact`,
-          mainEntity: {
-            "@type": "RealEstateAgent",
-            name: siteConfig.name,
-            telephone: siteConfig.phone,
-            email: siteConfig.email,
-            address: {
-              "@type": "PostalAddress",
-              streetAddress: siteConfig.address.street,
-              addressLocality: siteConfig.address.city,
-              addressRegion: siteConfig.address.state,
-              postalCode: siteConfig.address.zip,
-              addressCountry: "US",
-            },
-          },
-        })}
-      </script>
-
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
-            { "@type": "ListItem", position: 2, name: "Contact", item: `${siteConfig.url}/contact` },
-          ],
-        })}
-      </script>
+      {/* Advanced Schema Markup */}
+      <SchemaMarkup schemas={[...getContactPageSchemas(), getRealEstateAgentSchema(), getFAQSchema(contactFAQs)]} />
     </>
   );
 };
