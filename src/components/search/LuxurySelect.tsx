@@ -136,14 +136,15 @@ export function LuxurySelect({
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={cn(
-              "absolute z-50 top-full left-0 right-0 mt-2",
-              "bg-card/98 backdrop-blur-xl",
-              "border border-border/50",
+              "absolute top-full left-0 right-0 mt-2",
+              "bg-white dark:bg-slate-900",
+              "border border-border",
               "rounded-xl overflow-hidden",
-              "shadow-xl shadow-foreground/5"
+              "shadow-2xl"
             )}
             style={{
-              boxShadow: "0 20px 60px -15px hsl(220 60% 15% / 0.25), 0 0 40px -20px hsl(220 75% 55% / 0.2)"
+              zIndex: 9999,
+              boxShadow: "0 20px 60px -15px rgba(0, 0, 0, 0.25), 0 10px 30px -10px rgba(0, 0, 0, 0.15)"
             }}
           >
             {/* Decorative top border */}

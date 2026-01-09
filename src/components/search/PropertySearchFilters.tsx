@@ -161,7 +161,7 @@ export function PropertySearchFilters({
 
   return (
     <div className={cn(
-      "w-full",
+      "w-full relative z-50",
       isHero && "bg-card/95 backdrop-blur-md rounded-2xl p-4 md:p-6 shadow-lg border border-border/50",
       isSticky && "bg-background/95 backdrop-blur-md border-b border-border py-4",
       className
