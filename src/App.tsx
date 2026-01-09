@@ -21,6 +21,7 @@ import { MobileToolbar } from "@/components/MobileToolbar";
 import { Layout } from "@/components/layout";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 import { SplashScreen } from "@/components/SplashScreen";
+import { VoiceAgentWidget } from "@/components/VoiceAgentWidget";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => {
                     </Layout>
                   </AnalyticsTracker>
                   <MobileToolbar />
+                  <VoiceAgentWidget />
                 </ComparisonProvider>
               </AuthProvider>
             </BrowserRouter>

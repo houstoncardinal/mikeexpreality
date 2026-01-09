@@ -57,6 +57,7 @@ import { allListings, formatPrice } from "@/lib/listingsData";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ToolbarView =
   | "home"
@@ -92,6 +93,7 @@ interface Property {
 }
 
 export function MobileToolbar() {
+  const isMobile = useIsMobile();
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeView, setActiveView] = useState<ToolbarView>("home");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -100,6 +102,11 @@ export function MobileToolbar() {
   const [savedSearches, setSavedSearches] = useState<any[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Only render on mobile devices
+  if (!isMobile) {
+    return null;
+  }
 
   // Quick Search State
   const [searchQuery, setSearchQuery] = useState("");
