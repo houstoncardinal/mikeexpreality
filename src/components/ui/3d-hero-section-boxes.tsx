@@ -6,9 +6,8 @@ import { ArrowRight, Play, Sparkles, Diamond, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './button';
 
-// Property images for the rotating hero background
+// Property images for the rotating hero background (professional home images only)
 const heroPropertyImages = [
-  "/imgi_10_7120993268281597033.jpg",
   "/imgi_12_-7189515740131590123.jpg",
   "/imgi_13_-3252337621568236283.jpg",
   "/imgi_14_1887428145382298790.jpg",

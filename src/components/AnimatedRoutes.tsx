@@ -1,6 +1,5 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { PageTransition } from "@/components/PageTransition";
 
 // Pages
@@ -19,13 +18,6 @@ import MortgageCalculatorPage from "@/pages/MortgageCalculator";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import Hero3DDemo from "@/pages/Hero3DDemo";
-import {
-  AdminDashboard,
-  AdminLeads,
-  AdminPosts,
-  AdminPostEditor,
-  AdminCategories,
-} from "@/pages/admin";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -152,68 +144,6 @@ export function AnimatedRoutes() {
             <PageTransition>
               <MortgageCalculatorPage />
             </PageTransition>
-          }
-        />
-
-        {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requireAdmin>
-              <PageTransition>
-                <AdminDashboard />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/leads"
-          element={
-            <ProtectedRoute requireAdmin>
-              <PageTransition>
-                <AdminLeads />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/posts"
-          element={
-            <ProtectedRoute requireAdmin>
-              <PageTransition>
-                <AdminPosts />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/posts/new"
-          element={
-            <ProtectedRoute requireAdmin>
-              <PageTransition>
-                <AdminPostEditor />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/posts/:id"
-          element={
-            <ProtectedRoute requireAdmin>
-              <PageTransition>
-                <AdminPostEditor />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/categories"
-          element={
-            <ProtectedRoute requireAdmin>
-              <PageTransition>
-                <AdminCategories />
-              </PageTransition>
-            </ProtectedRoute>
           }
         />
 
