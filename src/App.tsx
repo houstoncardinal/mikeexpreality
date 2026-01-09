@@ -42,6 +42,8 @@ import AdminMLS from "@/pages/admin/AdminMLS";
 import AdminStaff from "@/pages/admin/AdminStaff";
 import AdminMeetings from "@/pages/admin/AdminMeetings";
 import AdminTrainings from "@/pages/admin/AdminTrainings";
+import AdminFollowUps from "@/pages/admin/AdminFollowUps";
+import AdminEmailCampaigns from "@/pages/admin/AdminEmailCampaigns";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +92,8 @@ const AppRoutes = () => {
               <Route path="/admin/staff" element={<PageTransition><AdminStaff /></PageTransition>} />
               <Route path="/admin/meetings" element={<PageTransition><AdminMeetings /></PageTransition>} />
               <Route path="/admin/trainings" element={<PageTransition><AdminTrainings /></PageTransition>} />
+              <Route path="/admin/follow-ups" element={<PageTransition><AdminFollowUps /></PageTransition>} />
+              <Route path="/admin/email-campaigns" element={<PageTransition><AdminEmailCampaigns /></PageTransition>} />
               <Route path="/admin/posts" element={<PageTransition><AdminPosts /></PageTransition>} />
               <Route path="/admin/posts/new" element={<PageTransition><AdminPostEditor /></PageTransition>} />
               <Route path="/admin/posts/:id" element={<PageTransition><AdminPostEditor /></PageTransition>} />

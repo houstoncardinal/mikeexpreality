@@ -93,7 +93,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           onToggleSidebar={toggleSidebar} 
           sidebarCollapsed={sidebarCollapsed}
         />
-        <div className="relative">
+        <div className="relative max-w-[1800px]">
           {children}
         </div>
       </motion.main>

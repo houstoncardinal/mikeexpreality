@@ -100,6 +100,19 @@ export function AdminHeader({ onToggleSidebar, sidebarCollapsed }: AdminHeaderPr
             </div>
           </motion.button>
 
+          {/* Branding with Mike's Logo */}
+          <div className="hidden md:flex items-center gap-3">
+            <img 
+              src="/logo-primary.jpeg" 
+              alt="Mike Ogunkeye Real Estate" 
+              className="h-9 w-9 rounded-lg object-cover shadow-md"
+            />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Mike Ogunkeye</p>
+              <p className="text-[10px] text-muted-foreground">eXp Realty • Admin Portal</p>
+            </div>
+          </div>
+
           {/* Command Search */}
           <div className="relative hidden md:block">
             <motion.div
