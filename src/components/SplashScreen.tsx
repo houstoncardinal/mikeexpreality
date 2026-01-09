@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { siteConfig } from "@/lib/siteConfig";
 import { Crown, Sparkles } from "lucide-react";
 
@@ -10,6 +10,14 @@ interface SplashScreenProps {
 export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
 
+  const handleSkip = useCallback(() => {
+    setIsVisible(false);
+    // Small delay to allow exit animation
+    setTimeout(() => {
+      onComplete();
+    }, 300);
+  }, [onComplete]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
@@ -19,11 +27,22 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       onComplete();
     }, 2800);
 
+    // Allow keyboard skip (Enter, Space, Escape)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+        e.preventDefault();
+        handleSkip();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       clearTimeout(timer);
       clearTimeout(completeTimer);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onComplete]);
+  }, [onComplete, handleSkip]);
 
   return (
     <AnimatePresence>
@@ -31,11 +50,16 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950"
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950 cursor-pointer touch-manipulation"
+          onClick={handleSkip}
+          onTouchEnd={handleSkip}
+          role="button"
+          tabIndex={0}
+          aria-label="Loading screen - tap or press any key to skip"
         >
           {/* Ambient Background Effects */}
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Gradient orbs */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -50,14 +74,13 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
               className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-royal/20 rounded-full blur-[100px]"
             />
             
-            {/* Floating particles */}
-            {[...Array(20)].map((_, i) => (
+            {/* Floating particles - reduced for mobile performance */}
+            {[...Array(12)].map((_, i) => (
               <motion.div
                 key={i}
                 initial={{ 
                   opacity: 0, 
                   y: Math.random() * 100 + 50,
-                  x: Math.random() * window.innerWidth 
                 }}
                 animate={{ 
                   opacity: [0, 0.6, 0],
@@ -75,7 +98,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
 
           {/* Main Content */}
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center pointer-events-none">
             {/* Crown Icon */}
             <motion.div
               initial={{ opacity: 0, scale: 0.5, y: 20 }}
@@ -115,9 +138,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center"
+              className="text-center px-4"
             >
-              <h1 className="font-serif text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">
                 <motion.span
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -160,6 +183,16 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
                 className="h-full bg-gradient-to-r from-accent via-amber-500 to-accent rounded-full"
               />
             </motion.div>
+
+            {/* Skip hint */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              transition={{ delay: 1.2 }}
+              className="mt-8 text-xs text-slate-500"
+            >
+              Tap anywhere to continue
+            </motion.p>
           </div>
         </motion.div>
       )}
