@@ -27,13 +27,16 @@ import {
   Heart,
   Facebook,
   Instagram,
-  Linkedin
+  Linkedin,
+  User,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig, neighborhoods } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavChild {
   name: string;
@@ -147,6 +150,7 @@ export function Header() {
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -472,6 +476,30 @@ export function Header() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <LanguageSwitcher variant="header" />
+            
+            {/* Client Portal / Auth Button */}
+            {user ? (
+              <Link
+                to="/client-portal"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
+              >
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-accent" />
+                </div>
+                <span className="hidden xl:block">My Portal</span>
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
+              >
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-accent" />
+                </div>
+                <span className="hidden xl:block">Client Login</span>
+              </Link>
+            )}
+            
             <a
               href={`tel:${siteConfig.phoneRaw}`}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
@@ -618,6 +646,35 @@ export function Header() {
                 </nav>
 
                 <div className="mt-6 pt-4 border-t border-border/50 space-y-3">
+                  {/* Client Portal Link - Mobile */}
+                  {user ? (
+                    <Link
+                      to="/client-portal"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/5 text-foreground"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <User className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <span className="block text-sm font-medium">My Client Portal</span>
+                        <span className="block text-xs text-muted-foreground">View your properties & documents</span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/auth"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/5 text-foreground"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <User className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <span className="block text-sm font-medium">Client Login</span>
+                        <span className="block text-xs text-muted-foreground">Access your portal</span>
+                      </div>
+                    </Link>
+                  )}
+                  
                   <a
                     href={`tel:${siteConfig.phoneRaw}`}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/30 text-foreground"

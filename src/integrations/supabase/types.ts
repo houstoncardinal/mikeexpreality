@@ -100,6 +100,104 @@ export type Database = {
           },
         ]
       }
+      client_documents: {
+        Row: {
+          client_id: string
+          created_at: string
+          document_type: string
+          file_size: number | null
+          file_url: string | null
+          id: string
+          name: string
+          notes: string | null
+          property_id: string | null
+          status: string
+          transaction_id: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          document_type?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          property_id?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          document_type?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          property_id?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_documents_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_documents_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_properties: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          property_id: string
+          relationship_type: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          property_id: string
+          relationship_type?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          property_id?: string
+          relationship_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_properties_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           converted_at: string | null
@@ -599,6 +697,7 @@ export type Database = {
       transactions: {
         Row: {
           buyer_agent_id: string | null
+          client_id: string | null
           closing_date: string | null
           commission_buyer_side: number | null
           commission_listing_side: number | null
@@ -623,6 +722,7 @@ export type Database = {
         }
         Insert: {
           buyer_agent_id?: string | null
+          client_id?: string | null
           closing_date?: string | null
           commission_buyer_side?: number | null
           commission_listing_side?: number | null
@@ -647,6 +747,7 @@ export type Database = {
         }
         Update: {
           buyer_agent_id?: string | null
+          client_id?: string | null
           closing_date?: string | null
           commission_buyer_side?: number | null
           commission_listing_side?: number | null
