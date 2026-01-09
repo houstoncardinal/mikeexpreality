@@ -8,12 +8,35 @@ import {
 } from "@/components/home";
 import { Hero3DSection } from "@/components/ui/3d-hero-section-boxes";
 import CombinedFeaturedSection from "@/components/ui/combined-featured-section";
-import { siteConfig, testimonials } from "@/lib/siteConfig";
+import { siteConfig } from "@/lib/siteConfig";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { getHomepageSchemas, getFAQSchema } from "@/lib/schema";
+
+// Common real estate FAQs for homepage
+const homepageFAQs = [
+  {
+    question: "How do I get started buying a home in Houston?",
+    answer: "Start by getting pre-approved for a mortgage, then contact Mike Ogunkeye Real Estate for a free buyer consultation. We'll help you understand the market, identify your needs, and find properties that match your criteria in Houston, Sugar Land, Katy, Cypress, and surrounding areas.",
+  },
+  {
+    question: "What is my home worth in today's market?",
+    answer: "Home values vary based on location, condition, size, and current market conditions. Mike Ogunkeye Real Estate offers free home valuations using comprehensive market analysis. Contact us for a personalized assessment of your property's value.",
+  },
+  {
+    question: "How long does it take to sell a home in Houston?",
+    answer: "The average time to sell a home in Houston varies by neighborhood and price point. Well-priced homes in desirable areas like Sugar Land and Katy often sell within 30-60 days. Mike Ogunkeye Real Estate uses strategic marketing to help sell homes faster.",
+  },
+  {
+    question: "What areas does Mike Ogunkeye Real Estate serve?",
+    answer: "We serve Houston and surrounding areas including Sugar Land, Katy, Cypress, Richmond, Missouri City, Pearland, Rosenberg, and Rosharon. Our deep local knowledge helps clients find the perfect home or sell their property for top dollar.",
+  },
+  {
+    question: "What makes Mike Ogunkeye Real Estate different?",
+    answer: "Our client-first philosophy, deep local market knowledge, strong negotiation skills, and trusted network of industry professionals set us apart. We combine personalized service with the latest technology to deliver faster, more efficient results.",
+  },
+];
 
 const Index = () => {
-  // Calculate average rating
-  const avgRating = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
-
   return (
     <>
       <Helmet>
@@ -31,11 +54,13 @@ const Index = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={siteConfig.url} />
         <meta property="og:site_name" content={siteConfig.name} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={siteConfig.name} />
         <meta name="twitter:description" content={siteConfig.tagline} />
+        <meta name="twitter:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
       </Helmet>
 
       <Hero3DSection />
@@ -46,239 +71,8 @@ const Index = () => {
       <TestimonialsSection />
       <CTASection />
 
-      {/* Advanced Schema Markup */}
-      
-      {/* RealEstateAgent Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "RealEstateAgent",
-          "@id": `${siteConfig.url}#agent`,
-          name: siteConfig.name,
-          alternateName: siteConfig.agent.fullName,
-          description: `${siteConfig.tagline}. As a dedicated real estate team serving Houston, Sugar Land, Richmond, Missouri City, Katy, and Cypress, our approach is rooted in a strong client-first philosophy.`,
-          url: siteConfig.url,
-          telephone: siteConfig.phone,
-          email: siteConfig.email,
-          image: "https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=1280/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2",
-          logo: `${siteConfig.url}/logo.png`,
-          priceRange: "$$-$$$$",
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: siteConfig.address.street,
-            addressLocality: siteConfig.address.city,
-            addressRegion: siteConfig.address.state,
-            postalCode: siteConfig.address.zip,
-            addressCountry: "US",
-          },
-          geo: {
-            "@type": "GeoCoordinates",
-            latitude: 29.6197,
-            longitude: -95.5617,
-          },
-          areaServed: siteConfig.serviceAreas.map((area) => ({
-            "@type": "City",
-            name: area,
-            containedInPlace: {
-              "@type": "State",
-              name: "Texas",
-            },
-          })),
-          openingHoursSpecification: [
-            {
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-              opens: "09:00",
-              closes: "18:00",
-            },
-            {
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: "Saturday",
-              opens: "10:00",
-              closes: "16:00",
-            },
-          ],
-          sameAs: [
-            siteConfig.social.instagram,
-            siteConfig.social.facebook,
-            siteConfig.social.linkedin,
-          ],
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: avgRating,
-            bestRating: 5,
-            worstRating: 1,
-            ratingCount: testimonials.length,
-            reviewCount: testimonials.length,
-          },
-          review: testimonials.slice(0, 5).map((testimonial) => ({
-            "@type": "Review",
-            author: {
-              "@type": "Person",
-              name: testimonial.name,
-            },
-            reviewRating: {
-              "@type": "Rating",
-              ratingValue: testimonial.rating,
-              bestRating: 5,
-            },
-            reviewBody: testimonial.text,
-          })),
-          parentOrganization: {
-            "@type": "Organization",
-            name: siteConfig.brokerage,
-            url: "https://exprealty.com",
-          },
-          knowsAbout: [
-            "Residential Real Estate",
-            "Luxury Homes",
-            "First-Time Home Buyers",
-            "Investment Properties",
-            "Property Valuation",
-            "Real Estate Negotiation",
-          ],
-        })}
-      </script>
-
-      {/* Person Schema for Agent */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Person",
-          "@id": `${siteConfig.url}#person`,
-          name: siteConfig.agent.fullName,
-          alternateName: siteConfig.agent.name,
-          jobTitle: "Real Estate Agent",
-          worksFor: {
-            "@type": "Organization",
-            name: siteConfig.brokerage,
-          },
-          url: siteConfig.url,
-          telephone: siteConfig.phone,
-          email: siteConfig.email,
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: siteConfig.address.city,
-            addressRegion: siteConfig.address.state,
-            addressCountry: "US",
-          },
-          sameAs: [
-            siteConfig.social.instagram,
-            siteConfig.social.facebook,
-            siteConfig.social.linkedin,
-          ],
-        })}
-      </script>
-
-      {/* WebSite Schema with SearchAction */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "@id": `${siteConfig.url}#website`,
-          name: siteConfig.name,
-          url: siteConfig.url,
-          description: siteConfig.tagline,
-          publisher: {
-            "@id": `${siteConfig.url}#agent`,
-          },
-          potentialAction: {
-            "@type": "SearchAction",
-            target: {
-              "@type": "EntryPoint",
-              urlTemplate: `${siteConfig.url}/listings?search={search_term_string}`,
-            },
-            "query-input": "required name=search_term_string",
-          },
-          inLanguage: "en-US",
-        })}
-      </script>
-
-      {/* LocalBusiness Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          "@id": `${siteConfig.url}#localbusiness`,
-          name: siteConfig.name,
-          image: `${siteConfig.url}/logo.png`,
-          telephone: siteConfig.phone,
-          email: siteConfig.email,
-          url: siteConfig.url,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: siteConfig.address.street,
-            addressLocality: siteConfig.address.city,
-            addressRegion: siteConfig.address.state,
-            postalCode: siteConfig.address.zip,
-            addressCountry: "US",
-          },
-          geo: {
-            "@type": "GeoCoordinates",
-            latitude: 29.6197,
-            longitude: -95.5617,
-          },
-          openingHoursSpecification: [
-            {
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-              opens: "09:00",
-              closes: "18:00",
-            },
-            {
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: "Saturday",
-              opens: "10:00",
-              closes: "16:00",
-            },
-          ],
-          priceRange: "$$-$$$$",
-        })}
-      </script>
-
-      {/* BreadcrumbList Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            {
-              "@type": "ListItem",
-              position: 1,
-              name: "Home",
-              item: siteConfig.url,
-            },
-          ],
-        })}
-      </script>
-
-      {/* Organization Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "@id": `${siteConfig.url}#organization`,
-          name: siteConfig.name,
-          url: siteConfig.url,
-          logo: `${siteConfig.url}/logo.png`,
-          contactPoint: {
-            "@type": "ContactPoint",
-            telephone: siteConfig.phone,
-            contactType: "customer service",
-            email: siteConfig.email,
-            availableLanguage: ["English"],
-            areaServed: siteConfig.serviceAreas.map((area) => ({
-              "@type": "City",
-              name: area,
-            })),
-          },
-          sameAs: [
-            siteConfig.social.instagram,
-            siteConfig.social.facebook,
-            siteConfig.social.linkedin,
-          ],
-        })}
-      </script>
+      {/* Advanced Schema Markup - Centralized */}
+      <SchemaMarkup schemas={[...getHomepageSchemas(), getFAQSchema(homepageFAQs)]} />
     </>
   );
 };

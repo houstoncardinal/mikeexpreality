@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { siteConfig } from "@/lib/siteConfig";
 import { mikeImages, brandImages } from "@/lib/images";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { getAboutPageSchemas, getFAQSchema, getAggregateRatingSchema } from "@/lib/schema";
 
 const stats = [
   { label: "Service Areas", value: "9+" },
@@ -36,6 +38,21 @@ const values = [
   },
 ];
 
+const aboutFAQs = [
+  {
+    question: "What experience does Mike Ogunkeye have in real estate?",
+    answer: "Mike Ogunkeye has over 10 years of experience in the Houston real estate market, helping over 100 happy clients buy and sell homes. With deep knowledge of Sugar Land, Katy, Cypress, Richmond, and Missouri City, Mike brings expertise and dedication to every transaction.",
+  },
+  {
+    question: "What brokerage is Mike Ogunkeye affiliated with?",
+    answer: "Mike Ogunkeye is affiliated with eXp Realty, one of the fastest-growing real estate brokerages in the country. This affiliation provides access to cutting-edge technology, extensive resources, and a global network of real estate professionals.",
+  },
+  {
+    question: "What sets Mike Ogunkeye apart from other real estate agents?",
+    answer: "Mike's client-first philosophy, strong negotiation skills, deep local market knowledge, and trusted network of industry professionals set him apart. He combines personalized service with the latest technology to deliver exceptional results.",
+  },
+];
+
 const About = () => {
   return (
     <>
@@ -46,6 +63,10 @@ const About = () => {
           content={`Meet ${siteConfig.agent.name} - a dedicated real estate professional with ${siteConfig.brokerage}. Serving Houston, Sugar Land, Katy, Cypress, Richmond, Missouri City and surrounding areas with a client-first approach.`}
         />
         <link rel="canonical" href={`${siteConfig.url}/about`} />
+        <meta property="og:title" content={`About ${siteConfig.agent.name} | ${siteConfig.brokerage}`} />
+        <meta property="og:description" content={`Meet ${siteConfig.agent.name} - a dedicated real estate professional serving Houston and surrounding areas.`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:url" content={`${siteConfig.url}/about`} />
       </Helmet>
 
       <Layout>
@@ -145,7 +166,6 @@ const About = () => {
                     alt={`${siteConfig.agent.name} - Professional Real Estate Agent`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // Fallback to alt profile image if primary fails
                       e.currentTarget.src = mikeImages.profileAlt1;
                     }}
                   />
@@ -154,7 +174,6 @@ const About = () => {
                   <p className="font-serif text-3xl font-bold">{siteConfig.brokerage}</p>
                   <p className="text-sm">Real Estate Professional</p>
                 </div>
-                {/* Professional certifications */}
                 <div className="absolute -top-4 -right-4 flex flex-col gap-2">
                   <div className="bg-white p-3 rounded-lg shadow-xl">
                     <img
@@ -220,40 +239,8 @@ const About = () => {
         </section>
       </Layout>
 
-      {/* Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
-            { "@type": "ListItem", position: 2, name: "About", item: `${siteConfig.url}/about` },
-          ],
-        })}
-      </script>
-
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ProfilePage",
-          mainEntity: {
-            "@type": "Person",
-            name: siteConfig.agent.fullName,
-            jobTitle: "Real Estate Agent",
-            worksFor: {
-              "@type": "Organization",
-              name: siteConfig.brokerage,
-            },
-            telephone: siteConfig.phone,
-            email: siteConfig.email,
-            address: {
-              "@type": "PostalAddress",
-              addressLocality: siteConfig.address.city,
-              addressRegion: siteConfig.address.state,
-            },
-          },
-        })}
-      </script>
+      {/* Advanced Schema Markup */}
+      <SchemaMarkup schemas={[...getAboutPageSchemas(), getFAQSchema(aboutFAQs), getAggregateRatingSchema()]} />
     </>
   );
 };
