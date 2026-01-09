@@ -309,9 +309,9 @@ function AdminDashboard() {
         <title>Admin Dashboard | {siteConfig.name}</title>
       </Helmet>
 
-      <div className="min-h-screen">
+      <div className="min-h-[calc(100vh-4rem)]">
         <motion.div
-          className="p-6 lg:p-8 space-y-6"
+          className="py-6 lg:py-8 space-y-6"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
