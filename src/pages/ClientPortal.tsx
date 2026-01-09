@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate, Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   User,
   Home,
@@ -15,129 +18,294 @@ import {
   Clock,
   Phone,
   Mail,
-  Star,
+  FileText,
+  Download,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Building2,
   TrendingUp,
-  Shield
+  Shield,
+  ChevronRight,
+  Plus,
+  Upload,
+  ExternalLink,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Mock client data - in real app, this would come from authentication
-const mockClientData = {
-  id: "client-123",
-  name: "Sarah Johnson",
-  email: "sarah.johnson@email.com",
-  phone: "(555) 123-4567",
-  joinDate: "2024-01-15",
-  avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-  preferences: {
-    propertyTypes: ["Single Family", "Condo"],
-    priceRange: [300000, 600000],
-    areas: ["River Oaks", "West University", "The Heights"],
-    bedrooms: 3,
-    bathrooms: 2,
+interface ClientProperty {
+  id: string;
+  property_id: string;
+  relationship_type: string;
+  created_at: string;
+  properties?: {
+    id: string;
+    title: string;
+    address_line1: string;
+    city: string;
+    state: string;
+    price: number;
+    bedrooms: number;
+    bathrooms: number;
+    sqft: number;
+    images: string[];
+    status: string;
+  };
+}
+
+interface ClientDocument {
+  id: string;
+  name: string;
+  document_type: string;
+  status: string;
+  file_url: string | null;
+  created_at: string;
+  notes: string | null;
+}
+
+interface ClientTransaction {
+  id: string;
+  status: string;
+  transaction_type: string;
+  list_price: number | null;
+  sale_price: number | null;
+  contract_date: string | null;
+  closing_date: string | null;
+  milestones: any;
+  properties?: {
+    title: string;
+    address_line1: string;
+    city: string;
+  };
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
   },
-  savedProperties: [
-    {
-      id: "prop-1",
-      address: "123 Oak Street, River Oaks",
-      price: 485000,
-      beds: 3,
-      baths: 2,
-      sqft: 2100,
-      image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop",
-      status: "Active",
-      savedDate: "2024-01-20",
-    },
-    {
-      id: "prop-2",
-      address: "456 Pine Avenue, West University",
-      price: 525000,
-      beds: 4,
-      baths: 3,
-      sqft: 2400,
-      image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=300&fit=crop",
-      status: "Active",
-      savedDate: "2024-01-18",
-    },
-  ],
-  appointments: [
-    {
-      id: "appt-1",
-      property: "123 Oak Street, River Oaks",
-      date: "2024-01-25",
-      time: "2:00 PM",
-      type: "Private Showing",
-      status: "Confirmed",
-    },
-    {
-      id: "appt-2",
-      property: "456 Pine Avenue, West University",
-      date: "2024-01-28",
-      time: "10:00 AM",
-      type: "Open House",
-      status: "Confirmed",
-    },
-  ],
-  messages: [
-    {
-      id: "msg-1",
-      from: siteConfig.agent.name,
-      subject: "Update on 123 Oak Street showing",
-      preview: "Great news! The property is still available and the seller is motivated...",
-      date: "2024-01-22",
-      unread: true,
-    },
-    {
-      id: "msg-2",
-      from: siteConfig.agent.name,
-      subject: "Market analysis for River Oaks",
-      preview: "I've prepared a detailed market analysis for the River Oaks area...",
-      date: "2024-01-20",
-      unread: false,
-    },
-  ],
-  activity: [
-    { date: "2024-01-22", action: "Saved property: 123 Oak Street", type: "save" },
-    { date: "2024-01-20", action: "Scheduled showing: 456 Pine Avenue", type: "appointment" },
-    { date: "2024-01-18", action: "Updated search preferences", type: "update" },
-    { date: "2024-01-15", action: "Account created", type: "account" },
-  ],
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
 export function ClientPortal() {
+  const { user, session, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [clientData, setClientData] = useState(mockClientData);
+  const [properties, setProperties] = useState<ClientProperty[]>([]);
+  const [documents, setDocuments] = useState<ClientDocument[]>([]);
+  const [transactions, setTransactions] = useState<ClientTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth?redirect=/client-portal");
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchClientData();
+    }
+  }, [user]);
+
+  const fetchClientData = async () => {
+    if (!user) return;
+    setLoading(true);
+
+    try {
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileData) {
+        setProfile(profileData);
+      }
+
+      // Fetch saved properties
+      const { data: propertiesData } = await supabase
+        .from("client_properties")
+        .select(`
+          id,
+          property_id,
+          relationship_type,
+          created_at,
+          properties (
+            id,
+            title,
+            address_line1,
+            city,
+            state,
+            price,
+            bedrooms,
+            bathrooms,
+            sqft,
+            images,
+            status
+          )
+        `)
+        .eq("client_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (propertiesData) {
+        setProperties(propertiesData as unknown as ClientProperty[]);
+      }
+
+      // Fetch documents
+      const { data: documentsData } = await supabase
+        .from("client_documents")
+        .select("*")
+        .eq("client_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (documentsData) {
+        setDocuments(documentsData);
+      }
+
+      // Fetch transactions
+      const { data: transactionsData } = await supabase
+        .from("transactions")
+        .select(`
+          id,
+          status,
+          transaction_type,
+          list_price,
+          sale_price,
+          contract_date,
+          closing_date,
+          milestones,
+          properties (
+            title,
+            address_line1,
+            city
+          )
+        `)
+        .eq("client_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (transactionsData) {
+        setTransactions(transactionsData as unknown as ClientTransaction[]);
+      }
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+      toast.error("Failed to load your data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+      case "approved":
+      case "closed":
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400";
+      case "pending":
+      case "in_review":
+        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400";
+      case "active":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const getTransactionProgress = (status: string): number => {
+    const stages: Record<string, number> = {
+      pending: 10,
+      under_contract: 30,
+      inspection: 45,
+      appraisal: 60,
+      financing: 75,
+      final_walkthrough: 90,
+      closed: 100,
+    };
+    return stages[status.toLowerCase()] || 20;
+  };
+
+  const documentTypeIcons: Record<string, string> = {
+    contract: "📄",
+    disclosure: "📋",
+    inspection: "🔍",
+    appraisal: "📊",
+    title: "📑",
+    loan: "💰",
+    other: "📁",
+  };
+
+  if (authLoading || loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center bg-secondary/20">
+          <motion.div
+            className="flex flex-col items-center gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <Loader2 className="h-12 w-12 animate-spin text-accent" />
+            <p className="text-muted-foreground font-medium">Loading your portal...</p>
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const displayName = profile?.full_name || user.email?.split("@")[0] || "Client";
 
   const stats = [
     {
       title: "Saved Properties",
-      value: clientData.savedProperties.length.toString(),
+      value: properties.length.toString(),
       icon: Heart,
-      color: "text-red-500",
+      color: "from-rose-500 to-pink-600",
+      bgColor: "from-rose-500/10 to-pink-600/5",
     },
     {
-      title: "Upcoming Appointments",
-      value: clientData.appointments.length.toString(),
-      icon: Calendar,
-      color: "text-blue-500",
+      title: "Active Transactions",
+      value: transactions.filter((t) => t.status !== "closed").length.toString(),
+      icon: TrendingUp,
+      color: "from-accent to-amber-600",
+      bgColor: "from-accent/10 to-amber-600/5",
     },
     {
-      title: "Unread Messages",
-      value: clientData.messages.filter(m => m.unread).length.toString(),
-      icon: MessageSquare,
-      color: "text-green-500",
+      title: "Documents",
+      value: documents.length.toString(),
+      icon: FileText,
+      color: "from-blue-500 to-indigo-600",
+      bgColor: "from-blue-500/10 to-indigo-600/5",
     },
     {
-      title: "Account Age",
-      value: `${Math.floor((new Date().getTime() - new Date(clientData.joinDate).getTime()) / (1000 * 60 * 60 * 24))} days`,
-      icon: Clock,
-      color: "text-purple-500",
+      title: "Completed",
+      value: transactions.filter((t) => t.status === "closed").length.toString(),
+      icon: CheckCircle2,
+      color: "from-emerald-500 to-teal-600",
+      bgColor: "from-emerald-500/10 to-teal-600/5",
     },
   ];
 
@@ -145,36 +313,39 @@ export function ClientPortal() {
     <>
       <Helmet>
         <title>Client Portal | {siteConfig.name}</title>
+        <meta name="description" content="Access your properties, documents, and transaction progress" />
       </Helmet>
 
       <Layout>
-        <div className="min-h-screen bg-secondary/20">
+        <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background">
           {/* Header */}
-          <div className="bg-card border-b border-border">
+          <div className="bg-card border-b border-border shadow-sm">
             <div className="container-custom py-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={clientData.avatar} alt={clientData.name} />
-                    <AvatarFallback>
-                      {clientData.name.split(' ').map(n => n[0]).join('')}
+                  <Avatar className="h-14 w-14 ring-2 ring-accent/20">
+                    <AvatarFallback className="bg-gradient-to-br from-accent to-amber-600 text-white text-lg font-bold">
+                      {displayName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <h1 className="text-2xl font-serif font-bold text-foreground">
-                      Welcome back, {clientData.name.split(' ')[0]}
+                      Welcome, {displayName}
                     </h1>
-                    <p className="text-muted-foreground">
-                      Member since {new Date(clientData.joinDate).toLocaleDateString()}
+                    <p className="text-muted-foreground text-sm flex items-center gap-2">
+                      <Shield className="h-3.5 w-3.5 text-emerald-500" />
+                      Your secure client portal
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/listings">
+                      <Home className="h-4 w-4 mr-2" />
+                      Browse Properties
+                    </Link>
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
                   </Button>
@@ -185,321 +356,427 @@ export function ClientPortal() {
 
           {/* Main Content */}
           <div className="container-custom py-8">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-              {/* Tab Navigation */}
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                <TabsTrigger value="properties">Saved Properties</TabsTrigger>
-                <TabsTrigger value="appointments">Appointments</TabsTrigger>
-                <TabsTrigger value="messages">Messages</TabsTrigger>
-                <TabsTrigger value="activity">Activity</TabsTrigger>
-              </TabsList>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+                {/* Tab Navigation */}
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1">
+                  <TabsTrigger value="dashboard" className="py-2.5">
+                    <Home className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </TabsTrigger>
+                  <TabsTrigger value="properties" className="py-2.5">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Properties
+                  </TabsTrigger>
+                  <TabsTrigger value="transactions" className="py-2.5">
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Transactions
+                  </TabsTrigger>
+                  <TabsTrigger value="documents" className="py-2.5">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Documents
+                  </TabsTrigger>
+                </TabsList>
 
-              {/* Dashboard Tab */}
-              <TabsContent value="dashboard" className="space-y-8">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {stats.map((stat, index) => (
-                    <Card key={index} className="hover:shadow-lg transition-shadow">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
-                          {stat.title}
-                        </CardTitle>
-                        <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-foreground">
-                          {stat.value}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Recent Activity & Quick Actions */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Recent Activity */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5" />
-                        Recent Activity
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {clientData.activity.slice(0, 5).map((activity, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                              {activity.type === 'save' && <Heart className="h-4 w-4 text-red-500" />}
-                              {activity.type === 'appointment' && <Calendar className="h-4 w-4 text-blue-500" />}
-                              {activity.type === 'update' && <Settings className="h-4 w-4 text-purple-500" />}
-                              {activity.type === 'account' && <User className="h-4 w-4 text-green-500" />}
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{activity.action}</p>
-                              <p className="text-xs text-muted-foreground">{activity.date}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Quick Actions */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button className="w-full justify-start" variant="outline">
-                        <Home className="h-4 w-4 mr-2" />
-                        Browse New Properties
-                      </Button>
-                      <Button className="w-full justify-start" variant="outline">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Schedule Showing
-                      </Button>
-                      <Button className="w-full justify-start" variant="outline">
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Contact Agent
-                      </Button>
-                      <Button className="w-full justify-start" variant="outline">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Update Preferences
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Agent Contact Card */}
-                <Card className="bg-gradient-to-r from-accent/5 to-accent/10 border-accent/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src="https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=400/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2" />
-                        <AvatarFallback>MK</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-serif text-lg font-bold text-foreground">
-                          {siteConfig.agent.name}
-                        </h3>
-                        <p className="text-muted-foreground mb-2">
-                          Your dedicated real estate professional
-                        </p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
-                            <span>{siteConfig.phone}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            <span>{siteConfig.email}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button>
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Message
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Saved Properties Tab */}
-              <TabsContent value="properties" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-serif font-bold">Saved Properties</h2>
-                  <Badge variant="secondary">
-                    {clientData.savedProperties.length} properties
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {clientData.savedProperties.map((property) => (
-                    <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="aspect-video relative">
-                        <img
-                          src={property.image}
-                          alt={property.address}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 right-3">
-                          <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white">
-                            <Heart className="h-4 w-4 text-red-500 fill-current" />
-                          </Button>
-                        </div>
-                        <div className="absolute top-3 left-3">
-                          <Badge className="bg-green-100 text-green-800">
-                            {property.status}
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-semibold text-lg">
-                            ${property.price.toLocaleString()}
-                          </h3>
-                          <span className="text-sm text-muted-foreground">
-                            Saved {new Date(property.savedDate).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-muted-foreground mb-3 flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {property.address}
-                        </p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{property.beds} beds</span>
-                          <span>{property.baths} baths</span>
-                          <span>{property.sqft.toLocaleString()} sqft</span>
-                        </div>
-                        <div className="flex gap-2 mt-4">
-                          <Button size="sm" className="flex-1">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            Schedule
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              {/* Appointments Tab */}
-              <TabsContent value="appointments" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-serif font-bold">My Appointments</h2>
-                  <Button>
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Schedule New
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {clientData.appointments.map((appointment) => (
-                    <Card key={appointment.id}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-lg mb-1">
-                              {appointment.property}
-                            </h3>
-                            <p className="text-muted-foreground mb-3">
-                              {appointment.type}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                <span>{new Date(appointment.date).toLocaleDateString()}</span>
+                {/* Dashboard Tab */}
+                <TabsContent value="dashboard">
+                  <motion.div variants={itemVariants} className="space-y-6">
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {stats.map((stat, index) => (
+                        <motion.div
+                          key={index}
+                          whileHover={{ y: -2, scale: 1.02 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Card className={`relative overflow-hidden border-0 shadow-md bg-gradient-to-br ${stat.bgColor}`}>
+                            <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${stat.color} opacity-10 rounded-full -translate-y-10 translate-x-10`} />
+                            <CardContent className="p-5">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                                    {stat.title}
+                                  </p>
+                                  <p className="text-3xl font-bold text-foreground">
+                                    {stat.value}
+                                  </p>
+                                </div>
+                                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                                  <stat.icon className="h-4 w-4 text-white" />
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                <span>{appointment.time}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <Badge className="mb-3 bg-green-100 text-green-800">
-                              {appointment.status}
-                            </Badge>
-                            <div className="space-y-2">
-                              <Button size="sm" variant="outline">
-                                Reschedule
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              {/* Messages Tab */}
-              <TabsContent value="messages" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-serif font-bold">Messages</h2>
-                  <Button>
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    New Message
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {clientData.messages.map((message) => (
-                    <Card key={message.id} className={`cursor-pointer hover:shadow-md transition-shadow ${message.unread ? 'border-accent' : ''}`}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage src="https://media-production.lp-cdn.com/cdn-cgi/image/format=auto,quality=85,fit=scale-down,width=400/https://media-production.lp-cdn.com/media/3e061cc4-19fe-4964-9802-0ef4ec5783d2" />
-                              <AvatarFallback>MK</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="font-semibold">{message.from}</h3>
-                              <p className="text-sm font-medium text-foreground">
-                                {message.subject}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {message.preview}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {new Date(message.date).toLocaleDateString()}
-                            </p>
-                            {message.unread && (
-                              <Badge className="bg-accent text-accent-foreground">
-                                New
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              {/* Activity Tab */}
-              <TabsContent value="activity" className="space-y-6">
-                <h2 className="text-2xl font-serif font-bold">Account Activity</h2>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="space-y-6">
-                      {clientData.activity.map((activity, index) => (
-                        <div key={index} className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                            {activity.type === 'save' && <Heart className="h-5 w-5 text-red-500" />}
-                            {activity.type === 'appointment' && <Calendar className="h-5 w-5 text-blue-500" />}
-                            {activity.type === 'update' && <Settings className="h-5 w-5 text-purple-500" />}
-                            {activity.type === 'account' && <User className="h-5 w-5 text-green-500" />}
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-foreground">
-                              {activity.action}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(activity.date).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+
+                    {/* Quick Actions & Recent Activity */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Active Transactions Summary */}
+                      <Card className="border-0 shadow-md">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2 text-lg">
+                            <TrendingUp className="h-5 w-5 text-accent" />
+                            Active Transactions
+                          </CardTitle>
+                          <CardDescription>Your current real estate transactions</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {transactions.filter((t) => t.status !== "closed").length === 0 ? (
+                            <div className="text-center py-8 text-muted-foreground">
+                              <Building2 className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                              <p>No active transactions</p>
+                              <Button variant="link" asChild className="mt-2">
+                                <Link to="/listings">Start browsing properties</Link>
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {transactions.filter((t) => t.status !== "closed").slice(0, 3).map((transaction) => (
+                                <div key={transaction.id} className="p-4 rounded-lg bg-muted/50">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div>
+                                      <p className="font-medium text-sm">
+                                        {transaction.properties?.title || transaction.properties?.address_line1 || "Property Transaction"}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {transaction.transaction_type === "sale" ? "Purchase" : "Sale"}
+                                      </p>
+                                    </div>
+                                    <Badge className={getStatusColor(transaction.status)}>
+                                      {transaction.status.replace("_", " ")}
+                                    </Badge>
+                                  </div>
+                                  <Progress value={getTransactionProgress(transaction.status)} className="h-2" />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Agent Contact */}
+                      <Card className="border-0 shadow-md bg-gradient-to-br from-accent/5 to-accent/10">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Your Agent</CardTitle>
+                          <CardDescription>Get in touch with your dedicated agent</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center gap-4 mb-4">
+                            <Avatar className="h-16 w-16 ring-2 ring-accent/30">
+                              <AvatarImage src="/logo-primary.jpeg" />
+                              <AvatarFallback>MO</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-serif font-bold text-lg">
+                                {siteConfig.agent.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                eXp Realty • Licensed Realtor
+                              </p>
+                            </div>
+                          </div>
+                          <Separator className="my-4" />
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 text-sm">
+                              <div className="p-2 rounded-lg bg-accent/10">
+                                <Phone className="h-4 w-4 text-accent" />
+                              </div>
+                              <span>{siteConfig.phone}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm">
+                              <div className="p-2 rounded-lg bg-accent/10">
+                                <Mail className="h-4 w-4 text-accent" />
+                              </div>
+                              <span>{siteConfig.email}</span>
+                            </div>
+                          </div>
+                          <Button className="w-full mt-4" asChild>
+                            <Link to="/contact">
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Send Message
+                            </Link>
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </motion.div>
+                </TabsContent>
+
+                {/* Properties Tab */}
+                <TabsContent value="properties">
+                  <motion.div variants={itemVariants} className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-2xl font-serif font-bold">My Properties</h2>
+                        <p className="text-muted-foreground">Properties you're interested in or working with</p>
+                      </div>
+                      <Button asChild>
+                        <Link to="/listings">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Browse More
+                        </Link>
+                      </Button>
+                    </div>
+
+                    {properties.length === 0 ? (
+                      <Card className="border-dashed border-2">
+                        <CardContent className="py-16 text-center">
+                          <Building2 className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                          <h3 className="font-semibold text-lg mb-2">No saved properties yet</h3>
+                          <p className="text-muted-foreground mb-4">
+                            Start browsing and save properties you're interested in
+                          </p>
+                          <Button asChild>
+                            <Link to="/listings">Browse Properties</Link>
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {properties.map((item) => (
+                          <motion.div
+                            key={item.id}
+                            whileHover={{ y: -4 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Card className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-shadow">
+                              <div className="aspect-[4/3] relative bg-muted">
+                                {item.properties?.images?.[0] ? (
+                                  <img
+                                    src={item.properties.images[0]}
+                                    alt={item.properties.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Building2 className="h-12 w-12 text-muted-foreground/30" />
+                                  </div>
+                                )}
+                                <div className="absolute top-3 left-3">
+                                  <Badge className={getStatusColor(item.properties?.status || "active")}>
+                                    {item.properties?.status || "Active"}
+                                  </Badge>
+                                </div>
+                                <div className="absolute top-3 right-3">
+                                  <Badge variant="secondary" className="bg-white/90">
+                                    <Heart className="h-3 w-3 mr-1 fill-rose-500 text-rose-500" />
+                                    Saved
+                                  </Badge>
+                                </div>
+                              </div>
+                              <CardContent className="p-4">
+                                <div className="mb-2">
+                                  <p className="font-bold text-xl text-accent">
+                                    ${item.properties?.price?.toLocaleString() || "N/A"}
+                                  </p>
+                                </div>
+                                <p className="font-medium text-sm line-clamp-1 mb-1">
+                                  {item.properties?.title || item.properties?.address_line1}
+                                </p>
+                                <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
+                                  <MapPin className="h-3 w-3" />
+                                  {item.properties?.city}, {item.properties?.state}
+                                </p>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span>{item.properties?.bedrooms || 0} beds</span>
+                                  <span>{item.properties?.bathrooms || 0} baths</span>
+                                  <span>{item.properties?.sqft?.toLocaleString() || 0} sqft</span>
+                                </div>
+                                <Separator className="my-3" />
+                                <div className="flex gap-2">
+                                  <Button size="sm" className="flex-1" asChild>
+                                    <Link to={`/property/${item.property_id}`}>
+                                      <Eye className="h-4 w-4 mr-1" />
+                                      View
+                                    </Link>
+                                  </Button>
+                                  <Button size="sm" variant="outline" asChild>
+                                    <Link to="/contact">
+                                      <Calendar className="h-4 w-4" />
+                                    </Link>
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                </TabsContent>
+
+                {/* Transactions Tab */}
+                <TabsContent value="transactions">
+                  <motion.div variants={itemVariants} className="space-y-6">
+                    <div>
+                      <h2 className="text-2xl font-serif font-bold">Transaction Progress</h2>
+                      <p className="text-muted-foreground">Track your real estate transactions from contract to close</p>
+                    </div>
+
+                    {transactions.length === 0 ? (
+                      <Card className="border-dashed border-2">
+                        <CardContent className="py-16 text-center">
+                          <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                          <h3 className="font-semibold text-lg mb-2">No transactions yet</h3>
+                          <p className="text-muted-foreground mb-4">
+                            Your transaction progress will appear here once you start working with us
+                          </p>
+                          <Button asChild>
+                            <Link to="/contact">Get Started</Link>
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="space-y-4">
+                        {transactions.map((transaction) => (
+                          <Card key={transaction.id} className="border-0 shadow-md overflow-hidden">
+                            <div className={`h-1 bg-gradient-to-r ${
+                              transaction.status === "closed" 
+                                ? "from-emerald-500 to-teal-600" 
+                                : "from-accent to-amber-600"
+                            }`} />
+                            <CardContent className="p-6">
+                              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="font-semibold text-lg">
+                                      {transaction.properties?.title || transaction.properties?.address_line1 || "Property Transaction"}
+                                    </h3>
+                                    <Badge className={getStatusColor(transaction.status)}>
+                                      {transaction.status.replace("_", " ")}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="h-3.5 w-3.5" />
+                                      {transaction.properties?.city || "N/A"}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <DollarSign className="h-3.5 w-3.5" />
+                                      ${(transaction.sale_price || transaction.list_price || 0).toLocaleString()}
+                                    </span>
+                                    {transaction.closing_date && (
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        Closing: {new Date(transaction.closing_date).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="lg:w-64">
+                                  <div className="flex items-center justify-between text-sm mb-2">
+                                    <span className="text-muted-foreground">Progress</span>
+                                    <span className="font-medium">{getTransactionProgress(transaction.status)}%</span>
+                                  </div>
+                                  <Progress value={getTransactionProgress(transaction.status)} className="h-2" />
+                                </div>
+                              </div>
+
+                              {/* Transaction Timeline */}
+                              <div className="mt-6 pt-4 border-t border-border">
+                                <p className="text-sm font-medium mb-3">Transaction Milestones</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {["Contract", "Inspection", "Appraisal", "Financing", "Closing"].map((milestone, index) => {
+                                    const progress = getTransactionProgress(transaction.status);
+                                    const milestoneProgress = (index + 1) * 20;
+                                    const isComplete = progress >= milestoneProgress;
+                                    const isCurrent = progress >= milestoneProgress - 20 && progress < milestoneProgress;
+                                    
+                                    return (
+                                      <Badge
+                                        key={milestone}
+                                        variant={isComplete ? "default" : "outline"}
+                                        className={
+                                          isComplete
+                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                            : isCurrent
+                                            ? "bg-accent/10 text-accent border-accent"
+                                            : ""
+                                        }
+                                      >
+                                        {isComplete && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                        {milestone}
+                                      </Badge>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                </TabsContent>
+
+                {/* Documents Tab */}
+                <TabsContent value="documents">
+                  <motion.div variants={itemVariants} className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-2xl font-serif font-bold">My Documents</h2>
+                        <p className="text-muted-foreground">Access and download your transaction documents</p>
+                      </div>
+                    </div>
+
+                    {documents.length === 0 ? (
+                      <Card className="border-dashed border-2">
+                        <CardContent className="py-16 text-center">
+                          <FileText className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                          <h3 className="font-semibold text-lg mb-2">No documents yet</h3>
+                          <p className="text-muted-foreground mb-4">
+                            Your transaction documents will appear here once available
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="grid gap-4">
+                        {documents.map((doc) => (
+                          <Card key={doc.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                  <div className="text-3xl">
+                                    {documentTypeIcons[doc.document_type] || "📁"}
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">{doc.name}</p>
+                                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                      <span className="capitalize">{doc.document_type.replace("_", " ")}</span>
+                                      <span>•</span>
+                                      <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Badge className={getStatusColor(doc.status)}>
+                                    {doc.status}
+                                  </Badge>
+                                  {doc.file_url && (
+                                    <Button size="sm" variant="outline" asChild>
+                                      <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                                        <Download className="h-4 w-4 mr-1" />
+                                        Download
+                                      </a>
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                </TabsContent>
+              </Tabs>
+            </motion.div>
           </div>
         </div>
       </Layout>
