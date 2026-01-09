@@ -142,6 +142,22 @@ export default function CombinedFeaturedSection() {
     setMedianPrice(formatPriceShort(median))
   }, [propertyType, priceRange])
 
+  // Fallback data for when Supabase is empty
+  const fallbackProperties: PropertyData[] = [
+    { city: 'Houston', price: 449990, property_type: 'single_family' },
+    { city: 'Houston', price: 175000, property_type: 'single_family' },
+    { city: 'Houston', price: 75000, property_type: 'land' },
+    { city: 'Katy', price: 299990, property_type: 'single_family' },
+    { city: 'Katy', price: 5000, property_type: 'single_family' },
+    { city: 'Sugar Land', price: 525000, property_type: 'single_family' },
+    { city: 'Cypress', price: 290000, property_type: 'single_family' },
+    { city: 'Richmond', price: 434990, property_type: 'single_family' },
+    { city: 'Richmond', price: 5000, property_type: 'single_family' },
+    { city: 'Missouri City', price: 345000, property_type: 'townhouse' },
+    { city: 'Pearland', price: 650000, property_type: 'single_family' },
+    { city: 'Stafford', price: 485000, property_type: 'single_family' },
+  ]
+
   // Fetch real listings data from Supabase
   React.useEffect(() => {
     async function fetchListingsData() {
@@ -154,10 +170,18 @@ export default function CombinedFeaturedSection() {
 
         if (error) {
           console.error('Error fetching properties:', error)
+          // Use fallback on error
+          setAllProperties(fallbackProperties)
+          setNeighborhoods(processPropertiesToNeighborhoods(fallbackProperties))
+          processProperties(fallbackProperties)
           return
         }
 
         if (!properties || properties.length === 0) {
+          // Use fallback when no data
+          setAllProperties(fallbackProperties)
+          setNeighborhoods(processPropertiesToNeighborhoods(fallbackProperties))
+          processProperties(fallbackProperties)
           setIsLoading(false)
           return
         }
@@ -168,6 +192,9 @@ export default function CombinedFeaturedSection() {
         processProperties(typedProperties)
       } catch (err) {
         console.error('Error:', err)
+        // Use fallback on catch
+        setAllProperties(fallbackProperties)
+        processProperties(fallbackProperties)
       } finally {
         setIsLoading(false)
       }

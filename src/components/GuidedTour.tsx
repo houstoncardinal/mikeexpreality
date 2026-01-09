@@ -455,21 +455,17 @@ export function GuidedTour() {
     }
   }, [userProfile, generateAdaptiveSteps]);
 
+  // Listen for manual tour trigger (via button click, etc.)
   useEffect(() => {
-    const seen = localStorage.getItem("tour-completed");
-    const returnVisitor = userProfile?.interactions.pagesViewed.length > 1;
+    const handleOpenTour = () => {
+      setIsVisible(true);
+      trackInteraction('tour_started');
+      trackUserAction('tour_started', location.pathname, { manualTrigger: true });
+    };
 
-    if (!seen && location.pathname === "/") {
-      // Personalized timing based on user profile
-      const delay = returnVisitor ? 1000 : 3000; // Faster for return visitors
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-        trackInteraction('tour_started');
-        trackUserAction('tour_started', location.pathname, { returnVisitor });
-      }, delay);
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, userProfile, trackInteraction]);
+    window.addEventListener('openGuidedTour', handleOpenTour);
+    return () => window.removeEventListener('openGuidedTour', handleOpenTour);
+  }, [location.pathname, trackInteraction]);
 
   // Track time spent on each step
   useEffect(() => {
