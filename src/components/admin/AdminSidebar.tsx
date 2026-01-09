@@ -96,6 +96,21 @@ const navigation: NavItem[] = [
     badge: "8",
     description: "To-do & follow-ups"
   },
+  { 
+    name: "Follow-Ups", 
+    href: "/admin/follow-ups", 
+    icon: Bell, 
+    badge: "6",
+    description: "Lead nurturing",
+    highlight: true
+  },
+  { 
+    name: "Email Campaigns", 
+    href: "/admin/email-campaigns", 
+    icon: Megaphone, 
+    badge: null,
+    description: "Marketing automation"
+  },
 ];
 
 const analyticsNavigation: NavItem[] = [
@@ -318,20 +333,22 @@ export function AdminSidebar({ collapsed }: AdminSidebarProps) {
               whileTap={{ scale: 0.95 }}
             >
               <div className="absolute inset-0 bg-accent/50 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className={cn(
-                "bg-gradient-to-br from-accent via-amber-500 to-accent rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/10 transition-all",
-                collapsed ? "w-12 h-12" : "w-11 h-11"
-              )}>
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
+              <img
+                src="/logo-primary.jpeg"
+                alt="Mike Ogunkeye Real Estate"
+                className={cn(
+                  "rounded-xl object-cover shadow-lg ring-2 ring-white/20 transition-all",
+                  collapsed ? "w-12 h-12" : "w-11 h-11"
+                )}
+              />
             </motion.div>
             {!collapsed && (
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <p className="font-serif font-bold text-white text-lg">M.O.R.E.</p>
-                <p className="text-xs text-white/50 font-medium">Enterprise CRM</p>
+                <p className="font-serif font-bold text-white text-lg">Mike Ogunkeye</p>
+                <p className="text-xs text-white/50 font-medium">eXp Realty CRM</p>
               </motion.div>
             )}
           </Link>
