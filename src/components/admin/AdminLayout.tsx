@@ -82,7 +82,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       
       <motion.main 
         className={cn(
-          "min-h-screen relative transition-all duration-300",
+          "min-h-screen relative transition-all duration-300 flex flex-col",
           sidebarCollapsed ? "ml-20" : "ml-72"
         )}
         initial={{ opacity: 0 }}
@@ -93,8 +93,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           onToggleSidebar={toggleSidebar} 
           sidebarCollapsed={sidebarCollapsed}
         />
-        <div className="relative max-w-[1800px]">
-          {children}
+        <div className="flex-1 relative w-full">
+          <div className="mx-auto w-full max-w-[1600px] px-4 lg:px-6 xl:px-8">
+            {children}
+          </div>
         </div>
       </motion.main>
     </div>
