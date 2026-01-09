@@ -12,7 +12,8 @@ import { initGA, trackPageView } from "@/lib/analytics";
 import { trackUserAction } from "@/lib/adaptiveLearning";
 import { preloadCriticalImages } from "@/lib/images";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { GuidedTour } from "@/components/GuidedTour";
+// GuidedTour disabled - was causing blocking modal issues
+// import { GuidedTour } from "@/components/GuidedTour";
 import { ScrollProgress } from "@/components/InteractiveEffects";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
 import { ComparisonModal } from "@/components/comparison/ComparisonModal";
@@ -62,7 +63,7 @@ const App = () => {
                   <ScrollProgress />
                   <Toaster />
                   <Sonner />
-                  <GuidedTour />
+                  {/* GuidedTour disabled - was causing blocking modal issues */}
                   
                   <AnalyticsTracker>
                     <Layout>
