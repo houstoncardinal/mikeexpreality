@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { Layout } from "@/components/layout";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import {
   Users,
   Search,
@@ -19,8 +19,11 @@ import {
   XCircle,
   AlertCircle,
   UserCheck,
-  MessageSquare
+  MessageSquare,
+  Plus
 } from "lucide-react";
+import { QuickAddModal } from "@/components/admin/QuickAddModal";
+import { QuickAddButton } from "@/components/admin/QuickAddButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +95,7 @@ function AdminLeads() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
   useEffect(() => {
     fetchLeads();
@@ -232,11 +236,11 @@ function AdminLeads() {
 
   if (loading) {
     return (
-      <Layout>
+      <AdminLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
         </div>
-      </Layout>
+      </AdminLayout>
     );
   }
 
@@ -246,23 +250,39 @@ function AdminLeads() {
         <title>Lead Management | {siteConfig.name}</title>
       </Helmet>
 
-      <Layout>
-        <div className="space-y-8">
+      <AdminLayout>
+        <div className="p-6 lg:p-8 space-y-8">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-serif font-bold text-foreground">
+              <h1 className="text-2xl lg:text-3xl font-serif font-bold text-foreground flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-accent to-accent/80 text-accent-foreground">
+                  <Users className="h-5 w-5" />
+                </div>
                 Lead Management
               </h1>
-              <p className="text-muted-foreground mt-2">
+              <p className="text-muted-foreground mt-1">
                 Manage and track all your leads in one place.
               </p>
             </div>
-            <Button onClick={exportLeads} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button onClick={exportLeads} variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+              <Button onClick={() => setIsAddLeadOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Lead
+              </Button>
+            </div>
           </div>
+
+          <QuickAddModal
+            type="lead"
+            open={isAddLeadOpen}
+            onOpenChange={setIsAddLeadOpen}
+            onSuccess={fetchLeads}
+          />
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -524,7 +544,10 @@ function AdminLeads() {
             </CardContent>
           </Card>
         </div>
-      </Layout>
+
+        {/* Floating Quick Add Button */}
+        <QuickAddButton variant="floating" onSuccess={fetchLeads} />
+      </AdminLayout>
     </>
   );
 }

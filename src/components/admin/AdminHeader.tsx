@@ -40,6 +40,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { QuickAddButton } from "./QuickAddButton";
 
 interface AdminHeaderProps {
   onToggleSidebar: () => void;
@@ -56,13 +57,6 @@ export function AdminHeader({ onToggleSidebar, sidebarCollapsed }: AdminHeaderPr
     { id: 3, title: "Contract signed - 4521 Riverstone", time: "1 hour ago", unread: false, type: "success" },
     { id: 4, title: "MLS sync completed", time: "2 hours ago", unread: false, type: "system" },
   ]);
-
-  const quickActions = [
-    { icon: Users, label: "Add Lead", shortcut: "⌘L" },
-    { icon: Building2, label: "New Listing", shortcut: "⌘P" },
-    { icon: Calendar, label: "Schedule", shortcut: "⌘S" },
-    { icon: FileText, label: "Create Task", shortcut: "⌘T" },
-  ];
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -160,23 +154,9 @@ export function AdminHeader({ onToggleSidebar, sidebarCollapsed }: AdminHeaderPr
           </div>
         </div>
 
-        {/* Center - Quick Actions */}
-        <div className="hidden xl:flex items-center gap-1">
-          {quickActions.map((action, index) => (
-            <motion.button
-              key={index}
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-            >
-              <action.icon className="h-4 w-4" />
-              <span className="hidden 2xl:inline">{action.label}</span>
-            </motion.button>
-          ))}
-          <Button size="sm" className="ml-2 gap-1 bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/25">
-            <Plus className="h-4 w-4" />
-            <span className="hidden 2xl:inline">Quick Add</span>
-          </Button>
+        {/* Center - Quick Add Button */}
+        <div className="hidden xl:flex items-center">
+          <QuickAddButton />
         </div>
 
         {/* Right Section */}
