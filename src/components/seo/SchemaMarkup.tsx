@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
 interface SchemaMarkupProps {
   schemas: object[];
@@ -20,27 +21,39 @@ interface SchemaMarkupProps {
  * );
  */
 export const SchemaMarkup: React.FC<SchemaMarkupProps> = ({ schemas }) => {
+  if (!schemas || schemas.length === 0) {
+    return null;
+  }
+
   return (
-    <>
+    <Helmet>
       {schemas.map((schema, index) => (
         <script
-          key={index}
+          key={`schema-${index}`}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
+        >
+          {JSON.stringify(schema)}
+        </script>
       ))}
-    </>
+    </Helmet>
   );
 };
 
 /**
  * Single schema component for simpler use cases
  */
-export const SingleSchema: React.FC<{ schema: object }> = ({ schema }) => (
-  <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-  />
-);
+export const SingleSchema: React.FC<{ schema: object }> = ({ schema }) => {
+  if (!schema) {
+    return null;
+  }
+
+  return (
+    <Helmet>
+      <script type="application/ld+json">
+        {JSON.stringify(schema)}
+      </script>
+    </Helmet>
+  );
+};
 
 export default SchemaMarkup;
