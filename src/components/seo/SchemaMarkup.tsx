@@ -25,16 +25,14 @@ export const SchemaMarkup: React.FC<SchemaMarkupProps> = ({ schemas }) => {
     return null;
   }
 
+  // Combine all schemas into a single script to avoid multiple Helmet renders
+  const combinedSchema = schemas.length === 1 
+    ? JSON.stringify(schemas[0])
+    : JSON.stringify(schemas);
+
   return (
     <Helmet>
-      {schemas.map((schema, index) => (
-        <script
-          key={`schema-${index}`}
-          type="application/ld+json"
-        >
-          {JSON.stringify(schema)}
-        </script>
-      ))}
+      <script type="application/ld+json">{combinedSchema}</script>
     </Helmet>
   );
 };
@@ -49,9 +47,7 @@ export const SingleSchema: React.FC<{ schema: object }> = ({ schema }) => {
 
   return (
     <Helmet>
-      <script type="application/ld+json">
-        {JSON.stringify(schema)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(schema)}</script>
     </Helmet>
   );
 };
