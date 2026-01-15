@@ -20,6 +20,7 @@ import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import { MobileToolbar } from "@/components/MobileToolbar";
 import { Layout } from "@/components/layout";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
+import Health from "@/pages/Health";
 import { SplashScreen } from "@/components/SplashScreen";
 import { VoiceAgentWidget } from "@/components/VoiceAgentWidget";
 import { AdminLayout } from "@/components/admin/AdminLayout";

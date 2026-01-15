@@ -69,6 +69,12 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Check if this is a direct sitemap.xml request (GET with Accept header for XML)
+  const url = new URL(req.url);
+  const wantsXml = req.headers.get("accept")?.includes("application/xml") || 
+                   url.searchParams.get("format") === "xml" ||
+                   url.pathname.endsWith(".xml");
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -137,20 +143,18 @@ Deno.serve(async (req) => {
 
     const sitemapXml = generateSitemapXml(urls);
 
-    // Return both XML and stats
-    const urlParams = new URL(req.url).searchParams;
-    const format = urlParams.get("format");
-
-    if (format === "xml") {
+    // Return XML format for sitemap requests or when format=xml
+    if (wantsXml || url.searchParams.get("format") === "xml") {
       return new Response(sitemapXml, {
         headers: {
           ...corsHeaders,
-          "Content-Type": "application/xml",
+          "Content-Type": "application/xml; charset=utf-8",
+          "Cache-Control": "public, max-age=3600", // Cache for 1 hour
         },
       });
     }
 
-    // Return JSON stats by default for API calls
+    // Return JSON stats for API calls
     return new Response(
       JSON.stringify({
         success: true,
@@ -162,7 +166,7 @@ Deno.serve(async (req) => {
           neighborhoods: neighborhoods.length,
         },
         generatedAt: new Date().toISOString(),
-        sitemapXml: format === "full" ? sitemapXml : undefined,
+        sitemapXml: url.searchParams.get("format") === "full" ? sitemapXml : undefined,
       }),
       {
         headers: {
