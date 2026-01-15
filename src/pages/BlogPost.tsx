@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Calendar, Clock, User, Tag } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { siteConfig } from "@/lib/siteConfig";
+import { getBlogPostSchemas, BlogPostSchemaData } from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 
 interface BlogPost {
   id: string;
@@ -112,17 +115,42 @@ const BlogPostPage = () => {
 
   const publishDate = post.published_at || post.created_at;
 
+  // Convert to BlogPostSchemaData format
+  const blogPostSchemaData: BlogPostSchemaData = {
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt || post.title,
+    content: post.content,
+    author: post.author_name || siteConfig.agent.name,
+    publishedAt: publishDate,
+    featuredImage: post.featured_image || undefined,
+    category: post.blog_categories?.name,
+    readTime: post.read_time || undefined,
+  };
+
+  // Get centralized schemas
+  const schemas = getBlogPostSchemas(blogPostSchemaData);
+
   return (
     <>
       <Helmet>
-        <title>{post.title} | Houston Elite Real Estate Blog</title>
+        <title>{post.title} | {siteConfig.name} Real Estate Blog</title>
         <meta name="description" content={post.excerpt || post.title} />
-        <link rel="canonical" href={`https://houstonelite.com/blog/${post.slug}`} />
+        <link rel="canonical" href={`${siteConfig.url}/blog/${post.slug}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt || ""} />
         {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+        <meta property="og:url" content={`${siteConfig.url}/blog/${post.slug}`} />
+        <meta property="article:published_time" content={publishDate} />
+        <meta property="article:author" content={post.author_name || siteConfig.agent.name} />
+        {post.blog_categories && (
+          <meta property="article:section" content={post.blog_categories.name} />
+        )}
       </Helmet>
+
+      {/* Centralized Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       <Layout>
         <article className="pt-40 pb-16 bg-background">
@@ -191,26 +219,6 @@ const BlogPostPage = () => {
           </div>
         </article>
       </Layout>
-
-      {/* Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          headline: post.title,
-          description: post.excerpt,
-          image: post.featured_image,
-          datePublished: publishDate,
-          author: {
-            "@type": "Person",
-            name: post.author_name || "Houston Elite Team",
-          },
-          publisher: {
-            "@type": "Organization",
-            name: "Houston Elite Real Estate",
-          },
-        })}
-      </script>
     </>
   );
 };

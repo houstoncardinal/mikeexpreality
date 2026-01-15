@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { siteConfig } from "@/lib/siteConfig";
+import { getBlogIndexSchemas } from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 
 interface BlogPost {
   id: string;
@@ -102,16 +105,22 @@ const Blog = () => {
     return format(new Date(dateStr), "MMMM d, yyyy");
   };
 
+  // Get centralized schemas
+  const schemas = getBlogIndexSchemas();
+
   return (
     <>
       <Helmet>
-        <title>Houston Real Estate Blog | Market Reports, Buying & Selling Tips | Houston Elite</title>
+        <title>Houston Real Estate Blog | Market Reports, Buying & Selling Tips | {siteConfig.name}</title>
         <meta
           name="description"
           content="Expert insights on Houston real estate. Read market reports, neighborhood guides, buying tips, and selling strategies from Houston's top realtors."
         />
-        <link rel="canonical" href="https://houstonelite.com/blog" />
+        <link rel="canonical" href={`${siteConfig.url}/blog`} />
       </Helmet>
+
+      {/* Centralized Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       <Layout>
         {/* Hero */}
@@ -295,21 +304,6 @@ const Blog = () => {
           </>
         )}
       </Layout>
-
-      {/* Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Blog",
-          name: "Houston Elite Real Estate Blog",
-          description: "Expert insights on Houston real estate market",
-          url: "https://houstonelite.com/blog",
-          publisher: {
-            "@type": "Organization",
-            name: "Houston Elite Real Estate",
-          },
-        })}
-      </script>
     </>
   );
 };

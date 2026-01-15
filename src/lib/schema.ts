@@ -818,6 +818,33 @@ export const getBlogPostSchemas = (post: BlogPostSchemaData) => [
 ];
 
 /**
+ * Generate blog index page schemas
+ */
+export const getBlogIndexSchemas = () => [
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${siteConfig.url}/blog#blog`,
+    name: `${siteConfig.name} Real Estate Blog`,
+    description: "Expert insights on Houston real estate market, buying tips, selling strategies, and neighborhood guides.",
+    url: `${siteConfig.url}/blog`,
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteConfig.url}/logo-primary.jpeg`,
+      },
+    },
+    inLanguage: "en-US",
+  },
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Blog", url: `${siteConfig.url}/blog` },
+  ]),
+];
+
+/**
  * Generate neighborhoods page schemas
  */
 export const getNeighborhoodsPageSchemas = () => [
@@ -825,5 +852,22 @@ export const getNeighborhoodsPageSchemas = () => [
   getBreadcrumbSchema([
     { name: "Home", url: siteConfig.url },
     { name: "Neighborhoods", url: `${siteConfig.url}/neighborhoods` },
+  ]),
+];
+
+/**
+ * Generate neighborhood detail page schemas
+ */
+export const getNeighborhoodDetailSchemas = (neighborhood: {
+  name: string;
+  description: string;
+  slug: string;
+  image?: string;
+}) => [
+  getNeighborhoodSchema(neighborhood),
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Neighborhoods", url: `${siteConfig.url}/neighborhoods` },
+    { name: neighborhood.name, url: `${siteConfig.url}/neighborhoods/${neighborhood.slug}` },
   ]),
 ];
