@@ -13,6 +13,11 @@ import { getListingById, formatPrice, allListings } from "@/lib/listingsData";
 import { siteConfig } from "@/lib/siteConfig";
 import { trackPropertyView, trackCTAClick } from "@/lib/analytics";
 import { 
+  getPropertyDetailSchemas,
+  PropertySchemaData,
+} from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { 
   MapPin, 
   Bed, 
   Bath, 
@@ -92,88 +97,33 @@ const PropertyDetailPage = () => {
     window.print();
   };
 
-  // Schema markup for RealEstateListing
-  const propertySchema = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    name: property.title,
+  // Convert to PropertySchemaData format
+  const propertySchemaData: PropertySchemaData = {
+    id: property.id,
+    title: property.title,
     description: property.description,
-    url: `${siteConfig.url}/property/${property.id}`,
-    datePosted: new Date(Date.now() - (property.daysOnMarket || 0) * 24 * 60 * 60 * 1000).toISOString(),
-    image: property.images,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: property.address,
-      addressLocality: property.city,
-      addressRegion: property.state,
-      postalCode: property.zip,
-      addressCountry: "US",
-    },
-    geo: property.latitude && property.longitude ? {
-      "@type": "GeoCoordinates",
-      latitude: property.latitude,
-      longitude: property.longitude,
-    } : undefined,
-    offers: {
-      "@type": "Offer",
-      price: property.price,
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-      priceSpecification: property.priceType === "lease" ? {
-        "@type": "UnitPriceSpecification",
-        price: property.price,
-        priceCurrency: "USD",
-        unitText: "MONTH",
-      } : undefined,
-    },
-    numberOfRooms: property.beds,
-    numberOfBathroomsTotal: property.baths,
-    floorSize: {
-      "@type": "QuantitativeValue",
-      value: property.sqft,
-      unitCode: "FTK",
-    },
+    address: property.address,
+    city: property.city,
+    state: property.state,
+    zip: property.zip,
+    price: property.price,
+    priceType: property.priceType,
+    beds: property.beds,
+    baths: property.baths,
+    sqft: property.sqft,
+    propertyType: property.propertyType,
+    status: property.status,
+    images: property.images,
     yearBuilt: property.yearBuilt,
-    amenityFeature: property.features?.map((feature) => ({
-      "@type": "LocationFeatureSpecification",
-      name: feature,
-    })),
+    features: property.features,
+    latitude: property.latitude,
+    longitude: property.longitude,
+    daysOnMarket: property.daysOnMarket,
+    mlsNumber: property.mlsNumber,
   };
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
-      { "@type": "ListItem", position: 2, name: "Listings", item: `${siteConfig.url}/listings` },
-      { "@type": "ListItem", position: 3, name: property.title, item: `${siteConfig.url}/property/${property.id}` },
-    ],
-  };
-
-  const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: property.title,
-    description: property.description,
-    image: property.images[0],
-    brand: {
-      "@type": "Organization",
-      name: siteConfig.name,
-    },
-    offers: {
-      "@type": "Offer",
-      url: `${siteConfig.url}/property/${property.id}`,
-      priceCurrency: "USD",
-      price: property.price,
-      availability: "https://schema.org/InStock",
-      seller: {
-        "@type": "RealEstateAgent",
-        name: siteConfig.agent.name,
-        telephone: siteConfig.phone,
-        email: siteConfig.email,
-      },
-    },
-  };
+  // Get centralized schemas
+  const schemas = getPropertyDetailSchemas(propertySchemaData);
 
   return (
     <>
@@ -198,12 +148,10 @@ const PropertyDetailPage = () => {
         <meta name="twitter:title" content={property.title} />
         <meta name="twitter:description" content={`${formatPrice(property.price, property.priceType)} | ${property.beds} bed, ${property.baths} bath`} />
         <meta name="twitter:image" content={property.images[0]} />
-
-        {/* Schema */}
-        <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
       </Helmet>
+
+      {/* Centralized Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       <Layout>
         {/* Back Navigation */}

@@ -10,6 +10,8 @@ import { PropertyMap } from "@/components/map/PropertyMap";
 import { allListings, priceRanges } from "@/lib/listingsData";
 import { siteConfig } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
+import { getListingsPageSchemas, PropertySchemaData } from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 
 type SortOption = "newest" | "price-asc" | "price-desc" | "sqft-desc";
 type ViewMode = "grid" | "list" | "map";
@@ -106,6 +108,34 @@ const Listings = () => {
     filters.minBaths > 0,
   ].filter(Boolean).length;
 
+  // Convert listings to PropertySchemaData format for schema
+  const propertySchemaData: PropertySchemaData[] = filteredAndSortedListings.map((listing) => ({
+    id: listing.id,
+    title: listing.title,
+    description: listing.description,
+    address: listing.address,
+    city: listing.city,
+    state: listing.state,
+    zip: listing.zip,
+    price: listing.price,
+    priceType: listing.priceType,
+    beds: listing.beds,
+    baths: listing.baths,
+    sqft: listing.sqft,
+    propertyType: listing.propertyType,
+    status: listing.status,
+    images: listing.images,
+    yearBuilt: listing.yearBuilt,
+    features: listing.features,
+    latitude: listing.latitude,
+    longitude: listing.longitude,
+    daysOnMarket: listing.daysOnMarket,
+    mlsNumber: listing.mlsNumber,
+  }));
+
+  // Get centralized schemas
+  const schemas = getListingsPageSchemas(propertySchemaData);
+
   return (
     <>
       <Helmet>
@@ -116,6 +146,9 @@ const Listings = () => {
         />
         <link rel="canonical" href={`${siteConfig.url}/listings`} />
       </Helmet>
+
+      {/* Centralized Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       <Layout>
         {/* Hero Section */}
@@ -322,44 +355,6 @@ const Listings = () => {
           </div>
         </section>
       </Layout>
-
-      {/* Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: "Properties for Sale",
-          description: "Luxury homes and properties for sale in Houston and surrounding areas",
-          url: `${siteConfig.url}/listings`,
-          numberOfItems: filteredAndSortedListings.length,
-          itemListElement: filteredAndSortedListings.slice(0, 10).map((listing, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            item: {
-              "@type": "RealEstateListing",
-              name: listing.title,
-              url: `${siteConfig.url}/property/${listing.id}`,
-              description: listing.description,
-              price: {
-                "@type": "PriceSpecification",
-                price: listing.price,
-                priceCurrency: "USD",
-              },
-            },
-          })),
-        })}
-      </script>
-
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
-            { "@type": "ListItem", position: 2, name: "Listings", item: `${siteConfig.url}/listings` },
-          ],
-        })}
-      </script>
     </>
   );
 };

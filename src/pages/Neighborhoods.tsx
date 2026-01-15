@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { RevealOnScroll, StaggerContainer, StaggerItem } from "@/components/InteractiveEffects";
+import { siteConfig } from "@/lib/siteConfig";
+import { getNeighborhoodsPageSchemas, getNeighborhoodDetailSchemas } from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 
 const neighborhoods = [
   {
@@ -131,332 +134,324 @@ const neighborhoods = [
 ];
 
 const NeighborhoodDetail = ({ neighborhood }: { neighborhood: typeof neighborhoods[0] }) => {
-  return (
-    <Layout>
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-20 overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={neighborhood.image}
-            alt={neighborhood.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/70 to-navy" />
-        </div>
-        
-        <div className="container-custom relative z-10">
-          <Link
-            to="/neighborhoods"
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-8"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Neighborhoods
-          </Link>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <span className="text-7xl mb-6 block">{neighborhood.icon}</span>
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
-              {neighborhood.name}
-            </h1>
-            <p className="text-xl text-white/70 max-w-3xl leading-relaxed">
-              {neighborhood.description}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Bar */}
-      <section className="bg-card border-b border-border py-8">
-        <div className="container-custom">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Active Listings", value: neighborhood.stats.listings },
-              { label: "Average Price", value: neighborhood.stats.avgPrice },
-              { label: "Schools", value: neighborhood.stats.schools },
-              { label: "Parks", value: neighborhood.stats.parks },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center"
-              >
-                <p className="font-serif text-3xl md:text-4xl font-bold text-accent">
-                  {stat.value}
-                </p>
-                <p className="text-muted-foreground text-sm mt-1">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="section-padding bg-background">
-        <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <RevealOnScroll>
-              <p className="text-accent font-medium tracking-wider uppercase mb-2">
-                About {neighborhood.name}
-              </p>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Why Choose {neighborhood.name}?
-              </h2>
-              <p className="text-muted-foreground leading-relaxed mb-8">
-                {neighborhood.longDescription}
-              </p>
-              
-              <div className="flex flex-wrap gap-2 mb-8">
-                {neighborhood.highlights.map((highlight) => (
-                  <span
-                    key={highlight}
-                    className="px-4 py-2 bg-accent/10 text-accent text-sm rounded-full font-medium"
-                  >
-                    {highlight}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex gap-4">
-                <Link to={`/listings?city=${encodeURIComponent(neighborhood.name)}`}>
-                  <Button variant="gold" size="lg">
-                    View {neighborhood.name} Homes
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to="/contact">
-                  <Button variant="outline" size="lg">
-                    Contact Expert
-                  </Button>
-                </Link>
-              </div>
-            </RevealOnScroll>
-
-            <StaggerContainer className="grid grid-cols-1 gap-6">
-              {neighborhood.features.map((feature) => (
-                <StaggerItem key={feature.title}>
-                  <Card className="p-6 border-0 shadow-card hover:shadow-card-hover transition-all">
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                        <feature.icon className="h-7 w-7 text-accent" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-1">{feature.title}</h3>
-                        <p className="text-muted-foreground text-sm">{feature.description}</p>
-                      </div>
-                    </div>
-                  </Card>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary">
-        <div className="container-custom text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-            Ready to Explore {neighborhood.name}?
-          </h2>
-          <p className="text-primary-foreground/70 mb-8 max-w-2xl mx-auto">
-            Let us help you find your perfect home in {neighborhood.name}. Our local experts know every neighborhood inside and out.
-          </p>
-          <Link to="/contact">
-            <Button variant="gold" size="xl">
-              Schedule a Tour
-            </Button>
-          </Link>
-        </div>
-      </section>
-    </Layout>
-  );
-};
-
-const NeighborhoodsList = () => {
-  return (
-    <Layout>
-      {/* Hero */}
-      <section className="pt-40 pb-20 bg-primary">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
-          >
-            <p className="text-accent font-medium tracking-wider uppercase mb-4">
-              Neighborhood Guides
-            </p>
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
-              Discover Houston's
-              <span className="block text-gradient-gold">Best Communities</span>
-            </h1>
-            <p className="text-xl text-primary-foreground/70">
-              In-depth guides to help you find the perfect neighborhood for your lifestyle, family, and future.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Neighborhoods Grid */}
-      <section className="section-padding bg-background">
-        <div className="container-custom">
-          <div className="space-y-12">
-            {neighborhoods.map((neighborhood, index) => (
-              <RevealOnScroll key={neighborhood.slug} delay={index * 0.1}>
-                <Card
-                  className="overflow-hidden border-0 shadow-card hover:shadow-card-hover transition-all group"
-                >
-                  <div className={`grid lg:grid-cols-2 ${index % 2 === 1 ? "lg:grid-flow-dense" : ""}`}>
-                    {/* Image/Visual */}
-                    <div className={`relative min-h-[300px] lg:min-h-[400px] overflow-hidden ${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
-                      <img
-                        src={neighborhood.image}
-                        alt={neighborhood.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent" />
-                      <div className="absolute top-6 left-6">
-                        <span className="text-6xl">{neighborhood.icon}</span>
-                      </div>
-                      <div className="absolute bottom-6 left-6 right-6 flex gap-4">
-                        <div className="bg-card/90 backdrop-blur-sm rounded-lg p-4 flex-1">
-                          <p className="text-xs text-muted-foreground uppercase">Active Listings</p>
-                          <p className="font-bold text-foreground">{neighborhood.stats.listings}</p>
-                        </div>
-                        <div className="bg-card/90 backdrop-blur-sm rounded-lg p-4 flex-1">
-                          <p className="text-xs text-muted-foreground uppercase">Avg. Price</p>
-                          <p className="font-bold text-foreground">{neighborhood.stats.avgPrice}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-8 lg:p-12 flex flex-col justify-center">
-                      <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                        {neighborhood.name}
-                      </h2>
-                      <p className="text-muted-foreground mb-6 leading-relaxed">
-                        {neighborhood.description}
-                      </p>
-
-                      {/* Highlights */}
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {neighborhood.highlights.map((highlight) => (
-                          <span
-                            key={highlight}
-                            className="px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full"
-                          >
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Stats */}
-                      <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="flex items-center gap-3">
-                          <School className="h-5 w-5 text-accent" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Schools</p>
-                            <p className="font-semibold text-foreground">{neighborhood.stats.schools}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Trees className="h-5 w-5 text-accent" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Parks</p>
-                            <p className="font-semibold text-foreground">{neighborhood.stats.parks}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <Link to={`/listings?city=${encodeURIComponent(neighborhood.name)}`}>
-                          <Button variant="gold">
-                            View Homes
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Link to={`/neighborhoods/${neighborhood.slug}`}>
-                          <Button variant="outline">
-                            Learn More
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </RevealOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-secondary">
-        <div className="container-custom text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Need Help Choosing?
-          </h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Our local experts can help you find the perfect neighborhood based on your lifestyle, commute, and family needs.
-          </p>
-          <Link to="/contact">
-            <Button variant="gold" size="xl">
-              Talk to an Expert
-            </Button>
-          </Link>
-        </div>
-      </section>
-    </Layout>
-  );
-};
-
-const Neighborhoods = () => {
-  const { slug } = useParams();
-  const neighborhood = slug ? neighborhoods.find(n => n.slug === slug) : null;
-
-  const pageTitle = neighborhood 
-    ? `${neighborhood.name} Real Estate | Homes for Sale | Mike Ogunkeye Real Estate`
-    : "Houston Neighborhood Guides | Sugar Land, Katy, Cypress, Richmond | Mike Ogunkeye Real Estate";
-
-  const pageDescription = neighborhood
-    ? `Explore homes for sale in ${neighborhood.name}, TX. ${neighborhood.description}`
-    : "Explore Houston's best neighborhoods. Detailed guides for Sugar Land, Katy, Cypress, Richmond with school info, home prices, and local amenities.";
+  // Get centralized schemas for neighborhood detail
+  const schemas = getNeighborhoodDetailSchemas({
+    name: neighborhood.name,
+    description: neighborhood.longDescription,
+    slug: neighborhood.slug,
+    image: neighborhood.image,
+  });
 
   return (
     <>
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-        <link rel="canonical" href={`https://mikeogunkeye.com/neighborhoods${slug ? `/${slug}` : ''}`} />
+        <title>{neighborhood.name} Real Estate | Homes for Sale | {siteConfig.name}</title>
+        <meta
+          name="description"
+          content={`Explore homes for sale in ${neighborhood.name}, TX. ${neighborhood.description} Contact Mike Ogunkeye for expert guidance.`}
+        />
+        <link rel="canonical" href={`${siteConfig.url}/neighborhoods/${neighborhood.slug}`} />
       </Helmet>
 
-      {neighborhood ? (
-        <NeighborhoodDetail neighborhood={neighborhood} />
-      ) : (
-        <NeighborhoodsList />
-      )}
+      {/* Centralized Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
-      {/* Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://mikeogunkeye.com" },
-            { "@type": "ListItem", position: 2, name: "Neighborhoods", item: "https://mikeogunkeye.com/neighborhoods" },
-            ...(neighborhood ? [{ "@type": "ListItem", position: 3, name: neighborhood.name, item: `https://mikeogunkeye.com/neighborhoods/${neighborhood.slug}` }] : []),
-          ],
-        })}
-      </script>
+      <Layout>
+        {/* Hero Section */}
+        <section className="relative pt-40 pb-20 overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src={neighborhood.image}
+              alt={neighborhood.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/70 to-navy" />
+          </div>
+          
+          <div className="container-custom relative z-10">
+            <Link
+              to="/neighborhoods"
+              className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-8"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back to Neighborhoods
+            </Link>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <span className="text-7xl mb-6 block">{neighborhood.icon}</span>
+              <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
+                {neighborhood.name}
+              </h1>
+              <p className="text-xl text-white/70 max-w-3xl leading-relaxed">
+                {neighborhood.description}
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Stats Bar */}
+        <section className="bg-card border-b border-border py-8">
+          <div className="container-custom">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { label: "Active Listings", value: neighborhood.stats.listings },
+                { label: "Average Price", value: neighborhood.stats.avgPrice },
+                { label: "Schools", value: neighborhood.stats.schools },
+                { label: "Parks", value: neighborhood.stats.parks },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-center"
+                >
+                  <p className="font-serif text-3xl md:text-4xl font-bold text-accent">
+                    {stat.value}
+                  </p>
+                  <p className="text-muted-foreground text-sm mt-1">{stat.label}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section className="section-padding bg-background">
+          <div className="container-custom">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <RevealOnScroll>
+                <p className="text-accent font-medium tracking-wider uppercase mb-2">
+                  About {neighborhood.name}
+                </p>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
+                  Why Choose {neighborhood.name}?
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-8">
+                  {neighborhood.longDescription}
+                </p>
+                
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {neighborhood.highlights.map((highlight) => (
+                    <span
+                      key={highlight}
+                      className="px-4 py-2 bg-accent/10 text-accent text-sm rounded-full font-medium"
+                    >
+                      {highlight}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex gap-4">
+                  <Link to={`/listings?city=${encodeURIComponent(neighborhood.name)}`}>
+                    <Button variant="gold" size="lg">
+                      View {neighborhood.name} Homes
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link to="/contact">
+                    <Button variant="outline" size="lg">
+                      Contact Expert
+                    </Button>
+                  </Link>
+                </div>
+              </RevealOnScroll>
+
+              <StaggerContainer className="grid grid-cols-1 gap-6">
+                {neighborhood.features.map((feature) => (
+                  <StaggerItem key={feature.title}>
+                    <Card className="p-6 border-0 shadow-card hover:shadow-card-hover transition-all">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                          <feature.icon className="h-7 w-7 text-accent" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground mb-1">{feature.title}</h3>
+                          <p className="text-muted-foreground text-sm">{feature.description}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-primary">
+          <div className="container-custom text-center">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
+              Ready to Explore {neighborhood.name}?
+            </h2>
+            <p className="text-primary-foreground/70 mb-8 max-w-2xl mx-auto">
+              Let us help you find your perfect home in {neighborhood.name}. Our local experts know every neighborhood inside and out.
+            </p>
+            <Link to="/contact">
+              <Button variant="gold" size="xl">
+                Schedule a Tour
+              </Button>
+            </Link>
+          </div>
+        </section>
+      </Layout>
     </>
   );
+};
+
+const NeighborhoodsList = () => {
+  // Get centralized schemas for neighborhoods list
+  const schemas = getNeighborhoodsPageSchemas();
+
+  return (
+    <>
+      <Helmet>
+        <title>Houston Area Neighborhoods | Real Estate Guide | {siteConfig.name}</title>
+        <meta
+          name="description"
+          content="Explore neighborhoods in Houston, Sugar Land, Katy, Cypress, Richmond, and Missouri City. Find the perfect community for your lifestyle with Mike Ogunkeye Real Estate."
+        />
+        <link rel="canonical" href={`${siteConfig.url}/neighborhoods`} />
+      </Helmet>
+
+      {/* Centralized Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
+
+      <Layout>
+        {/* Hero */}
+        <section className="pt-40 pb-20 bg-primary">
+          <div className="container-custom">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-3xl"
+            >
+              <p className="text-accent font-medium tracking-wider uppercase mb-4">
+                Neighborhood Guides
+              </p>
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
+                Discover Houston's
+                <span className="block text-gradient-gold">Best Communities</span>
+              </h1>
+              <p className="text-xl text-primary-foreground/70">
+                In-depth guides to help you find the perfect neighborhood for your lifestyle, family, and future.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Neighborhoods Grid */}
+        <section className="section-padding bg-background">
+          <div className="container-custom">
+            <div className="space-y-12">
+              {neighborhoods.map((neighborhood, index) => (
+                <RevealOnScroll key={neighborhood.slug} delay={index * 0.1}>
+                  <Card
+                    className="overflow-hidden border-0 shadow-card hover:shadow-card-hover transition-all group"
+                  >
+                    <div className={`grid lg:grid-cols-2 ${index % 2 === 1 ? "lg:grid-flow-dense" : ""}`}>
+                      {/* Image/Visual */}
+                      <div className={`relative min-h-[300px] lg:min-h-[400px] overflow-hidden ${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
+                        <img
+                          src={neighborhood.image}
+                          alt={neighborhood.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent" />
+                        <div className="absolute top-6 left-6">
+                          <span className="text-6xl">{neighborhood.icon}</span>
+                        </div>
+                        <div className="absolute bottom-6 left-6 right-6 flex gap-4">
+                          <div className="bg-card/90 backdrop-blur-sm rounded-lg p-4 flex-1">
+                            <p className="text-sm text-muted-foreground">Avg. Price</p>
+                            <p className="font-serif text-xl font-bold text-foreground">{neighborhood.stats.avgPrice}</p>
+                          </div>
+                          <div className="bg-card/90 backdrop-blur-sm rounded-lg p-4 flex-1">
+                            <p className="text-sm text-muted-foreground">Listings</p>
+                            <p className="font-serif text-xl font-bold text-foreground">{neighborhood.stats.listings}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-8 lg:p-12 flex flex-col justify-center">
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+                          {neighborhood.name}
+                        </h2>
+                        <p className="text-muted-foreground mb-6 leading-relaxed">
+                          {neighborhood.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2 mb-8">
+                          {neighborhood.highlights.slice(0, 3).map((highlight) => (
+                            <span
+                              key={highlight}
+                              className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full font-medium"
+                            >
+                              {highlight}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex gap-4">
+                          <Link to={`/neighborhoods/${neighborhood.slug}`}>
+                            <Button variant="gold">
+                              Explore {neighborhood.name}
+                              <ArrowRight className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Link to={`/listings?city=${encodeURIComponent(neighborhood.name)}`}>
+                            <Button variant="outline">
+                              View Homes
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </RevealOnScroll>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-20 bg-primary">
+          <div className="container-custom text-center">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
+              Need Help Choosing a Neighborhood?
+            </h2>
+            <p className="text-primary-foreground/70 mb-8 max-w-2xl mx-auto">
+              Our local experts can help you find the perfect community based on your lifestyle, commute, budget, and preferences.
+            </p>
+            <Link to="/contact">
+              <Button variant="gold" size="xl">
+                Get Expert Guidance
+              </Button>
+            </Link>
+          </div>
+        </section>
+      </Layout>
+    </>
+  );
+};
+
+const Neighborhoods = () => {
+  const { slug } = useParams<{ slug: string }>();
+  
+  if (slug) {
+    const neighborhood = neighborhoods.find((n) => n.slug === slug);
+    if (neighborhood) {
+      return <NeighborhoodDetail neighborhood={neighborhood} />;
+    }
+    // If neighborhood not found, show list
+  }
+  
+  return <NeighborhoodsList />;
 };
 
 export default Neighborhoods;
