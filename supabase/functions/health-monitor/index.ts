@@ -194,6 +194,46 @@ async function sendAlertEmail(resend: Resend, results: HealthCheckResult[], over
   }
 }
 
+async function storeHealthCheckLog(supabase: any, overallStatus: string, results: HealthCheckResult[], emailSent: boolean, triggeredBy: string) {
+  try {
+    // Store the health check log
+    await supabase.from("health_check_logs").insert({
+      overall_status: overallStatus,
+      results: results,
+      email_sent: emailSent,
+      triggered_by: triggeredBy,
+    });
+
+    // Create incidents for non-healthy services
+    const incidents = results
+      .filter(r => r.status !== "healthy")
+      .map(r => ({
+        service_name: r.name,
+        status: r.status,
+        message: r.message,
+        latency: r.latency,
+      }));
+
+    if (incidents.length > 0) {
+      await supabase.from("health_incidents").insert(incidents);
+    }
+
+    // Auto-resolve old incidents that are now healthy
+    const healthyServices = results.filter(r => r.status === "healthy").map(r => r.name);
+    if (healthyServices.length > 0) {
+      await supabase
+        .from("health_incidents")
+        .update({ resolved_at: new Date().toISOString() })
+        .in("service_name", healthyServices)
+        .is("resolved_at", null);
+    }
+
+    console.log("Health check log stored successfully");
+  } catch (err) {
+    console.error("Failed to store health check log:", err);
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS
   if (req.method === "OPTIONS") {
@@ -201,6 +241,15 @@ Deno.serve(async (req) => {
   }
 
   console.log("Starting health check monitoring...");
+
+  // Parse request body for triggered_by info
+  let triggeredBy = "cron";
+  try {
+    const body = await req.json();
+    triggeredBy = body?.source || "cron";
+  } catch {
+    // No body or invalid JSON, use default
+  }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -232,6 +281,9 @@ Deno.serve(async (req) => {
     if (overallStatus !== "healthy" && resend) {
       emailSent = await sendAlertEmail(resend, results, overallStatus);
     }
+
+    // Store results in database
+    await storeHealthCheckLog(supabase, overallStatus, results, emailSent, triggeredBy);
 
     return new Response(
       JSON.stringify({
