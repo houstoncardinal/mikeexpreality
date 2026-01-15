@@ -13,6 +13,8 @@ import {
   Server,
   Clock,
   AlertTriangle,
+  Bell,
+  Mail,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -371,6 +373,54 @@ export default function Health() {
                     </motion.div>
                   );
                 })}
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Automated Monitoring */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-accent/5">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Automated Monitoring
+                </CardTitle>
+                <CardDescription>
+                  Health checks run automatically every 15 minutes. Email alerts are sent when issues are detected.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-background/50">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Health Monitoring</span>
+                  </div>
+                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+                    Every 15 min
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-background/50">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Sitemap Regeneration</span>
+                  </div>
+                  <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/30">
+                    Hourly
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-background/50">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Email Alerts</span>
+                  </div>
+                  <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                    On failure
+                  </Badge>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
