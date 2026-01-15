@@ -4,17 +4,30 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, X, Bot, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface TranscriptMessage {
+  id: string;
+  role: "user" | "agent";
+  text: string;
+  timestamp: Date;
+}
 
 export function VoiceAgentWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [lastToken, setLastToken] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
+  const [inputVolume, setInputVolume] = useState(0);
+  const [outputVolume, setOutputVolume] = useState(0);
   
-  // Refs for managing reconnection and keep-alive
+  // Refs for managing reconnection, keep-alive, and audio visualization
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isManualDisconnectRef = useRef(false);
+  const transcriptEndRef = useRef<HTMLDivElement>(null);
   const maxReconnectAttempts = 3;
 
   const conversation = useConversation({
@@ -24,24 +37,24 @@ export function VoiceAgentWidget() {
       setConnectionAttempts(0);
       isManualDisconnectRef.current = false;
       
-      // Start keep-alive mechanism - send user activity every 15 seconds
+      // Start keep-alive mechanism
       startKeepAlive();
+      // Start volume monitoring
+      startVolumeMonitoring();
     },
     onDisconnect: () => {
       console.log("Disconnected from agent");
       stopKeepAlive();
+      stopVolumeMonitoring();
       
-      // Only attempt reconnection if it wasn't a manual disconnect
       if (!isManualDisconnectRef.current && isOpen && connectionAttempts < maxReconnectAttempts) {
         console.log(`Connection lost. Attempting reconnect (${connectionAttempts + 1}/${maxReconnectAttempts})...`);
         toast.info("Connection lost. Reconnecting...");
         
-        // Clear any existing reconnect timeout
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
         }
         
-        // Exponential backoff: 1s, 2s, 4s
         const delay = Math.pow(2, connectionAttempts) * 1000;
         reconnectTimeoutRef.current = setTimeout(() => {
           setConnectionAttempts(prev => prev + 1);
@@ -54,34 +67,117 @@ export function VoiceAgentWidget() {
     },
     onMessage: (message) => {
       console.log("Message:", message);
-      // Reset inactivity on any message
       resetKeepAlive();
+      
+      // Handle different message types for transcript
+      const msgAny = message as any;
+      const msgType = msgAny?.type || msgAny?.message?.type;
+      
+      if (msgType === "user_transcript") {
+        const userTranscript = msgAny?.user_transcription_event?.user_transcript || 
+                               msgAny?.message?.user_transcription_event?.user_transcript;
+        if (userTranscript) {
+          setTranscript(prev => [...prev, {
+            id: `user-${Date.now()}`,
+            role: "user",
+            text: userTranscript,
+            timestamp: new Date()
+          }]);
+        }
+      } else if (msgType === "agent_response") {
+        const agentResponse = msgAny?.agent_response_event?.agent_response ||
+                              msgAny?.message?.agent_response_event?.agent_response;
+        if (agentResponse) {
+          setTranscript(prev => [...prev, {
+            id: `agent-${Date.now()}`,
+            role: "agent",
+            text: agentResponse,
+            timestamp: new Date()
+          }]);
+        }
+      } else if (msgType === "agent_response_correction") {
+        // Update the last agent message with the corrected response
+        const correctedResponse = msgAny?.agent_response_correction_event?.corrected_agent_response ||
+                                  msgAny?.message?.agent_response_correction_event?.corrected_agent_response;
+        if (correctedResponse) {
+          setTranscript(prev => {
+            const newTranscript = [...prev];
+            // Find last agent message index (ES5 compatible)
+            let lastAgentIdx = -1;
+            for (let i = newTranscript.length - 1; i >= 0; i--) {
+              if (newTranscript[i].role === "agent") {
+                lastAgentIdx = i;
+                break;
+              }
+            }
+            if (lastAgentIdx !== -1) {
+              newTranscript[lastAgentIdx] = {
+                ...newTranscript[lastAgentIdx],
+                text: correctedResponse
+              };
+            }
+            return newTranscript;
+          });
+        }
+      }
     },
     onError: (error) => {
       console.error("Conversation error:", error);
       
-      // Don't show error toast if we're going to reconnect
       if (connectionAttempts >= maxReconnectAttempts || isManualDisconnectRef.current) {
         toast.error("Voice connection error. Please try again.");
       }
     },
   });
 
-  // Keep-alive mechanism to prevent idle disconnection
+  // Auto-scroll transcript to bottom
+  useEffect(() => {
+    if (transcriptEndRef.current) {
+      transcriptEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [transcript]);
+
+  // Volume monitoring for audio visualization
+  const startVolumeMonitoring = useCallback(() => {
+    stopVolumeMonitoring();
+    
+    volumeIntervalRef.current = setInterval(() => {
+      if (conversation.status === "connected") {
+        try {
+          const input = conversation.getInputVolume();
+          const output = conversation.getOutputVolume();
+          setInputVolume(input);
+          setOutputVolume(output);
+        } catch (error) {
+          // Silently handle errors during volume monitoring
+        }
+      }
+    }, 50); // 20fps for smooth visualization
+  }, [conversation]);
+
+  const stopVolumeMonitoring = useCallback(() => {
+    if (volumeIntervalRef.current) {
+      clearInterval(volumeIntervalRef.current);
+      volumeIntervalRef.current = null;
+    }
+    setInputVolume(0);
+    setOutputVolume(0);
+  }, []);
+
+  // Keep-alive mechanism
   const startKeepAlive = useCallback(() => {
     stopKeepAlive();
     
     keepAliveIntervalRef.current = setInterval(() => {
       if (conversation.status === "connected") {
         try {
-          // Send user activity signal to keep the connection alive
           conversation.sendUserActivity();
           console.log("Keep-alive: sent user activity signal");
         } catch (error) {
           console.warn("Keep-alive signal failed:", error);
         }
       }
-    }, 15000); // Every 15 seconds
+    }, 15000);
   }, [conversation]);
 
   const stopKeepAlive = useCallback(() => {
@@ -101,11 +197,12 @@ export function VoiceAgentWidget() {
   useEffect(() => {
     return () => {
       stopKeepAlive();
+      stopVolumeMonitoring();
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [stopKeepAlive]);
+  }, [stopKeepAlive, stopVolumeMonitoring]);
 
   const fetchToken = useCallback(async () => {
     const { data, error } = await supabase.functions.invoke(
@@ -129,7 +226,6 @@ export function VoiceAgentWidget() {
     
     setIsConnecting(true);
     try {
-      // Get a fresh token for reconnection
       const token = await fetchToken();
       
       await conversation.startSession({
@@ -138,7 +234,6 @@ export function VoiceAgentWidget() {
       });
     } catch (error) {
       console.error("Reconnection failed:", error);
-      // The onDisconnect handler will attempt another reconnect if within limits
     } finally {
       setIsConnecting(false);
     }
@@ -148,15 +243,12 @@ export function VoiceAgentWidget() {
     setIsConnecting(true);
     isManualDisconnectRef.current = false;
     setConnectionAttempts(0);
+    setTranscript([]); // Clear transcript on new conversation
     
     try {
-      // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // Get token from edge function
       const token = await fetchToken();
 
-      // Start the conversation with WebRTC
       await conversation.startSession({
         conversationToken: token,
         connectionType: "webrtc",
@@ -178,8 +270,8 @@ export function VoiceAgentWidget() {
   const stopConversation = useCallback(async () => {
     isManualDisconnectRef.current = true;
     stopKeepAlive();
+    stopVolumeMonitoring();
     
-    // Clear any pending reconnect attempts
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
@@ -187,7 +279,7 @@ export function VoiceAgentWidget() {
     
     setConnectionAttempts(0);
     await conversation.endSession();
-  }, [conversation, stopKeepAlive]);
+  }, [conversation, stopKeepAlive, stopVolumeMonitoring]);
 
   const handleClose = useCallback(() => {
     if (conversation.status === "connected") {
@@ -204,6 +296,19 @@ export function VoiceAgentWidget() {
   const isConnected = conversation.status === "connected";
   const showRetryButton = connectionAttempts >= maxReconnectAttempts;
 
+  // Generate waveform bars based on volume
+  const generateWaveformBars = (volume: number, count: number) => {
+    return Array.from({ length: count }, (_, i) => {
+      const baseHeight = 0.2;
+      const variation = Math.sin((i / count) * Math.PI) * 0.5 + 0.5;
+      const height = baseHeight + (volume * variation * 0.8);
+      return Math.min(1, height);
+    });
+  };
+
+  const inputBars = generateWaveformBars(inputVolume, 5);
+  const outputBars = generateWaveformBars(outputVolume, 7);
+
   return (
     <>
       {/* Voice Agent Button */}
@@ -216,8 +321,6 @@ export function VoiceAgentWidget() {
         aria-label="Open voice assistant"
       >
         <Bot className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        
-        {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full bg-royal/30 animate-ping" />
       </motion.button>
 
@@ -240,7 +343,7 @@ export function VoiceAgentWidget() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-24 right-4 z-50 w-[calc(100%-2rem)] max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden md:bottom-24 md:right-6 md:w-80"
+              className="fixed bottom-24 right-4 z-50 w-[calc(100%-2rem)] max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden md:bottom-24 md:right-6 md:w-96"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
@@ -269,106 +372,191 @@ export function VoiceAgentWidget() {
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="p-6 flex flex-col items-center">
-                {/* Microphone Visualization */}
-                <div className="relative mb-6">
-                  <motion.div
-                    animate={
-                      isConnected && conversation.isSpeaking
-                        ? { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }
-                        : { scale: 1, opacity: 0.3 }
-                    }
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="absolute inset-0 rounded-full bg-royal/20"
-                  />
-                  <motion.div
-                    animate={
-                      isConnected && conversation.isSpeaking
-                        ? { scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }
-                        : { scale: 1, opacity: 0.2 }
-                    }
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                    className="absolute inset-0 rounded-full bg-royal/20 scale-125"
-                  />
-                  <div
-                    className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-colors ${
-                      isConnected
-                        ? "bg-gradient-to-br from-green-500 to-green-600"
-                        : isConnecting
-                        ? "bg-gradient-to-br from-yellow-500 to-orange-500"
-                        : showRetryButton
-                        ? "bg-gradient-to-br from-red-500 to-red-600"
-                        : "bg-gradient-to-br from-royal to-royal/80"
-                    }`}
-                  >
-                    {isConnecting ? (
-                      <Loader2 className="w-8 h-8 text-white animate-spin" />
-                    ) : isConnected ? (
-                      <Mic className="w-8 h-8 text-white" />
-                    ) : showRetryButton ? (
-                      <RefreshCw className="w-8 h-8 text-white" />
-                    ) : (
-                      <MicOff className="w-8 h-8 text-white" />
-                    )}
+              {/* Audio Waveform Visualization */}
+              {isConnected && (
+                <div className="px-4 py-3 border-b border-border bg-muted/30">
+                  <div className="flex items-center justify-between gap-4">
+                    {/* User (Input) Waveform */}
+                    <div className="flex-1">
+                      <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wider">You</p>
+                      <div className="flex items-center justify-center gap-1 h-8">
+                        {inputBars.map((height, i) => (
+                          <motion.div
+                            key={`input-${i}`}
+                            className="w-1.5 bg-gradient-to-t from-green-500 to-green-400 rounded-full"
+                            animate={{ height: `${height * 100}%` }}
+                            transition={{ duration: 0.05 }}
+                            style={{ minHeight: "4px" }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Divider */}
+                    <div className="h-10 w-px bg-border" />
+                    
+                    {/* Agent (Output) Waveform */}
+                    <div className="flex-1">
+                      <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wider text-right">Mike O</p>
+                      <div className="flex items-center justify-center gap-1 h-8">
+                        {outputBars.map((height, i) => (
+                          <motion.div
+                            key={`output-${i}`}
+                            className="w-1.5 bg-gradient-to-t from-royal to-royal/80 rounded-full"
+                            animate={{ height: `${height * 100}%` }}
+                            transition={{ duration: 0.05 }}
+                            style={{ minHeight: "4px" }}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* Status Text */}
-                <p className="text-center text-sm text-muted-foreground mb-6">
-                  {isConnecting
-                    ? "Establishing secure connection..."
-                    : isConnected
-                    ? conversation.isSpeaking
-                      ? "Mike O AI is speaking..."
-                      : "Listening... Speak naturally"
-                    : showRetryButton
-                    ? "Connection couldn't be maintained. Tap to retry."
-                    : "Tap the button below to start talking with Mike O AI"}
-                </p>
+              {/* Transcript Area */}
+              {isConnected && (
+                <ScrollArea className="h-48 px-4 py-3">
+                  {transcript.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                      <p>Start speaking to see the conversation...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {transcript.map((message) => (
+                        <motion.div
+                          key={message.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm ${
+                              message.role === "user"
+                                ? "bg-royal text-white rounded-br-sm"
+                                : "bg-muted text-foreground rounded-bl-sm"
+                            }`}
+                          >
+                            <p>{message.text}</p>
+                            <p className={`text-[10px] mt-1 ${
+                              message.role === "user" ? "text-white/60" : "text-muted-foreground"
+                            }`}>
+                              {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </div>
+                        </motion.div>
+                      ))}
+                      <div ref={transcriptEndRef} />
+                    </div>
+                  )}
+                </ScrollArea>
+              )}
 
-                {/* Action Button */}
-                {showRetryButton ? (
-                  <button
-                    onClick={handleRetry}
-                    className="w-full py-3 px-6 rounded-xl font-medium transition-all bg-royal text-white hover:bg-royal/90"
-                  >
-                    <span className="flex items-center justify-center gap-2">
-                      <RefreshCw className="w-4 h-4" />
-                      Retry Connection
-                    </span>
-                  </button>
-                ) : isConnected ? (
+              {/* Content - Microphone Visualization (when not connected) */}
+              {!isConnected && (
+                <div className="p-6 flex flex-col items-center">
+                  <div className="relative mb-6">
+                    <motion.div
+                      animate={
+                        isConnected && conversation.isSpeaking
+                          ? { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }
+                          : { scale: 1, opacity: 0.3 }
+                      }
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="absolute inset-0 rounded-full bg-royal/20"
+                    />
+                    <motion.div
+                      animate={
+                        isConnected && conversation.isSpeaking
+                          ? { scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }
+                          : { scale: 1, opacity: 0.2 }
+                      }
+                      transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                      className="absolute inset-0 rounded-full bg-royal/20 scale-125"
+                    />
+                    <div
+                      className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-colors ${
+                        isConnected
+                          ? "bg-gradient-to-br from-green-500 to-green-600"
+                          : isConnecting
+                          ? "bg-gradient-to-br from-yellow-500 to-orange-500"
+                          : showRetryButton
+                          ? "bg-gradient-to-br from-red-500 to-red-600"
+                          : "bg-gradient-to-br from-royal to-royal/80"
+                      }`}
+                    >
+                      {isConnecting ? (
+                        <Loader2 className="w-8 h-8 text-white animate-spin" />
+                      ) : isConnected ? (
+                        <Mic className="w-8 h-8 text-white" />
+                      ) : showRetryButton ? (
+                        <RefreshCw className="w-8 h-8 text-white" />
+                      ) : (
+                        <MicOff className="w-8 h-8 text-white" />
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-center text-sm text-muted-foreground mb-6">
+                    {isConnecting
+                      ? "Establishing secure connection..."
+                      : showRetryButton
+                      ? "Connection couldn't be maintained. Tap to retry."
+                      : "Tap the button below to start talking with Mike O AI"}
+                  </p>
+
+                  {showRetryButton ? (
+                    <button
+                      onClick={handleRetry}
+                      className="w-full py-3 px-6 rounded-xl font-medium transition-all bg-royal text-white hover:bg-royal/90"
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        <RefreshCw className="w-4 h-4" />
+                        Retry Connection
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={startConversation}
+                      disabled={isConnecting}
+                      className="w-full py-3 px-6 rounded-xl font-medium transition-all bg-royal text-white hover:bg-royal/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isConnecting ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Connecting...
+                        </span>
+                      ) : (
+                        "Start Conversation"
+                      )}
+                    </button>
+                  )}
+
+                  {connectionAttempts > 0 && connectionAttempts < maxReconnectAttempts && (
+                    <p className="text-xs text-muted-foreground mt-3 text-center">
+                      Reconnecting... Attempt {connectionAttempts}/{maxReconnectAttempts}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Action Button (when connected) */}
+              {isConnected && (
+                <div className="p-4 border-t border-border">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-2 h-2 rounded-full ${conversation.isSpeaking ? "bg-royal animate-pulse" : "bg-green-500"}`} />
+                    <p className="text-sm text-muted-foreground">
+                      {conversation.isSpeaking ? "Mike O is speaking..." : "Listening..."}
+                    </p>
+                  </div>
                   <button
                     onClick={stopConversation}
                     className="w-full py-3 px-6 rounded-xl font-medium transition-all bg-red-500 text-white hover:bg-red-600"
                   >
                     End Conversation
                   </button>
-                ) : (
-                  <button
-                    onClick={startConversation}
-                    disabled={isConnecting}
-                    className="w-full py-3 px-6 rounded-xl font-medium transition-all bg-royal text-white hover:bg-royal/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isConnecting ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Connecting...
-                      </span>
-                    ) : (
-                      "Start Conversation"
-                    )}
-                  </button>
-                )}
-
-                {/* Reconnection indicator */}
-                {connectionAttempts > 0 && connectionAttempts < maxReconnectAttempts && (
-                  <p className="text-xs text-muted-foreground mt-3 text-center">
-                    Reconnecting... Attempt {connectionAttempts}/{maxReconnectAttempts}
-                  </p>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Footer */}
               <div className="px-6 pb-4">
