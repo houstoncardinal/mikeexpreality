@@ -122,12 +122,19 @@ const analyticsNavigation: NavItem[] = [
     description: "Performance analytics"
   },
   { 
+    name: "SEO Audit", 
+    href: "/admin/seo", 
+    icon: Target, 
+    badge: null,
+    description: "Schema & sitemap health",
+    highlight: true
+  },
+  { 
     name: "MLS Integration", 
     href: "/admin/mls", 
     icon: Link2, 
     badge: null,
     description: "eXp Realty sync",
-    highlight: true
   },
 ];
 
