@@ -122,12 +122,19 @@ const analyticsNavigation: NavItem[] = [
     description: "Performance analytics"
   },
   { 
+    name: "Monitoring", 
+    href: "/admin/monitoring", 
+    icon: Activity, 
+    badge: null,
+    description: "Health & webhooks",
+    highlight: true
+  },
+  { 
     name: "SEO Audit", 
     href: "/admin/seo", 
     icon: Target, 
     badge: null,
     description: "Schema & sitemap health",
-    highlight: true
   },
   { 
     name: "MLS Integration", 

@@ -46,6 +46,7 @@ import AdminTrainings from "@/pages/admin/AdminTrainings";
 import AdminFollowUps from "@/pages/admin/AdminFollowUps";
 import AdminEmailCampaigns from "@/pages/admin/AdminEmailCampaigns";
 import AdminSEO from "@/pages/admin/AdminSEO";
+import AdminMonitoring from "@/pages/admin/AdminMonitoring";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const AppRoutes = () => {
               <Route path="/admin/trainings" element={<PageTransition><AdminTrainings /></PageTransition>} />
               <Route path="/admin/follow-ups" element={<PageTransition><AdminFollowUps /></PageTransition>} />
               <Route path="/admin/email-campaigns" element={<PageTransition><AdminEmailCampaigns /></PageTransition>} />
+              <Route path="/admin/monitoring" element={<PageTransition><AdminMonitoring /></PageTransition>} />
               <Route path="/admin/seo" element={<PageTransition><AdminSEO /></PageTransition>} />
               <Route path="/admin/posts" element={<PageTransition><AdminPosts /></PageTransition>} />
               <Route path="/admin/posts/new" element={<PageTransition><AdminPostEditor /></PageTransition>} />

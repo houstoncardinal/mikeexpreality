@@ -198,6 +198,63 @@ export type Database = {
           },
         ]
       }
+      health_check_logs: {
+        Row: {
+          created_at: string
+          email_sent: boolean | null
+          id: string
+          overall_status: string
+          results: Json
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_sent?: boolean | null
+          id?: string
+          overall_status: string
+          results?: Json
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_sent?: boolean | null
+          id?: string
+          overall_status?: string
+          results?: Json
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      health_incidents: {
+        Row: {
+          created_at: string
+          id: string
+          latency: number | null
+          message: string | null
+          resolved_at: string | null
+          service_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latency?: number | null
+          message?: string | null
+          resolved_at?: string | null
+          service_name: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latency?: number | null
+          message?: string | null
+          resolved_at?: string | null
+          service_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           converted_at: string | null
@@ -279,6 +336,36 @@ export type Database = {
           started_at?: string
           status?: string
           sync_type?: string
+        }
+        Relationships: []
+      }
+      mls_webhook_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json | null
+          property_id: string | null
+          sitemap_regenerated: boolean | null
+          source_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json | null
+          property_id?: string | null
+          sitemap_regenerated?: boolean | null
+          source_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          property_id?: string | null
+          sitemap_regenerated?: boolean | null
+          source_ip?: string | null
         }
         Relationships: []
       }
