@@ -20,6 +20,7 @@ import { ClientPortal } from "@/pages/ClientPortal";
 import NotFound from "@/pages/NotFound";
 import Hero3DDemo from "@/pages/Hero3DDemo";
 import Health from "@/pages/Health";
+import MapSearch from "@/pages/MapSearch";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -49,6 +50,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <Listings />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/map-search"
+          element={
+            <PageTransition>
+              <MapSearch />
             </PageTransition>
           }
         />
