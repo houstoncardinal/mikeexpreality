@@ -28,8 +28,65 @@ export function VoiceAgentWidget() {
   const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isManualDisconnectRef = useRef(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
+  const conversationRef = useRef<ReturnType<typeof useConversation> | null>(null);
   const maxReconnectAttempts = 3;
 
+  // Keep-alive mechanism functions using refs for stability
+  const stopKeepAlive = useCallback(() => {
+    if (keepAliveIntervalRef.current) {
+      clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = null;
+    }
+  }, []);
+
+  const stopVolumeMonitoring = useCallback(() => {
+    if (volumeIntervalRef.current) {
+      clearInterval(volumeIntervalRef.current);
+      volumeIntervalRef.current = null;
+    }
+    setInputVolume(0);
+    setOutputVolume(0);
+  }, []);
+
+  const startKeepAlive = useCallback(() => {
+    stopKeepAlive();
+    
+    keepAliveIntervalRef.current = setInterval(() => {
+      if (conversationRef.current?.status === "connected") {
+        try {
+          conversationRef.current.sendUserActivity();
+          console.log("Keep-alive: sent user activity signal");
+        } catch (error) {
+          console.warn("Keep-alive signal failed:", error);
+        }
+      }
+    }, 15000);
+  }, [stopKeepAlive]);
+
+  const startVolumeMonitoring = useCallback(() => {
+    stopVolumeMonitoring();
+    
+    volumeIntervalRef.current = setInterval(() => {
+      if (conversationRef.current?.status === "connected") {
+        try {
+          const input = conversationRef.current.getInputVolume();
+          const output = conversationRef.current.getOutputVolume();
+          setInputVolume(input);
+          setOutputVolume(output);
+        } catch (error) {
+          // Silently handle errors during volume monitoring
+        }
+      }
+    }, 50);
+  }, [stopVolumeMonitoring]);
+
+  const resetKeepAlive = useCallback(() => {
+    if (conversationRef.current?.status === "connected") {
+      startKeepAlive();
+    }
+  }, [startKeepAlive]);
+
+  // Initialize conversation hook
   const conversation = useConversation({
     onConnect: () => {
       console.log("Connected to ElevenLabs agent");
@@ -37,9 +94,7 @@ export function VoiceAgentWidget() {
       setConnectionAttempts(0);
       isManualDisconnectRef.current = false;
       
-      // Start keep-alive mechanism
       startKeepAlive();
-      // Start volume monitoring
       startVolumeMonitoring();
     },
     onDisconnect: () => {
@@ -47,7 +102,7 @@ export function VoiceAgentWidget() {
       stopKeepAlive();
       stopVolumeMonitoring();
       
-      if (!isManualDisconnectRef.current && isOpen && connectionAttempts < maxReconnectAttempts) {
+      if (!isManualDisconnectRef.current && connectionAttempts < maxReconnectAttempts) {
         console.log(`Connection lost. Attempting reconnect (${connectionAttempts + 1}/${maxReconnectAttempts})...`);
         toast.info("Connection lost. Reconnecting...");
         
@@ -58,7 +113,6 @@ export function VoiceAgentWidget() {
         const delay = Math.pow(2, connectionAttempts) * 1000;
         reconnectTimeoutRef.current = setTimeout(() => {
           setConnectionAttempts(prev => prev + 1);
-          attemptReconnect();
         }, delay);
       } else if (connectionAttempts >= maxReconnectAttempts) {
         toast.error("Unable to maintain connection. Please try again.");
@@ -69,7 +123,6 @@ export function VoiceAgentWidget() {
       console.log("Message:", message);
       resetKeepAlive();
       
-      // Handle different message types for transcript
       const msgAny = message as any;
       const msgType = msgAny?.type || msgAny?.message?.type;
       
@@ -96,13 +149,11 @@ export function VoiceAgentWidget() {
           }]);
         }
       } else if (msgType === "agent_response_correction") {
-        // Update the last agent message with the corrected response
         const correctedResponse = msgAny?.agent_response_correction_event?.corrected_agent_response ||
                                   msgAny?.message?.agent_response_correction_event?.corrected_agent_response;
         if (correctedResponse) {
           setTranscript(prev => {
             const newTranscript = [...prev];
-            // Find last agent message index (ES5 compatible)
             let lastAgentIdx = -1;
             for (let i = newTranscript.length - 1; i >= 0; i--) {
               if (newTranscript[i].role === "agent") {
@@ -130,68 +181,17 @@ export function VoiceAgentWidget() {
     },
   });
 
+  // Store conversation in ref for callbacks
+  useEffect(() => {
+    conversationRef.current = conversation;
+  }, [conversation]);
+
   // Auto-scroll transcript to bottom
   useEffect(() => {
     if (transcriptEndRef.current) {
       transcriptEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [transcript]);
-
-  // Volume monitoring for audio visualization
-  const startVolumeMonitoring = useCallback(() => {
-    stopVolumeMonitoring();
-    
-    volumeIntervalRef.current = setInterval(() => {
-      if (conversation.status === "connected") {
-        try {
-          const input = conversation.getInputVolume();
-          const output = conversation.getOutputVolume();
-          setInputVolume(input);
-          setOutputVolume(output);
-        } catch (error) {
-          // Silently handle errors during volume monitoring
-        }
-      }
-    }, 50); // 20fps for smooth visualization
-  }, [conversation]);
-
-  const stopVolumeMonitoring = useCallback(() => {
-    if (volumeIntervalRef.current) {
-      clearInterval(volumeIntervalRef.current);
-      volumeIntervalRef.current = null;
-    }
-    setInputVolume(0);
-    setOutputVolume(0);
-  }, []);
-
-  // Keep-alive mechanism
-  const startKeepAlive = useCallback(() => {
-    stopKeepAlive();
-    
-    keepAliveIntervalRef.current = setInterval(() => {
-      if (conversation.status === "connected") {
-        try {
-          conversation.sendUserActivity();
-          console.log("Keep-alive: sent user activity signal");
-        } catch (error) {
-          console.warn("Keep-alive signal failed:", error);
-        }
-      }
-    }, 15000);
-  }, [conversation]);
-
-  const stopKeepAlive = useCallback(() => {
-    if (keepAliveIntervalRef.current) {
-      clearInterval(keepAliveIntervalRef.current);
-      keepAliveIntervalRef.current = null;
-    }
-  }, []);
-
-  const resetKeepAlive = useCallback(() => {
-    if (conversation.status === "connected") {
-      startKeepAlive();
-    }
-  }, [conversation.status, startKeepAlive]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -229,8 +229,7 @@ export function VoiceAgentWidget() {
       const token = await fetchToken();
       
       await conversation.startSession({
-        conversationToken: token,
-        connectionType: "webrtc",
+        signedUrl: token,
       });
     } catch (error) {
       console.error("Reconnection failed:", error);
@@ -239,19 +238,25 @@ export function VoiceAgentWidget() {
     }
   }, [conversation, fetchToken, isConnecting]);
 
+  // Effect to handle reconnection attempts
+  useEffect(() => {
+    if (connectionAttempts > 0 && connectionAttempts < maxReconnectAttempts && !isManualDisconnectRef.current) {
+      attemptReconnect();
+    }
+  }, [connectionAttempts, attemptReconnect]);
+
   const startConversation = useCallback(async () => {
     setIsConnecting(true);
     isManualDisconnectRef.current = false;
     setConnectionAttempts(0);
-    setTranscript([]); // Clear transcript on new conversation
+    setTranscript([]);
     
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       const token = await fetchToken();
 
       await conversation.startSession({
-        conversationToken: token,
-        connectionType: "webrtc",
+        signedUrl: token,
       });
     } catch (error) {
       console.error("Failed to start conversation:", error);
@@ -416,39 +421,41 @@ export function VoiceAgentWidget() {
 
               {/* Transcript Area */}
               {isConnected && (
-                <ScrollArea className="h-48 px-4 py-3">
-                  {transcript.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                      <p>Start speaking to see the conversation...</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {transcript.map((message) => (
-                        <motion.div
-                          key={message.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                        >
-                          <div
-                            className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm ${
-                              message.role === "user"
-                                ? "bg-royal text-white rounded-br-sm"
-                                : "bg-muted text-foreground rounded-bl-sm"
-                            }`}
+                <ScrollArea className="h-48">
+                  <div className="px-4 py-3">
+                    {transcript.length === 0 ? (
+                      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                        <p>Start speaking to see the conversation...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {transcript.map((message) => (
+                          <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                           >
-                            <p>{message.text}</p>
-                            <p className={`text-[10px] mt-1 ${
-                              message.role === "user" ? "text-white/60" : "text-muted-foreground"
-                            }`}>
-                              {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                            </p>
-                          </div>
-                        </motion.div>
-                      ))}
-                      <div ref={transcriptEndRef} />
-                    </div>
-                  )}
+                            <div
+                              className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm ${
+                                message.role === "user"
+                                  ? "bg-royal text-white rounded-br-sm"
+                                  : "bg-muted text-foreground rounded-bl-sm"
+                              }`}
+                            >
+                              <p>{message.text}</p>
+                              <p className={`text-[10px] mt-1 ${
+                                message.role === "user" ? "text-white/60" : "text-muted-foreground"
+                              }`}>
+                                {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            </div>
+                          </motion.div>
+                        ))}
+                        <div ref={transcriptEndRef} />
+                      </div>
+                    )}
+                  </div>
                 </ScrollArea>
               )}
 
