@@ -13,6 +13,7 @@ import { SearchAutocomplete } from '@/components/search/SearchAutocomplete'
 import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Database } from '@/integrations/supabase/types'
+import { CoverageMap } from '@/components/map/CoverageMap'
 
 type PropertyType = Database['public']['Enums']['property_type']
 
@@ -396,110 +397,55 @@ export default function CombinedFeaturedSection() {
               </div>
             </div>
 
-            {/* Interactive Map */}
-            <div className="relative h-[200px] bg-gradient-to-br from-secondary/50 to-muted/30 rounded-2xl overflow-hidden">
-              {/* Grid background */}
-              <div className="absolute inset-0 opacity-20" style={{
-                backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary)/0.3) 1px, transparent 0)',
-                backgroundSize: '20px 20px'
-              }} />
-              
-              {/* Loading state */}
-              {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-30">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              )}
+            {/* Interactive Mapbox Map */}
+            <div className="relative">
+              <CoverageMap 
+                neighborhoods={filteredNeighborhoods.map(hood => ({
+                  id: hood.id,
+                  name: hood.name,
+                  listings: hood.listings,
+                  avgPrice: hood.avgPrice,
+                  coords: [0, 0] as [number, number], // Will use internal coords lookup
+                  color: hood.color,
+                }))}
+                onNeighborhoodSelect={(hood) => {
+                  const found = filteredNeighborhoods.find(n => n.id === hood.id);
+                  setSelectedNeighborhood(found || null);
+                }}
+                selectedNeighborhood={selectedNeighborhood ? {
+                  id: selectedNeighborhood.id,
+                  name: selectedNeighborhood.name,
+                  listings: selectedNeighborhood.listings,
+                  avgPrice: selectedNeighborhood.avgPrice,
+                  coords: [0, 0] as [number, number],
+                  color: selectedNeighborhood.color,
+                } : null}
+                isLoading={isLoading}
+                className="h-[200px]"
+              />
 
-              {/* Neighborhood markers */}
-              {filteredNeighborhoods.map((hood) => (
-                <motion.button
-                  key={hood.id}
-                  className={cn(
-                    "absolute transform -translate-x-1/2 -translate-y-1/2 z-10 group",
-                    selectedNeighborhood?.id === hood.id && "z-20"
-                  )}
-                  style={{ left: `${hood.coords.x}%`, top: `${hood.coords.y}%` }}
-                  onClick={() => setSelectedNeighborhood(selectedNeighborhood?.id === hood.id ? null : hood)}
-                  onMouseEnter={() => setHoveredNeighborhood(hood.id)}
-                  onMouseLeave={() => setHoveredNeighborhood(null)}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {/* Pulse ring */}
-                  <motion.div
-                    className={cn(
-                      "absolute inset-0 rounded-full bg-gradient-to-br opacity-30",
-                      hood.color
-                    )}
-                    animate={{
-                      scale: [1, 1.8, 1],
-                      opacity: [0.3, 0, 0.3],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: Math.random() * 2,
-                    }}
-                  />
-                  
-                  {/* Marker dot */}
-                  <div className={cn(
-                    "w-4 h-4 rounded-full bg-gradient-to-br shadow-lg border-2 border-white transition-all duration-300",
-                    hood.color,
-                    (selectedNeighborhood?.id === hood.id || hoveredNeighborhood === hood.id) && "w-5 h-5"
-                  )} />
-                  
-                  {/* Listing count badge */}
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">
-                    {hood.listings}
-                  </div>
-
-                  {/* Hover tooltip */}
-                  <AnimatePresence>
-                    {(hoveredNeighborhood === hood.id && selectedNeighborhood?.id !== hood.id) && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-card border border-border rounded-lg shadow-lg whitespace-nowrap z-30"
-                      >
-                        <p className="text-xs font-semibold text-foreground">{hood.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{hood.listings} listings • {hood.avgPrice}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              ))}
-
-              {/* Empty state */}
-              {!isLoading && filteredNeighborhoods.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      {allProperties.length === 0 ? 'No active listings found' : 'No listings match your filters'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Selected neighborhood panel */}
+              {/* Selected neighborhood panel overlay */}
               <AnimatePresence>
                 {selectedNeighborhood && (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="absolute left-4 top-4 bottom-4 w-48 bg-card/95 backdrop-blur-xl border border-border rounded-xl p-4 shadow-xl"
+                    className="absolute left-2 top-2 bottom-2 w-44 bg-card/95 backdrop-blur-xl border border-border rounded-xl p-3 shadow-xl z-20"
                   >
-                    <div className={cn("w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center mb-3", selectedNeighborhood.color)}>
-                      <Building2 className="h-4 w-4 text-white" />
+                    <button 
+                      onClick={() => setSelectedNeighborhood(null)}
+                      className="absolute top-2 right-2 w-5 h-5 rounded-full bg-muted hover:bg-muted-foreground/20 flex items-center justify-center text-muted-foreground text-xs"
+                    >
+                      ×
+                    </button>
+                    <div className={cn("w-7 h-7 rounded-lg bg-gradient-to-br flex items-center justify-center mb-2", selectedNeighborhood.color)}>
+                      <Building2 className="h-3.5 w-3.5 text-white" />
                     </div>
-                    <h4 className="font-semibold text-foreground mb-1">{selectedNeighborhood.name}</h4>
-                    <div className="space-y-2 text-xs">
+                    <h4 className="font-semibold text-foreground text-sm mb-1">{selectedNeighborhood.name}</h4>
+                    <div className="space-y-1.5 text-xs">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Active Listings</span>
+                        <span className="text-muted-foreground">Listings</span>
                         <span className="font-semibold text-primary">{selectedNeighborhood.listings}</span>
                       </div>
                       <div className="flex justify-between">
@@ -509,7 +455,7 @@ export default function CombinedFeaturedSection() {
                     </div>
                     <button
                       onClick={() => handleNeighborhoodClick(selectedNeighborhood.name)}
-                      className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+                      className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors"
                     >
                       View Listings
                       <ArrowRight className="h-3 w-3" />
