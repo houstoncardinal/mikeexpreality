@@ -559,6 +559,42 @@ export type Database = {
           },
         ]
       }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          last_notified_at: string | null
+          name: string
+          notify_email: boolean
+          properties_notified: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          name: string
+          notify_email?: boolean
+          properties_notified?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          name?: string
+          notify_email?: boolean
+          properties_notified?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       showings: {
         Row: {
           agent_id: string | null
