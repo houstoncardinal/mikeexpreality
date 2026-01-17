@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Square, Heart, Eye, Scale } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { MapPin, Bed, Bath, Square, Heart, Eye, Scale, Map } from "lucide-react";
 import { PropertyListing, formatPrice } from "@/lib/listingsData";
 import { cn } from "@/lib/utils";
 import { trackCTAClick } from "@/lib/analytics";
@@ -10,12 +10,24 @@ interface PropertyCardProps {
   variant?: "grid" | "list" | "featured";
   className?: string;
   index?: number;
+  showMapButton?: boolean;
 }
 
-export function PropertyCard({ listing, variant = "grid", className, index = 0 }: PropertyCardProps) {
+export function PropertyCard({ listing, variant = "grid", className, index = 0, showMapButton = true }: PropertyCardProps) {
+  const navigate = useNavigate();
   const isList = variant === "list";
   const isFeatured = variant === "featured";
   const { addToComparison, isInComparison, removeFromComparison } = useComparison();
+
+  const handleViewOnMap = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (listing.latitude && listing.longitude) {
+      navigate(`/map-search?propertyId=${listing.id}&lat=${listing.latitude}&lng=${listing.longitude}`);
+    } else {
+      navigate(`/map-search?city=${listing.city}`);
+    }
+  };
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -100,6 +112,15 @@ export function PropertyCard({ listing, variant = "grid", className, index = 0 }
           >
             <Scale className="h-4 w-4" />
           </button>
+          {showMapButton && (
+            <button 
+              onClick={handleViewOnMap}
+              className="p-2.5 bg-card/90 backdrop-blur-md rounded-full hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
+              aria-label="View on map"
+            >
+              <Map className="h-4 w-4" />
+            </button>
+          )}
           <button 
             className="p-2.5 bg-card/90 backdrop-blur-md rounded-full hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
             aria-label="Quick view"
@@ -117,6 +138,8 @@ export function PropertyCard({ listing, variant = "grid", className, index = 0 }
             <span className="px-2 py-1 bg-accent text-accent-foreground text-xs font-bold rounded animate-pulse-slow">
               NEW
             </span>
+          )}
+        </div>
           )}
         </div>
       </div>
