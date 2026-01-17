@@ -80,11 +80,6 @@ export function SavedSearchDialog({ currentFilters, trigger }: SavedSearchDialog
       setIsLoading(false);
     }
   };
-      console.error("Error fetching saved searches:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -106,7 +101,7 @@ export function SavedSearchDialog({ currentFilters, trigger }: SavedSearchDialog
       const { error } = await supabase.from("saved_searches").insert([{
         user_id: user.id,
         name: newSearchName.trim(),
-        filters: currentFilters as unknown as Record<string, unknown>,
+        filters: currentFilters as unknown as Record<string, string | number | boolean | null>,
         notify_email: notifyEmail,
       }]);
 
