@@ -140,8 +140,6 @@ export function PropertyCard({ listing, variant = "grid", className, index = 0, 
             </span>
           )}
         </div>
-          )}
-        </div>
       </div>
 
       {/* Content */}
