@@ -278,7 +278,7 @@ export function Header() {
         }}
       >
         <div className="container-custom overflow-visible">
-          <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
+          <div className="flex items-center justify-between h-20 lg:h-24 gap-3">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <div className="relative">
@@ -293,7 +293,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-0.5 overflow-hidden">
             {navigation.map((item) => (
               <div 
                 key={item.name} 
@@ -304,7 +304,7 @@ export function Header() {
                 {item.children ? (
                   <button
                     className={cn(
-                      "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
+                      "flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
                       openDropdown === item.name
                         ? "text-accent bg-accent/10"
                         : "text-slate-700 hover:text-accent hover:bg-gray-50"
@@ -320,7 +320,7 @@ export function Header() {
                   <Link
                     to={item.href}
                     className={cn(
-                      "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
+                      "px-3 xl:px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
                       location.pathname === item.href
                         ? "text-accent bg-accent/10"
                         : "text-slate-700 hover:text-accent hover:bg-gray-50"
@@ -475,7 +475,9 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
-            <LanguageSwitcher variant="header" />
+            <div className="hidden xl:block">
+              <LanguageSwitcher variant="header" />
+            </div>
             
             {/* Client Portal / Auth Button */}
             {user ? (
@@ -502,22 +504,22 @@ export function Header() {
             
             <a
               href={`tel:${siteConfig.phoneRaw}`}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
+              className="hidden xl:flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-all duration-300"
             >
               <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
                 <Phone className="h-4 w-4 text-accent" />
               </div>
-              <span className="hidden xl:block">{siteConfig.phone}</span>
+              <span className="hidden 2xl:block">{siteConfig.phone}</span>
             </a>
             <Link to="/contact">
               <Button
                 variant="royal"
                 size="default"
-                className="gap-2 shadow-lg hover:shadow-xl transition-shadow whitespace-nowrap"
+                className="gap-2 shadow-lg hover:shadow-xl transition-shadow whitespace-nowrap px-3 xl:px-4"
               >
                 <Sparkles className="h-4 w-4" />
-                <span className="hidden xl:inline">Let's Connect</span>
-                <span className="xl:hidden">Contact</span>
+                <span className="hidden 2xl:inline">Let's Connect</span>
+                <span className="2xl:hidden">Contact</span>
               </Button>
             </Link>
           </div>
