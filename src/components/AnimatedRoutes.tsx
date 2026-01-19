@@ -21,6 +21,7 @@ import NotFound from "@/pages/NotFound";
 import Hero3DDemo from "@/pages/Hero3DDemo";
 import Health from "@/pages/Health";
 import MapSearch from "@/pages/MapSearch";
+import MLSSearch from "@/pages/MLSSearch";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -58,6 +59,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <MapSearch />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/mls-search"
+          element={
+            <PageTransition>
+              <MLSSearch />
             </PageTransition>
           }
         />
