@@ -19,6 +19,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { getSellerResourcesSchemas, HowToStep, FAQItem } from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 
 const sellingSteps = [
   {
@@ -82,7 +84,20 @@ const faqs = [
   },
 ];
 
+// Convert to schema format
+const sellingStepsSchema: HowToStep[] = sellingSteps.map(step => ({
+  title: step.title,
+  description: step.description,
+}));
+
+const faqsSchema: FAQItem[] = faqs.map(faq => ({
+  question: faq.question,
+  answer: faq.answer,
+}));
+
 const SellerResources = () => {
+  const schemas = getSellerResourcesSchemas(sellingStepsSchema, faqsSchema);
+
   return (
     <>
       <Helmet>
@@ -93,6 +108,9 @@ const SellerResources = () => {
         />
         <link rel="canonical" href="https://houstonelite.com/seller-resources" />
       </Helmet>
+
+      {/* Centralized Schema Markup with HowTo + FAQ */}
+      <SchemaMarkup schemas={schemas} />
 
       <Layout>
         {/* Hero */}
@@ -272,22 +290,6 @@ const SellerResources = () => {
           </div>
         </section>
       </Layout>
-
-      {/* FAQ Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: faqs.map((faq) => ({
-            "@type": "Question",
-            name: faq.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: faq.answer,
-            },
-          })),
-        })}
-      </script>
     </>
   );
 };

@@ -140,7 +140,14 @@ const BlogPostPage = () => {
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt || ""} />
-        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+        {post.featured_image && (
+          <>
+            <meta property="og:image" content={post.featured_image} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content={post.title} />
+          </>
+        )}
         <meta property="og:url" content={`${siteConfig.url}/blog/${post.slug}`} />
         <meta property="article:published_time" content={publishDate} />
         <meta property="article:author" content={post.author_name || siteConfig.agent.name} />

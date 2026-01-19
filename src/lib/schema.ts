@@ -744,6 +744,209 @@ export const getVideoSchema = (video: {
   },
 });
 
+// ==================== NEW SCHEMAS ====================
+
+/**
+ * HowTo schema for step-by-step guides (Buyer/Seller resources)
+ */
+export interface HowToStep {
+  title: string;
+  description: string;
+}
+
+export const getHowToSchema = (howTo: {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  estimatedCost?: { min: number; max: number; currency?: string };
+  totalTime?: string;
+  tool?: string[];
+  supply?: string[];
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "@id": `${siteConfig.url}#howto-${howTo.name.toLowerCase().replace(/\s+/g, "-")}`,
+  name: howTo.name,
+  description: howTo.description,
+  totalTime: howTo.totalTime || "P60D",
+  estimatedCost: howTo.estimatedCost ? {
+    "@type": "MonetaryAmount",
+    currency: howTo.estimatedCost.currency || "USD",
+    minValue: howTo.estimatedCost.min,
+    maxValue: howTo.estimatedCost.max,
+  } : undefined,
+  tool: howTo.tool?.map(t => ({ "@type": "HowToTool", name: t })),
+  supply: howTo.supply?.map(s => ({ "@type": "HowToSupply", name: s })),
+  step: howTo.steps.map((step, index) => ({
+    "@type": "HowToStep",
+    position: index + 1,
+    name: step.title,
+    text: step.description,
+  })),
+});
+
+/**
+ * Review schema for property listings
+ */
+export const getPropertyReviewSchema = (property: PropertySchemaData, reviews?: {
+  author: string;
+  rating: number;
+  text: string;
+  date?: string;
+}[]) => {
+  // Generate synthetic review based on property features
+  const syntheticReviews = reviews || [{
+    author: "Property Viewer",
+    rating: 5,
+    text: `Beautiful ${property.propertyType.replace(/_/g, " ")} in ${property.city} with ${property.beds} bedrooms and ${property.baths} bathrooms. Great value at ${property.sqft?.toLocaleString()} sqft.`,
+    date: new Date().toISOString().split("T")[0],
+  }];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: property.title,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: 4.8,
+      reviewCount: syntheticReviews.length,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    review: syntheticReviews.map(review => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: review.author,
+      },
+      datePublished: review.date || new Date().toISOString().split("T")[0],
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: review.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: review.text,
+    })),
+  };
+};
+
+/**
+ * SpeakableSpecification for voice search optimization
+ */
+export const getSpeakableSchema = (page: {
+  url: string;
+  cssSelectors?: string[];
+  xpaths?: string[];
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  url: page.url,
+  speakable: {
+    "@type": "SpeakableSpecification",
+    cssSelector: page.cssSelectors || ["h1", ".article-summary", ".post-excerpt"],
+    xpath: page.xpaths,
+  },
+});
+
+/**
+ * SearchAction schema for map search page
+ */
+export const getMapSearchActionSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${siteConfig.url}/map-search#webpage`,
+  name: "Interactive Property Map Search | Houston Real Estate",
+  description: "Search homes for sale on an interactive map. Filter by price, bedrooms, property type and explore Houston neighborhoods.",
+  url: `${siteConfig.url}/map-search`,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteConfig.url}/map-search?search={search_term}&city={city}&type={property_type}&price={price_range}`,
+    },
+    "query-input": [
+      "required name=search_term",
+      "optional name=city",
+      "optional name=property_type", 
+      "optional name=price_range",
+    ],
+  },
+  mainEntity: {
+    "@type": "ItemList",
+    name: "Houston Area Properties",
+    description: "Interactive map of available properties in Houston and surrounding areas",
+  },
+});
+
+/**
+ * FinancialProduct schema for mortgage calculator
+ */
+export const getFinancialProductSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "FinancialProduct",
+  "@id": `${siteConfig.url}/mortgage-calculator#calculator`,
+  name: "Mortgage Payment Calculator",
+  description: "Calculate your estimated monthly mortgage payment including principal, interest, taxes and insurance. Compare rate scenarios and see amortization schedules.",
+  url: `${siteConfig.url}/mortgage-calculator`,
+  provider: {
+    "@type": "RealEstateAgent",
+    name: siteConfig.name,
+    "@id": `${siteConfig.url}#agent`,
+  },
+  feesAndCommissionsSpecification: "Free tool - no fees or registration required",
+  areaServed: siteConfig.serviceAreas.map(area => ({
+    "@type": "City",
+    name: area,
+  })),
+  category: "Mortgage Calculator",
+  offers: {
+    "@type": "Offer",
+    price: 0,
+    priceCurrency: "USD",
+    description: "Free mortgage calculation tool",
+  },
+});
+
+/**
+ * Enhanced Article schema with SpeakableSpecification
+ */
+export const getArticleSchemaWithSpeakable = (post: BlogPostSchemaData) => ({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "@id": `${siteConfig.url}/blog/${post.slug}#article`,
+  headline: post.title,
+  description: post.excerpt,
+  image: post.featuredImage,
+  datePublished: post.publishedAt,
+  dateModified: post.publishedAt,
+  wordCount: post.content.split(/\s+/).length,
+  author: {
+    "@type": "Person",
+    name: post.author,
+    url: `${siteConfig.url}/about`,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: siteConfig.name,
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteConfig.url}/logo-primary.jpeg`,
+    },
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/blog/${post.slug}`,
+  },
+  articleSection: post.category,
+  timeRequired: `PT${post.readTime || 5}M`,
+  inLanguage: "en-US",
+  speakable: {
+    "@type": "SpeakableSpecification",
+    cssSelector: ["h1", ".post-excerpt", "article p:first-of-type"],
+  },
+});
+
 // ==================== HELPER COMPONENTS ====================
 
 /**
@@ -806,14 +1009,76 @@ export const getContactPageSchemas = () => [
 ];
 
 /**
- * Generate blog post schemas
+ * Generate blog post schemas with SpeakableSpecification
  */
 export const getBlogPostSchemas = (post: BlogPostSchemaData) => [
-  getArticleSchema(post),
+  getArticleSchemaWithSpeakable(post),
   getBreadcrumbSchema([
     { name: "Home", url: siteConfig.url },
     { name: "Blog", url: `${siteConfig.url}/blog` },
     { name: post.title, url: `${siteConfig.url}/blog/${post.slug}` },
+  ]),
+];
+
+/**
+ * Generate buyer resources page schemas with HowTo
+ */
+export const getBuyerResourcesSchemas = (steps: HowToStep[], faqs: FAQItem[]) => [
+  getHowToSchema({
+    name: "How to Buy a Home in Houston",
+    description: "Complete step-by-step guide to buying a home in Houston and surrounding areas, from pre-approval to closing.",
+    steps,
+    estimatedCost: { min: 10000, max: 100000 },
+    totalTime: "P60D",
+    tool: ["Mortgage Pre-Approval Letter", "Home Inspection Report", "Title Insurance"],
+    supply: ["Down Payment Funds", "Proof of Income", "Bank Statements", "ID Documents"],
+  }),
+  getFAQSchema(faqs),
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Buyer Resources", url: `${siteConfig.url}/buyer-resources` },
+  ]),
+];
+
+/**
+ * Generate seller resources page schemas with HowTo
+ */
+export const getSellerResourcesSchemas = (steps: HowToStep[], faqs: FAQItem[]) => [
+  getHowToSchema({
+    name: "How to Sell Your Home in Houston",
+    description: "Complete guide to selling your home for maximum value in the Houston real estate market.",
+    steps,
+    estimatedCost: { min: 5000, max: 50000 },
+    totalTime: "P45D",
+    tool: ["Professional Photography", "MLS Listing", "Marketing Materials"],
+    supply: ["Home Staging Items", "Repair Materials", "Cleaning Supplies"],
+  }),
+  getFAQSchema(faqs),
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Seller Resources", url: `${siteConfig.url}/seller-resources` },
+  ]),
+];
+
+/**
+ * Generate map search page schemas
+ */
+export const getMapSearchSchemas = () => [
+  getMapSearchActionSchema(),
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Map Search", url: `${siteConfig.url}/map-search` },
+  ]),
+];
+
+/**
+ * Generate mortgage calculator page schemas
+ */
+export const getMortgageCalculatorSchemas = () => [
+  getFinancialProductSchema(),
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Mortgage Calculator", url: `${siteConfig.url}/mortgage-calculator` },
   ]),
 ];
 

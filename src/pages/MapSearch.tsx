@@ -44,6 +44,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getMapSearchSchemas } from "@/lib/schema";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 
 interface MapFilters {
   search: string;
@@ -698,6 +700,9 @@ export default function MapSearch() {
         <meta name="description" content="Explore Houston properties on an interactive map with satellite view, 3D buildings, and neighborhood boundaries." />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </Helmet>
+
+      {/* SearchAction Schema for Map Search */}
+      <SchemaMarkup schemas={getMapSearchSchemas()} />
 
       <div className="fixed inset-0 flex flex-col md:flex-row">
         {/* Mobile Header */}

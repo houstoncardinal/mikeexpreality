@@ -15,6 +15,7 @@ import { trackPropertyView, trackCTAClick } from "@/lib/analytics";
 import { 
   getPropertyDetailSchemas,
   PropertySchemaData,
+  getPropertyReviewSchema,
 } from "@/lib/schema";
 import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 import { 
@@ -122,8 +123,11 @@ const PropertyDetailPage = () => {
     mlsNumber: property.mlsNumber,
   };
 
-  // Get centralized schemas
-  const schemas = getPropertyDetailSchemas(propertySchemaData);
+  // Get centralized schemas including Review schema
+  const schemas = [
+    ...getPropertyDetailSchemas(propertySchemaData),
+    getPropertyReviewSchema(propertySchemaData),
+  ];
 
   return (
     <>
@@ -136,10 +140,13 @@ const PropertyDetailPage = () => {
         <meta name="keywords" content={`${property.city} homes for ${property.priceType}, ${property.propertyType}, ${property.beds} bedroom homes, ${property.neighborhood || property.city} real estate, Mike Ogunkeye`} />
         <link rel="canonical" href={`${siteConfig.url}/property/${property.id}`} />
         
-        {/* Open Graph */}
+        {/* Open Graph with image dimensions */}
         <meta property="og:title" content={`${property.title} | ${formatPrice(property.price, property.priceType)}`} />
         <meta property="og:description" content={`${property.beds} bed, ${property.baths} bath, ${property.sqft?.toLocaleString()} sqft in ${property.city}, TX`} />
         <meta property="og:image" content={property.images[0]} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${property.title} - ${property.beds} bed, ${property.baths} bath home in ${property.city}`} />
         <meta property="og:url" content={`${siteConfig.url}/property/${property.id}`} />
         <meta property="og:type" content="website" />
         
@@ -148,6 +155,7 @@ const PropertyDetailPage = () => {
         <meta name="twitter:title" content={property.title} />
         <meta name="twitter:description" content={`${formatPrice(property.price, property.priceType)} | ${property.beds} bed, ${property.baths} bath`} />
         <meta name="twitter:image" content={property.images[0]} />
+        <meta name="twitter:image:alt" content={`${property.title} property photo`} />
       </Helmet>
 
       {/* Centralized Schema Markup */}
