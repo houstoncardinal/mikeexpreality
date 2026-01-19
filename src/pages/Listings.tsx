@@ -16,10 +16,13 @@ import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 type SortOption = "newest" | "price-asc" | "price-desc" | "sqft-desc";
 type ViewMode = "grid" | "list" | "map";
 
+const ITEMS_PER_PAGE = 9;
+
 const Listings = () => {
   const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [filters, setFilters] = useState<SearchFilters>({
     search: "",
     city: "",
@@ -98,7 +101,15 @@ const Listings = () => {
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
+    setVisibleCount(ITEMS_PER_PAGE); // Reset pagination when filters change
   };
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
+  };
+
+  const visibleListings = filteredAndSortedListings.slice(0, visibleCount);
+  const hasMoreListings = visibleCount < filteredAndSortedListings.length;
 
   const activeFiltersCount = [
     filters.city,
@@ -284,7 +295,7 @@ const Listings = () => {
                   ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" 
                   : "space-y-6"
               )}>
-                {filteredAndSortedListings.map((listing, index) => (
+                {visibleListings.map((listing, index) => (
                   <PropertyCard 
                     key={listing.id} 
                     listing={listing} 
@@ -321,11 +332,16 @@ const Listings = () => {
               </div>
             )}
 
-            {/* Load More (placeholder for future pagination) */}
-            {filteredAndSortedListings.length > 0 && filteredAndSortedListings.length >= 12 && (
+            {/* Load More */}
+            {hasMoreListings && (
               <div className="text-center mt-12">
-                <Button variant="outline" size="lg" className="px-12">
-                  Load More Properties
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="px-12"
+                  onClick={handleLoadMore}
+                >
+                  Load More Properties ({filteredAndSortedListings.length - visibleCount} remaining)
                 </Button>
               </div>
             )}
