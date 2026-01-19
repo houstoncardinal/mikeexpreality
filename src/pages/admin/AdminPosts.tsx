@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -102,8 +102,7 @@ const AdminPosts = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <AdminLayout>
-        <div className="space-y-8">
+      <div className="py-6 lg:py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="font-serif text-3xl font-bold text-foreground">Blog Posts</h1>
@@ -232,8 +231,7 @@ const AdminPosts = () => {
               </div>
             )}
           </Card>
-        </div>
-      </AdminLayout>
+      </div>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { motion } from "framer-motion";
 import {
   Users,
   Search,
@@ -236,11 +236,15 @@ function AdminLeads() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-muted rounded-full" />
+            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-muted-foreground">Loading leads...</p>
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
@@ -250,8 +254,7 @@ function AdminLeads() {
         <title>Lead Management | {siteConfig.name}</title>
       </Helmet>
 
-      <AdminLayout>
-        <div className="p-6 lg:p-8 space-y-8">
+      <div className="py-6 lg:py-8 space-y-6">
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
@@ -543,11 +546,10 @@ function AdminLeads() {
               )}
             </CardContent>
           </Card>
-        </div>
+      </div>
 
-        {/* Floating Quick Add Button */}
-        <QuickAddButton variant="floating" onSuccess={fetchLeads} />
-      </AdminLayout>
+      {/* Floating Quick Add Button */}
+      <QuickAddButton variant="floating" onSuccess={fetchLeads} />
     </>
   );
 }

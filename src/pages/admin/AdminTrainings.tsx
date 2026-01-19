@@ -45,7 +45,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 
 interface Training {
   id: string;
@@ -292,12 +292,11 @@ export default function AdminTrainings() {
         <title>Training Center | {siteConfig.name}</title>
       </Helmet>
 
-      <AdminLayout>
-        <motion.div
-          className="p-6 lg:p-8 space-y-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+      <motion.div
+        className="py-6 lg:py-8 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -603,7 +602,7 @@ export default function AdminTrainings() {
             </Card>
           )}
         </motion.div>
-      </AdminLayout>
+      </motion.div>
     </>
   );
 }

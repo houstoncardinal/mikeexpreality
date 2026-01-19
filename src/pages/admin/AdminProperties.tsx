@@ -61,7 +61,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 
 interface Property {
   id: string;
@@ -273,17 +273,15 @@ export default function AdminProperties() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <div className="w-12 h-12 border-4 border-muted rounded-full" />
-              <div className="absolute top-0 left-0 w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-            </div>
-            <p className="text-muted-foreground">Loading properties...</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-muted rounded-full" />
+            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
+          <p className="text-muted-foreground">Loading properties...</p>
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
@@ -293,11 +291,10 @@ export default function AdminProperties() {
         <title>Properties | {siteConfig.name}</title>
       </Helmet>
 
-      <AdminLayout>
-        <motion.div
-          className="p-6 lg:p-8 space-y-8"
-          variants={containerVariants}
-          initial="hidden"
+      <motion.div
+        className="py-6 lg:py-8 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
           animate="visible"
         >
           {/* Header */}
@@ -812,7 +809,6 @@ export default function AdminProperties() {
             </motion.div>
           )}
         </motion.div>
-      </AdminLayout>
     </>
   );
 }

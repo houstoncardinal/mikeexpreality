@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -182,11 +182,9 @@ const AdminPostEditor = () => {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        </div>
-      </AdminLayout>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
     );
   }
 
@@ -197,8 +195,7 @@ const AdminPostEditor = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <AdminLayout>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="py-6 lg:py-8 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
@@ -365,8 +362,7 @@ const AdminPostEditor = () => {
               </Card>
             </div>
           </div>
-        </form>
-      </AdminLayout>
+      </form>
     </>
   );
 };
