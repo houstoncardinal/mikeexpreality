@@ -22,6 +22,7 @@ import Hero3DDemo from "@/pages/Hero3DDemo";
 import Health from "@/pages/Health";
 import MapSearch from "@/pages/MapSearch";
 import MLSSearch from "@/pages/MLSSearch";
+import SuccessStories from "@/pages/SuccessStories";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -179,6 +180,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <Health />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/success-stories"
+          element={
+            <PageTransition>
+              <SuccessStories />
             </PageTransition>
           }
         />
