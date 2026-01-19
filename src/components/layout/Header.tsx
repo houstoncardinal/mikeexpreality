@@ -101,6 +101,13 @@ const navigation: NavItem[] = [
         featured: true
       },
       { 
+        name: "Success Stories", 
+        href: "/success-stories",
+        description: "View our sold properties and client testimonials",
+        icon: Award,
+        featured: true
+      },
+      { 
         name: "Buyer Resources", 
         href: "/buyer-resources",
         description: "Expert guidance for your home purchase journey",
