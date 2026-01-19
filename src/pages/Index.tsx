@@ -5,6 +5,7 @@ import {
   TestimonialsSection,
   ServicesSection,
   CTASection,
+  MLSSearchSection,
 } from "@/components/home";
 import { Hero3DSection } from "@/components/ui/3d-hero-section-boxes";
 import CombinedFeaturedSection from "@/components/ui/combined-featured-section";
@@ -65,6 +66,7 @@ const Index = () => {
 
       <Hero3DSection />
       <FeaturedListings />
+      <MLSSearchSection />
       <CombinedFeaturedSection />
       <NeighborhoodSection />
       <ServicesSection />

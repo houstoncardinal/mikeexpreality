@@ -30,6 +30,7 @@ import {
   Linkedin,
   User,
   LogOut,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig, neighborhoods } from "@/lib/siteConfig";
@@ -92,6 +93,13 @@ const navigation: NavItem[] = [
     icon: FileText,
     megaMenu: true,
     children: [
+      { 
+        name: "MLS Search", 
+        href: "/mls-search",
+        description: "Search all Houston MLS listings powered by HAR",
+        icon: Search,
+        featured: true
+      },
       { 
         name: "Buyer Resources", 
         href: "/buyer-resources",
