@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { useRealtimeDashboard } from "@/hooks/useRealtimeData";
 import { Link } from "react-router-dom";
 import {
   Users,
@@ -140,6 +141,9 @@ function AdminDashboard() {
   const [mlsStatus, setMlsStatus] = useState<"online" | "syncing" | "error">("online");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Enable realtime subscriptions for dashboard data
+  useRealtimeDashboard();
 
   // Live clock
   useEffect(() => {
