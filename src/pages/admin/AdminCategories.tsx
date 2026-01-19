@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -156,8 +156,7 @@ const AdminCategories = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <AdminLayout>
-        <div className="space-y-8">
+      <div className="py-6 lg:py-8 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-serif text-3xl font-bold text-foreground">
@@ -306,8 +305,7 @@ const AdminCategories = () => {
               </div>
             )}
           </Card>
-        </div>
-      </AdminLayout>
+      </div>
     </>
   );
 };

@@ -57,7 +57,7 @@ import { Switch } from "@/components/ui/switch";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Meeting {
@@ -308,12 +308,11 @@ export default function AdminMeetings() {
         <title>Meetings | {siteConfig.name}</title>
       </Helmet>
 
-      <AdminLayout>
-        <motion.div
-          className="p-6 lg:p-8 space-y-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+      <motion.div
+        className="py-6 lg:py-8 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -730,9 +729,8 @@ export default function AdminMeetings() {
                   })}
               </AnimatePresence>
             )}
-          </motion.div>
         </motion.div>
-      </AdminLayout>
+      </motion.div>
     </>
   );
 }

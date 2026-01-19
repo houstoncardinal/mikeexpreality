@@ -36,7 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 import {
   AreaChart,
   Area,
@@ -185,12 +185,11 @@ export default function AdminReports() {
         <title>Reports & Analytics | {siteConfig.name}</title>
       </Helmet>
 
-      <AdminLayout>
-        <motion.div
-          className="p-6 lg:p-8 space-y-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+      <motion.div
+        className="py-6 lg:py-8 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -522,9 +521,8 @@ export default function AdminReports() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
         </motion.div>
-      </AdminLayout>
+      </motion.div>
     </>
   );
 }

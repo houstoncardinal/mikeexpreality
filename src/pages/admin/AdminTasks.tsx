@@ -50,7 +50,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { siteConfig } from "@/lib/siteConfig";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+
 
 interface Task {
   id: string;
@@ -249,17 +249,15 @@ export default function AdminTasks() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <div className="w-12 h-12 border-4 border-muted rounded-full" />
-              <div className="absolute top-0 left-0 w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-            </div>
-            <p className="text-muted-foreground">Loading tasks...</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-muted rounded-full" />
+            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
+          <p className="text-muted-foreground">Loading tasks...</p>
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
@@ -269,12 +267,11 @@ export default function AdminTasks() {
         <title>Tasks | {siteConfig.name}</title>
       </Helmet>
 
-      <AdminLayout>
-        <motion.div
-          className="p-6 lg:p-8 space-y-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+      <motion.div
+        className="py-6 lg:py-8 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -593,9 +590,8 @@ export default function AdminTasks() {
                 );
               })
             )}
-          </motion.div>
         </motion.div>
-      </AdminLayout>
+      </motion.div>
     </>
   );
 }
