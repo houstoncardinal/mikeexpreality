@@ -233,7 +233,7 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
   return (
     <div 
       ref={heroContentRef}
-      className="relative z-30 flex flex-col items-center justify-center min-h-screen px-6 pt-32 pb-24 md:pt-36 md:pb-28 text-center"
+      className="relative z-30 flex flex-col items-center justify-center min-h-screen px-6 pt-40 pb-24 md:pt-48 md:pb-28 text-center"
     >
       <motion.div
         initial={{ opacity: 0, y: 40 }}
