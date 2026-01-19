@@ -297,311 +297,310 @@ export default function AdminTrainings() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        >
-          {/* Header */}
-          <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-serif font-bold text-foreground flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent to-amber-600 text-white shadow-lg">
-                  <GraduationCap className="h-5 w-5" />
-                </div>
-                Training Center
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Enhance your skills and stay compliant with required trainings
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" className="gap-2">
-                <Award className="h-4 w-4" />
-                My Certificates
-              </Button>
-              <Button className="gap-2 shadow-lg">
-                <Plus className="h-4 w-4" />
-                Request Training
-              </Button>
-            </div>
-          </motion.div>
+      >
+        {/* Header */}
+        <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-serif font-bold text-foreground flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent to-amber-600 text-white shadow-lg">
+                <GraduationCap className="h-5 w-5" />
+              </div>
+              Training Center
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Enhance your skills and stay compliant with required trainings
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="gap-2">
+              <Award className="h-4 w-4" />
+              My Certificates
+            </Button>
+            <Button className="gap-2 shadow-lg">
+              <Plus className="h-4 w-4" />
+              Request Training
+            </Button>
+          </div>
+        </motion.div>
 
-          {/* Progress Card */}
-          <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-accent/10 to-amber-500/5 backdrop-blur-sm overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-lg bg-accent/20">
-                        <Target className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">Your Learning Progress</h3>
-                        <p className="text-sm text-muted-foreground">Keep up the great work!</p>
-                      </div>
+        {/* Progress Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-accent/10 to-amber-500/5 backdrop-blur-sm overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-lg bg-accent/20">
+                      <Target className="h-5 w-5 text-accent" />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Overall Progress</span>
-                        <span className="font-semibold text-foreground">{myProgress.completed} of {myProgress.total} completed</span>
-                      </div>
-                      <Progress value={myProgress.percentage} className="h-3" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 lg:gap-8">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-foreground">{myProgress.completed}</p>
-                      <p className="text-xs text-muted-foreground">Completed</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-amber-600">{myProgress.inProgress}</p>
-                      <p className="text-xs text-muted-foreground">In Progress</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-red-600">{stats.mandatory - 1}</p>
-                      <p className="text-xs text-muted-foreground">Required</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            {[
-              { label: "Total Trainings", value: stats.totalTrainings, icon: BookOpen, color: "from-blue-500 to-blue-600" },
-              { label: "Mandatory", value: stats.mandatory, icon: FileText, color: "from-red-500 to-red-600" },
-              { label: "Upcoming Live", value: stats.upcoming, icon: Video, color: "from-purple-500 to-purple-600" },
-              { label: "Avg Rating", value: stats.avgRating, icon: Star, color: "from-amber-500 to-amber-600" },
-              { label: "Total Hours", value: `${stats.totalHours}h`, icon: Clock, color: "from-emerald-500 to-emerald-600" },
-            ].map((stat, i) => (
-              <Card key={i} className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                      <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-                    </div>
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
-                      <stat.icon className="h-5 w-5 text-white" />
+                      <h3 className="font-semibold text-foreground">Your Learning Progress</h3>
+                      <p className="text-sm text-muted-foreground">Keep up the great work!</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Overall Progress</span>
+                      <span className="font-semibold text-foreground">{myProgress.completed} of {myProgress.total} completed</span>
+                    </div>
+                    <Progress value={myProgress.percentage} className="h-3" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 lg:gap-8">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-foreground">{myProgress.completed}</p>
+                    <p className="text-xs text-muted-foreground">Completed</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-amber-600">{myProgress.inProgress}</p>
+                    <p className="text-xs text-muted-foreground">In Progress</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-red-600">{stats.mandatory - 1}</p>
+                    <p className="text-xs text-muted-foreground">Required</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          {/* Tabs & Filters */}
-          <motion.div variants={itemVariants} className="space-y-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="all">All Trainings</TabsTrigger>
-                <TabsTrigger value="mandatory" className="gap-1">
-                  Mandatory
-                  <Badge variant="destructive" className="ml-1 h-5 px-1.5 text-[10px]">
-                    {stats.mandatory}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="upcoming">Upcoming Live</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+        {/* Stats */}
+        <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          {[
+            { label: "Total Trainings", value: stats.totalTrainings, icon: BookOpen, color: "from-blue-500 to-blue-600" },
+            { label: "Mandatory", value: stats.mandatory, icon: FileText, color: "from-red-500 to-red-600" },
+            { label: "Upcoming Live", value: stats.upcoming, icon: Video, color: "from-purple-500 to-purple-600" },
+            { label: "Avg Rating", value: stats.avgRating, icon: Star, color: "from-amber-500 to-amber-600" },
+            { label: "Total Hours", value: `${stats.totalHours}h`, icon: Clock, color: "from-emerald-500 to-emerald-600" },
+          ].map((stat, i) => (
+            <Card key={i} className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
               <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search trainings..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
                   </div>
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-full md:w-44">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="sales">Sales</SelectItem>
-                      <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="compliance">Compliance</SelectItem>
-                      <SelectItem value="technology">Technology</SelectItem>
-                      <SelectItem value="leadership">Leadership</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-full md:w-40">
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="live">Live Session</SelectItem>
-                      <SelectItem value="recorded">On-Demand</SelectItem>
-                      <SelectItem value="document">Reading</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                    <stat.icon className="h-5 w-5 text-white" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          ))}
+        </motion.div>
 
-          {/* Training Cards */}
-          <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {filteredTrainings.map((training, index) => {
-                const CategoryIcon = categoryConfig[training.category]?.icon || BookOpen;
-                const TypeIcon = typeConfig[training.type]?.icon || Play;
+        {/* Tabs & Filters */}
+        <motion.div variants={itemVariants} className="space-y-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="all">All Trainings</TabsTrigger>
+              <TabsTrigger value="mandatory" className="gap-1">
+                Mandatory
+                <Badge variant="destructive" className="ml-1 h-5 px-1.5 text-[10px]">
+                  {stats.mandatory}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="upcoming">Upcoming Live</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-                return (
-                  <motion.div
-                    key={training.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -4 }}
-                  >
-                    <Card className={`border-0 shadow-lg bg-card/50 backdrop-blur-sm overflow-hidden h-full flex flex-col ${training.is_mandatory ? "ring-2 ring-red-500/30" : ""}`}>
-                      {/* Thumbnail area */}
-                      <div className="h-32 bg-gradient-to-br from-muted to-muted/50 relative">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className={`p-4 rounded-2xl bg-gradient-to-br ${
-                            training.category === "sales" ? "from-blue-500 to-blue-600" :
-                            training.category === "marketing" ? "from-purple-500 to-purple-600" :
-                            training.category === "compliance" ? "from-red-500 to-red-600" :
-                            training.category === "technology" ? "from-emerald-500 to-emerald-600" :
-                            "from-amber-500 to-amber-600"
-                          } shadow-lg`}>
-                            <CategoryIcon className="h-8 w-8 text-white" />
-                          </div>
+          <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search trainings..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full md:w-44">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="compliance">Compliance</SelectItem>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="leadership">Leadership</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-full md:w-40">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="live">Live Session</SelectItem>
+                    <SelectItem value="recorded">On-Demand</SelectItem>
+                    <SelectItem value="document">Reading</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Training Cards */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <AnimatePresence>
+            {filteredTrainings.map((training, index) => {
+              const CategoryIcon = categoryConfig[training.category]?.icon || BookOpen;
+              const TypeIcon = typeConfig[training.type]?.icon || Play;
+
+              return (
+                <motion.div
+                  key={training.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -4 }}
+                >
+                  <Card className={`border-0 shadow-lg bg-card/50 backdrop-blur-sm overflow-hidden h-full flex flex-col ${training.is_mandatory ? "ring-2 ring-red-500/30" : ""}`}>
+                    {/* Thumbnail area */}
+                    <div className="h-32 bg-gradient-to-br from-muted to-muted/50 relative">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className={`p-4 rounded-2xl bg-gradient-to-br ${
+                          training.category === "sales" ? "from-blue-500 to-blue-600" :
+                          training.category === "marketing" ? "from-purple-500 to-purple-600" :
+                          training.category === "compliance" ? "from-red-500 to-red-600" :
+                          training.category === "technology" ? "from-emerald-500 to-emerald-600" :
+                          "from-amber-500 to-amber-600"
+                        } shadow-lg`}>
+                          <CategoryIcon className="h-8 w-8 text-white" />
                         </div>
-                        
-                        {/* Badges */}
-                        <div className="absolute top-3 left-3 flex items-center gap-2">
-                          {training.is_mandatory && (
-                            <Badge variant="destructive" className="text-[10px]">
-                              Required
-                            </Badge>
-                          )}
-                          {training.status === "upcoming" && (
-                            <Badge className="bg-purple-500/90 text-white text-[10px]">
-                              <Video className="h-3 w-3 mr-1" />
-                              Live
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="absolute top-3 right-3">
-                          <Badge variant="outline" className="bg-background/80 backdrop-blur-sm text-[10px]">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {formatDuration(training.duration_minutes)}
+                      </div>
+                      
+                      {/* Badges */}
+                      <div className="absolute top-3 left-3 flex items-center gap-2">
+                        {training.is_mandatory && (
+                          <Badge variant="destructive" className="text-[10px]">
+                            Required
                           </Badge>
-                        </div>
+                        )}
+                        {training.status === "upcoming" && (
+                          <Badge className="bg-purple-500/90 text-white text-[10px]">
+                            <Video className="h-3 w-3 mr-1" />
+                            Live
+                          </Badge>
+                        )}
+                      </div>
 
-                        {training.completion_rate > 0 && training.completion_rate < 100 && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
-                            <div
-                              className="h-full bg-accent"
-                              style={{ width: `${training.completion_rate}%` }}
-                            />
+                      <div className="absolute top-3 right-3">
+                        <Badge variant="outline" className="bg-background/80 backdrop-blur-sm text-[10px]">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {formatDuration(training.duration_minutes)}
+                        </Badge>
+                      </div>
+
+                      {training.completion_rate > 0 && training.completion_rate < 100 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
+                          <div
+                            className="h-full bg-accent"
+                            style={{ width: `${training.completion_rate}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <CardContent className="p-4 flex-1 flex flex-col">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <Badge className={categoryConfig[training.category]?.color}>
+                          {categoryConfig[training.category]?.label}
+                        </Badge>
+                        {training.rating > 0 && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                            <span className="font-medium">{training.rating}</span>
                           </div>
                         )}
                       </div>
 
-                      <CardContent className="p-4 flex-1 flex flex-col">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <Badge className={categoryConfig[training.category]?.color}>
-                            {categoryConfig[training.category]?.label}
-                          </Badge>
-                          {training.rating > 0 && (
-                            <div className="flex items-center gap-1 text-sm">
-                              <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                              <span className="font-medium">{training.rating}</span>
-                            </div>
-                          )}
+                      <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
+                        {training.title}
+                      </h3>
+
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
+                        {training.description}
+                      </p>
+
+                      <div className="space-y-3">
+                        {training.scheduled_at && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span>{formatScheduledDate(training.scheduled_at)}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <TypeIcon className="h-4 w-4" />
+                            <span>{typeConfig[training.type]?.label}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            <span>{training.attendees} enrolled</span>
+                          </div>
                         </div>
 
-                        <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
-                          {training.title}
-                        </h3>
+                        {training.resources.length > 0 && (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {training.resources.map((resource, i) => (
+                              <Badge key={i} variant="outline" className="text-[10px] gap-1 cursor-pointer hover:bg-muted">
+                                <Download className="h-3 w-3" />
+                                {resource.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
 
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
-                          {training.description}
-                        </p>
-
-                        <div className="space-y-3">
-                          {training.scheduled_at && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="pt-2 border-t border-border">
+                          {training.status === "completed" ? (
+                            <Button variant="outline" className="w-full gap-2" size="sm">
+                              <CheckCircle className="h-4 w-4 text-emerald-500" />
+                              Completed
+                            </Button>
+                          ) : training.status === "upcoming" ? (
+                            <Button className="w-full gap-2" size="sm">
                               <Calendar className="h-4 w-4" />
-                              <span>{formatScheduledDate(training.scheduled_at)}</span>
-                            </div>
+                              Register
+                            </Button>
+                          ) : (
+                            <Button
+                              className="w-full gap-2"
+                              size="sm"
+                              onClick={() => startTraining(training.id)}
+                            >
+                              <Play className="h-4 w-4" />
+                              {training.completion_rate > 0 ? "Continue" : "Start Training"}
+                            </Button>
                           )}
-
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <TypeIcon className="h-4 w-4" />
-                              <span>{typeConfig[training.type]?.label}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="h-4 w-4" />
-                              <span>{training.attendees} enrolled</span>
-                            </div>
-                          </div>
-
-                          {training.resources.length > 0 && (
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {training.resources.map((resource, i) => (
-                                <Badge key={i} variant="outline" className="text-[10px] gap-1 cursor-pointer hover:bg-muted">
-                                  <Download className="h-3 w-3" />
-                                  {resource.name}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="pt-2 border-t border-border">
-                            {training.status === "completed" ? (
-                              <Button variant="outline" className="w-full gap-2" size="sm">
-                                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                                Completed
-                              </Button>
-                            ) : training.status === "upcoming" ? (
-                              <Button className="w-full gap-2" size="sm">
-                                <Calendar className="h-4 w-4" />
-                                Register
-                              </Button>
-                            ) : (
-                              <Button
-                                className="w-full gap-2"
-                                size="sm"
-                                onClick={() => startTraining(training.id)}
-                              >
-                                <Play className="h-4 w-4" />
-                                {training.completion_rate > 0 ? "Continue" : "Start Training"}
-                              </Button>
-                            )}
-                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
-
-          {filteredTrainings.length === 0 && (
-            <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
-              <CardContent className="py-12 text-center">
-                <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No trainings found</h3>
-                <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
-              </CardContent>
-            </Card>
-          )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
+
+        {filteredTrainings.length === 0 && (
+          <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardContent className="py-12 text-center">
+              <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No trainings found</h3>
+              <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
     </>
   );
