@@ -153,16 +153,26 @@ export default function MapSearch() {
 
   // Add property markers
   const addMarkers = useCallback(() => {
-    if (!map.current) return;
+    if (!map.current) {
+      console.log("Map not ready for markers");
+      return;
+    }
 
+    // Clear existing markers
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
+    console.log(`Adding ${filteredListings.length} markers to map`);
+
     filteredListings.forEach((listing) => {
-      if (!listing.latitude || !listing.longitude) return;
+      if (!listing.latitude || !listing.longitude) {
+        console.log(`Listing ${listing.id} missing coordinates`);
+        return;
+      }
 
       const el = document.createElement("div");
       el.className = "property-marker";
+      el.style.zIndex = "100";
       const isHovered = hoveredProperty === listing.id;
       const isSelected = selectedProperty?.id === listing.id;
       
@@ -172,25 +182,39 @@ export default function MapSearch() {
         </div>
       `;
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([listing.longitude, listing.latitude])
-        .addTo(map.current!);
+      try {
+        const marker = new mapboxgl.Marker({
+          element: el,
+          anchor: 'bottom'
+        })
+          .setLngLat([listing.longitude, listing.latitude])
+          .addTo(map.current!);
 
-      el.addEventListener("click", () => {
-        setSelectedProperty(listing);
-        map.current?.flyTo({
-          center: [listing.longitude!, listing.latitude!],
-          zoom: 14,
-          duration: 800,
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          setSelectedProperty(listing);
+          map.current?.flyTo({
+            center: [listing.longitude!, listing.latitude!],
+            zoom: 15,
+            pitch: isMobile ? 0 : 45,
+            duration: 1000,
+          });
         });
-      });
 
-      el.addEventListener("mouseenter", () => setHoveredProperty(listing.id));
-      el.addEventListener("mouseleave", () => setHoveredProperty(null));
+        el.addEventListener("mouseenter", () => setHoveredProperty(listing.id));
+        el.addEventListener("mouseleave", () => setHoveredProperty(null));
 
-      markersRef.current.push(marker);
+        // Touch support for mobile
+        el.addEventListener("touchstart", () => setHoveredProperty(listing.id), { passive: true });
+
+        markersRef.current.push(marker);
+      } catch (err) {
+        console.error(`Error adding marker for ${listing.id}:`, err);
+      }
     });
-  }, [filteredListings, hoveredProperty, selectedProperty]);
+
+    console.log(`Successfully added ${markersRef.current.length} markers`);
+  }, [filteredListings, hoveredProperty, selectedProperty, isMobile]);
 
   // Initialize map
   useEffect(() => {
@@ -205,8 +229,8 @@ export default function MapSearch() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: styleUrl,
-      center: [-95.4, 29.75],
-      zoom: isMobile ? 8 : 9,
+      center: [-95.5, 29.75], // Houston area center
+      zoom: isMobile ? 9 : 10,
       pitch: is3DEnabled ? 45 : 0,
       bearing: 0,
       antialias: true,
@@ -231,7 +255,7 @@ export default function MapSearch() {
     }
 
     map.current.on("load", () => {
-      setMapLoaded(true);
+      console.log("Map loaded, initializing layers and markers...");
 
       // Add terrain for 3D (skip on mobile for performance)
       if (is3DEnabled && !isMobile) {
@@ -280,45 +304,59 @@ export default function MapSearch() {
         addNeighborhoodLayers();
       }
 
-      addMarkers();
+      // Set map loaded AFTER adding layers, then markers will be added via useEffect
+      setMapLoaded(true);
     });
 
-    // Add marker styles
-    const style = document.createElement("style");
-    style.id = "map-marker-styles";
-    // Remove existing style if present
+    // Add marker styles - inject immediately
     const existingStyle = document.getElementById("map-marker-styles");
     if (existingStyle) existingStyle.remove();
     
+    const style = document.createElement("style");
+    style.id = "map-marker-styles";
     style.textContent = `
       .property-marker {
         cursor: pointer;
-        z-index: 10;
+        z-index: 100 !important;
+        pointer-events: auto !important;
       }
       .property-marker .marker-content {
         background: hsl(var(--background));
         border: 2px solid hsl(var(--primary));
         border-radius: 8px;
-        padding: ${isMobile ? '6px 10px' : '4px 8px'};
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: all 0.2s ease;
+        padding: ${isMobile ? '8px 12px' : '6px 10px'};
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         white-space: nowrap;
+        position: relative;
+      }
+      .property-marker .marker-content::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid hsl(var(--primary));
       }
       .property-marker .marker-content.active {
         background: hsl(var(--primary));
-        transform: scale(1.1);
+        transform: scale(1.15);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
       }
       .property-marker .marker-content.active .marker-price {
         color: hsl(var(--primary-foreground));
       }
       .property-marker .marker-price {
-        font-size: ${isMobile ? '11px' : '12px'};
+        font-size: ${isMobile ? '12px' : '13px'};
         font-weight: 700;
         color: hsl(var(--foreground));
       }
       .property-marker:hover .marker-content {
         background: hsl(var(--primary));
-        transform: scale(1.1);
+        transform: scale(1.15);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
       }
       .property-marker:hover .marker-price {
         color: hsl(var(--primary-foreground));
@@ -354,6 +392,12 @@ export default function MapSearch() {
         font-size: 18px;
         padding: 8px;
         color: hsl(var(--muted-foreground));
+      }
+      .mapboxgl-canvas {
+        cursor: grab;
+      }
+      .mapboxgl-canvas:active {
+        cursor: grabbing;
       }
     `;
     document.head.appendChild(style);
@@ -564,10 +608,34 @@ export default function MapSearch() {
     }
   }, [mapLoaded, showNeighborhoods, addNeighborhoodLayers]);
 
-  // Update markers when filters change
+  // Update markers when filters change or map loads
   useEffect(() => {
-    if (mapLoaded) addMarkers();
-  }, [mapLoaded, addMarkers]);
+    if (mapLoaded && map.current) {
+      // Small delay to ensure map is fully rendered
+      const timer = setTimeout(() => {
+        addMarkers();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [mapLoaded, filteredListings, addMarkers]);
+
+  // Debounced marker style update for hover/selection (don't re-add, just update classes)
+  useEffect(() => {
+    if (!map.current) return;
+    
+    // Update marker styles without re-adding them
+    markersRef.current.forEach((marker, index) => {
+      const el = marker.getElement();
+      const listing = filteredListings[index];
+      if (!listing || !el) return;
+      
+      const content = el.querySelector('.marker-content');
+      if (content) {
+        const isActive = hoveredProperty === listing.id || selectedProperty?.id === listing.id;
+        content.classList.toggle('active', isActive);
+      }
+    });
+  }, [selectedProperty?.id, hoveredProperty, filteredListings]);
 
   // Switch map style
   const toggleMapStyle = () => {
