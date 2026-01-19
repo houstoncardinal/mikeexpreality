@@ -277,8 +277,8 @@ export function Header() {
             : 'none',
         }}
       >
-        <div className="container-custom">
-        <div className="flex items-center justify-between h-20 lg:h-24">
+        <div className="container-custom overflow-visible">
+          <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <div className="relative">
@@ -474,7 +474,7 @@ export function Header() {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
             <LanguageSwitcher variant="header" />
             
             {/* Client Portal / Auth Button */}
@@ -512,11 +512,12 @@ export function Header() {
             <Link to="/contact">
               <Button
                 variant="royal"
-                size="lg"
-                className="gap-2 shadow-lg hover:shadow-xl transition-shadow"
+                size="default"
+                className="gap-2 shadow-lg hover:shadow-xl transition-shadow whitespace-nowrap"
               >
                 <Sparkles className="h-4 w-4" />
-                Let's Connect
+                <span className="hidden xl:inline">Let's Connect</span>
+                <span className="xl:hidden">Contact</span>
               </Button>
             </Link>
           </div>
