@@ -6,3 +6,4 @@ export { ServicesSection } from "./ServicesSection";
 export { CTASection } from "./CTASection";
 export { StatsSection } from "./StatsSection";
 export { MLSSearchSection } from "./MLSSearchSection";
+export { FloatingSideNav } from "./FloatingSideNav";

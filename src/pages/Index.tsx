@@ -13,6 +13,7 @@ import CombinedFeaturedSection from "@/components/ui/combined-featured-section";
 import { siteConfig } from "@/lib/siteConfig";
 import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 import { getHomepageSchemas, getFAQSchema } from "@/lib/schema";
+import { FloatingSideNav } from "@/components/home/FloatingSideNav";
 
 // Common real estate FAQs for homepage
 const homepageFAQs = [
@@ -65,15 +66,30 @@ const Index = () => {
         <meta name="twitter:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
       </Helmet>
 
-      <Hero3DSection />
-      <FeaturedListings />
-      <StatsSection />
-      <MLSSearchSection />
+      {/* Floating Side Navigation */}
+      <FloatingSideNav />
+
+      <div id="hero-section">
+        <Hero3DSection />
+      </div>
+      <div id="featured-listings">
+        <FeaturedListings />
+      </div>
+      <div id="stats-section">
+        <StatsSection />
+      </div>
+      <div id="mls-search">
+        <MLSSearchSection />
+      </div>
       <CombinedFeaturedSection />
-      <NeighborhoodSection />
+      <div id="neighborhoods">
+        <NeighborhoodSection />
+      </div>
       <ServicesSection />
       <TestimonialsSection />
-      <CTASection />
+      <div id="cta-section">
+        <CTASection />
+      </div>
 
       {/* Advanced Schema Markup - Centralized */}
       <SchemaMarkup schemas={[...getHomepageSchemas(), getFAQSchema(homepageFAQs)]} />
