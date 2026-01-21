@@ -103,12 +103,7 @@ export function MobileToolbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Only render on mobile devices
-  if (!isMobile) {
-    return null;
-  }
-
-  // Quick Search State
+  // Quick Search State - MUST be before early return to avoid hooks violation
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [bedrooms, setBedrooms] = useState(0);
@@ -135,6 +130,11 @@ export function MobileToolbar() {
   useEffect(() => {
     loadUserData();
   }, []);
+
+  // Only render on mobile devices - AFTER all hooks
+  if (!isMobile) {
+    return null;
+  }
 
   const loadUserData = async () => {
     // Load favorites, recently viewed, saved searches from localStorage or API
