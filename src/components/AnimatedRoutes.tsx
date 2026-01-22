@@ -23,6 +23,8 @@ import Health from "@/pages/Health";
 import MapSearch from "@/pages/MapSearch";
 import MLSSearch from "@/pages/MLSSearch";
 import SuccessStories from "@/pages/SuccessStories";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Terms from "@/pages/Terms";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -188,6 +190,22 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <SuccessStories />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/privacy-policy"
+          element={
+            <PageTransition>
+              <PrivacyPolicy />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <PageTransition>
+              <Terms />
             </PageTransition>
           }
         />
