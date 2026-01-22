@@ -126,6 +126,36 @@ export function MobileToolbar() {
   const [isListening, setIsListening] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState("");
 
+  // Define loadUserData before useEffect to avoid hoisting issues
+  const loadUserData = () => {
+    // Load favorites, recently viewed, saved searches from localStorage or API
+    const savedFavorites = localStorage.getItem('favorites');
+    const savedRecentlyViewed = localStorage.getItem('recentlyViewed');
+    const savedSearchesData = localStorage.getItem('savedSearches');
+
+    if (savedFavorites) {
+      try {
+        setFavorites(JSON.parse(savedFavorites));
+      } catch (e) {
+        console.error('Failed to parse favorites', e);
+      }
+    }
+    if (savedRecentlyViewed) {
+      try {
+        setRecentlyViewed(JSON.parse(savedRecentlyViewed));
+      } catch (e) {
+        console.error('Failed to parse recentlyViewed', e);
+      }
+    }
+    if (savedSearchesData) {
+      try {
+        setSavedSearches(JSON.parse(savedSearchesData));
+      } catch (e) {
+        console.error('Failed to parse savedSearches', e);
+      }
+    }
+  };
+
   // Load data on mount
   useEffect(() => {
     loadUserData();
@@ -135,23 +165,6 @@ export function MobileToolbar() {
   if (!isMobile) {
     return null;
   }
-
-  const loadUserData = async () => {
-    // Load favorites, recently viewed, saved searches from localStorage or API
-    const savedFavorites = localStorage.getItem('favorites');
-    const savedRecentlyViewed = localStorage.getItem('recentlyViewed');
-    const savedSearchesData = localStorage.getItem('savedSearches');
-
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-    if (savedRecentlyViewed) {
-      setRecentlyViewed(JSON.parse(savedRecentlyViewed));
-    }
-    if (savedSearchesData) {
-      setSavedSearches(JSON.parse(savedSearchesData));
-    }
-  };
 
   const toggleFavorite = (property: Property) => {
     const newFavorites = favorites.some(fav => fav.id === property.id)
