@@ -275,21 +275,15 @@ export function Header() {
         </div>
       </motion.div>
 
-      {/* Main Header with Glass Morphism */}
+      {/* Main Header with Solid White Background */}
       <motion.header 
         className={cn(
-          "fixed left-0 right-0 z-50 transition-all duration-500 will-change-transform",
-          isScrolled ? "shadow-xl" : ""
+          "fixed left-0 right-0 z-50 transition-all duration-500 will-change-transform bg-white",
+          isScrolled ? "shadow-lg" : "shadow-sm"
         )}
         style={{
           top: `${Math.max(40 - scrollProgress * 40, 0)}px`,
-          backgroundColor: `rgba(255, 255, 255, ${0.85 + scrollProgress * 0.15})`,
-          backdropFilter: `blur(${8 + scrollProgress * 16}px) saturate(${1.2 + scrollProgress * 0.6})`,
-          WebkitBackdropFilter: `blur(${8 + scrollProgress * 16}px) saturate(${1.2 + scrollProgress * 0.6})`,
-          borderBottom: `1px solid rgba(0, 0, 0, ${0.05 + scrollProgress * 0.05})`,
-          boxShadow: scrollProgress > 0.3 
-            ? `0 4px 30px rgba(0, 0, 0, ${scrollProgress * 0.08}), 0 1px 3px rgba(0, 0, 0, ${scrollProgress * 0.05})`
-            : 'none',
+          borderBottom: '1px solid hsl(var(--border))',
         }}
       >
         <div className="container-custom overflow-visible">
