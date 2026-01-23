@@ -163,9 +163,17 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -201,9 +209,9 @@ export function Header() {
 
   return (
     <>
-      {/* Top Bar - fades out on scroll */}
+      {/* Top Bar - hidden on mobile, fades out on scroll */}
       <motion.div 
-        className="fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white border-b border-slate-800"
+        className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white border-b border-slate-800"
         style={{
           opacity: 1 - scrollProgress * 0.5,
           y: -scrollProgress * 40,
@@ -212,7 +220,7 @@ export function Header() {
         <div className="container-custom">
           <div className="flex items-center justify-between h-10 text-xs">
             {/* Left: Contact Info */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="flex items-center gap-6">
               <a
                 href={`tel:${siteConfig.phoneRaw}`}
                 className="flex items-center gap-2 hover:text-accent transition-colors"
@@ -282,7 +290,8 @@ export function Header() {
           isScrolled ? "shadow-lg" : "shadow-sm"
         )}
         style={{
-          top: `${Math.max(40 - scrollProgress * 40, 0)}px`,
+          // On mobile (no top bar), header starts at top. On desktop, accounts for top bar.
+          top: isMobile ? '0px' : `${Math.max(40 - scrollProgress * 40, 0)}px`,
           borderBottom: '1px solid hsl(var(--border))',
         }}
       >
