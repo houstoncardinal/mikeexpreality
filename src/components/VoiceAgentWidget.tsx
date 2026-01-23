@@ -316,17 +316,35 @@ export function VoiceAgentWidget() {
 
   return (
     <>
-      {/* Voice Agent Button */}
+      {/* Voice Agent Button - Right side vertical pill, above mobile toolbar on mobile */}
       <motion.button
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 1, type: "spring", stiffness: 200 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-royal to-royal/80 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group md:bottom-6 md:right-6"
+        className="fixed z-50 bg-white border border-border shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group
+          /* Mobile: vertical pill on right side, above toolbar */
+          bottom-24 right-3 flex-col py-3 px-2 rounded-2xl
+          /* Desktop: horizontal button bottom right */
+          md:bottom-6 md:right-6 md:flex-row md:py-2.5 md:px-4 md:rounded-full"
         aria-label="Open voice assistant"
       >
-        <Bot className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        <span className="absolute inset-0 rounded-full bg-royal/30 animate-ping" />
+        {/* Gradient accent line */}
+        <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-gradient-to-b from-royal via-royal/80 to-royal/60 rounded-full md:hidden" />
+        
+        {/* Icon container */}
+        <div className="relative w-10 h-10 bg-gradient-to-br from-royal to-royal/80 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+          <Bot className="w-5 h-5 text-white" />
+          <span className="absolute inset-0 rounded-xl bg-royal/30 animate-ping" />
+        </div>
+        
+        {/* Label - vertical on mobile, horizontal on desktop */}
+        <span className="text-[10px] font-semibold text-foreground tracking-wide uppercase md:text-xs md:font-medium md:normal-case md:tracking-normal writing-mode-vertical md:writing-mode-horizontal"
+          style={{ writingMode: 'vertical-rl' }}
+        >
+          <span className="md:hidden">AI</span>
+          <span className="hidden md:inline">Talk to Mike O AI</span>
+        </span>
       </motion.button>
 
       {/* Voice Agent Modal */}
