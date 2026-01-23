@@ -316,26 +316,43 @@ export function MobileToolbar() {
       <AnimatePresence>
         {isPopupOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 100, scale: 0.9 }}
+            initial={{ opacity: 0, y: 100, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 100, scale: 0.9 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 z-50"
+            exit={{ opacity: 0, y: 100, scale: 0.95 }}
+            transition={{ type: "spring", damping: 28, stiffness: 350 }}
+            className="fixed bottom-28 left-3 right-3 z-50"
           >
-            <Card className="overflow-hidden shadow-2xl border-0 bg-card max-h-[80vh] overflow-y-auto">
-              {/* Header */}
-              <div className="bg-gradient-to-r from-accent via-accent/90 to-accent/80 p-4 text-accent-foreground relative">
+            <Card className="overflow-hidden shadow-2xl border border-border/50 bg-white max-h-[70vh] overflow-y-auto rounded-2xl">
+              {/* Premium Header */}
+              <div className="relative bg-white p-4 border-b border-border/50">
+                {/* Accent line */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-royal via-royal/80 to-royal/60" />
+                
                 <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-lg font-bold capitalize">
-                    {activeView.replace("-", " ")}
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-royal to-royal/80 flex items-center justify-center shadow-md">
+                      {activeView === "quick-search" && <Search className="h-5 w-5 text-white" />}
+                      {activeView === "favorites" && <Heart className="h-5 w-5 text-white" />}
+                      {activeView === "mortgage-calc" && <Calculator className="h-5 w-5 text-white" />}
+                      {activeView === "profile" && <User className="h-5 w-5 text-white" />}
+                      {activeView === "contact-agent" && <MessageCircle className="h-5 w-5 text-white" />}
+                      {activeView === "recently-viewed" && <Clock className="h-5 w-5 text-white" />}
+                      {!["quick-search", "favorites", "mortgage-calc", "profile", "contact-agent", "recently-viewed"].includes(activeView) && <Sparkles className="h-5 w-5 text-white" />}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground capitalize">
+                        {activeView.replace("-", " ")}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">Mike Ogunkeye Real Estate</p>
+                    </div>
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={closePopup}
-                    className="text-accent-foreground hover:bg-white/20"
+                    className="h-9 w-9 p-0 rounded-xl hover:bg-muted"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-5 w-5 text-muted-foreground" />
                   </Button>
                 </div>
               </div>
@@ -720,12 +737,15 @@ export function MobileToolbar() {
         )}
       </AnimatePresence>
 
-      {/* Main Toolbar */}
+      {/* Main Toolbar - Premium Glass Design */}
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-30 bg-card/95 backdrop-blur-xl border-t border-border"
+        className="fixed bottom-0 left-0 right-0 z-30"
       >
+        {/* Gradient accent line at top */}
+        <div className="h-px bg-gradient-to-r from-transparent via-royal/50 to-transparent" />
+        
         {/* Quick Actions Row (when expanded) */}
         <AnimatePresence>
           {isExpanded && (
@@ -733,23 +753,30 @@ export function MobileToolbar() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="border-b border-border bg-secondary/30"
+              className="bg-white/95 backdrop-blur-xl border-b border-border/50"
             >
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-4">
+              <div className="px-4 py-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-royal" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Actions</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
                   {quickActions.map((action, index) => (
                     <motion.button
                       key={action.id}
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{ delay: index * 0.03 }}
                       onClick={() => openPopup(action.id)}
-                      className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-background transition-colors"
+                      className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-muted/50 hover:bg-muted active:scale-95 transition-all"
                     >
-                      <div className={cn("p-2 rounded-lg", action.color.replace("text-", "bg-") + "/20")}>
-                        <action.icon className={cn("h-5 w-5", action.color)} />
+                      <div className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center",
+                        "bg-gradient-to-br from-white to-muted shadow-sm border border-border/50"
+                      )}>
+                        <action.icon className={cn("h-4 w-4", action.color)} />
                       </div>
-                      <span className="text-xs font-medium">{action.label}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground">{action.label}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -758,49 +785,93 @@ export function MobileToolbar() {
           )}
         </AnimatePresence>
 
-        {/* Main Toolbar */}
-        <div className="flex items-center justify-around p-2">
-          {toolbarItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={item.action}
-              className="relative flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-secondary transition-colors"
-            >
-              <div className="relative">
-                <item.icon className={cn("h-6 w-6", item.color)} />
-                {item.badge && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
-                  >
-                    {item.badge}
-                  </Badge>
-                )}
-              </div>
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ))}
+        {/* Main Toolbar Container */}
+        <div className="bg-white border-t border-border/50 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
+          <div className="flex items-center justify-around px-2 py-1.5 pb-[env(safe-area-inset-bottom,8px)]">
+            {toolbarItems.map((item, index) => {
+              const isActive = location.pathname === "/" && item.id === "home";
+              return (
+                <motion.button
+                  key={item.id}
+                  onClick={item.action}
+                  whileTap={{ scale: 0.9 }}
+                  className={cn(
+                    "relative flex flex-col items-center gap-0.5 py-2 px-3 rounded-xl transition-all",
+                    isActive && "bg-muted"
+                  )}
+                >
+                  {/* Active indicator dot */}
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeIndicator"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-royal"
+                    />
+                  )}
+                  
+                  <div className="relative">
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                      isActive 
+                        ? "bg-gradient-to-br from-royal to-royal/80 shadow-md" 
+                        : "bg-muted/50"
+                    )}>
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-colors",
+                        isActive ? "text-white" : item.color
+                      )} />
+                    </div>
+                    {item.badge && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] font-bold"
+                      >
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </div>
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors",
+                    isActive ? "text-royal" : "text-muted-foreground"
+                  )}>
+                    {item.label}
+                  </span>
+                </motion.button>
+              );
+            })}
 
-          {/* Expand/Collapse Button */}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-secondary transition-colors"
-          >
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+            {/* Expand/Collapse Button */}
+            <motion.button
+              onClick={() => setIsExpanded(!isExpanded)}
+              whileTap={{ scale: 0.9 }}
+              className="flex flex-col items-center gap-0.5 py-2 px-3 rounded-xl transition-colors"
             >
-              <ChevronUp className="h-6 w-6 text-muted-foreground" />
-            </motion.div>
-            <span className="text-xs font-medium text-muted-foreground">
-              {isExpanded ? "Less" : "More"}
-            </span>
-          </button>
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                isExpanded ? "bg-royal/10" : "bg-muted/50"
+              )}>
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronUp className={cn(
+                    "h-5 w-5 transition-colors",
+                    isExpanded ? "text-royal" : "text-muted-foreground"
+                  )} />
+                </motion.div>
+              </div>
+              <span className={cn(
+                "text-[10px] font-medium transition-colors",
+                isExpanded ? "text-royal" : "text-muted-foreground"
+              )}>
+                {isExpanded ? "Less" : "More"}
+              </span>
+            </motion.button>
+          </div>
         </div>
       </motion.div>
 
-      {/* Safe area for mobile devices */}
-      <div className="h-20 md:h-16" />
+      {/* Safe area spacer for content */}
+      <div className="h-24" />
     </>
   );
 }
