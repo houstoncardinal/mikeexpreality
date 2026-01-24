@@ -8,15 +8,17 @@ export const siteConfig = {
   // Contact Information
   phone: "(832) 340-8787",
   phoneRaw: "+18323408787",
-  email: "mike@mikeogunkeye.com",
+  phoneSecondary: "(713) 777-8787",
+  phoneSecondaryRaw: "+17137778787",
+  email: "mike.ogunkeye@exprealty.com",
   
   // Address
   address: {
-    street: "13135 South Freeway Suite 150",
+    street: "10707 Corporate Dr Ste 206",
     city: "Stafford",
     state: "TX",
     zip: "77477",
-    full: "13135 South Freeway Suite 150, Stafford, TX 77477",
+    full: "10707 Corporate Dr Ste 206, Stafford, TX 77477",
   },
   
   // URLs
