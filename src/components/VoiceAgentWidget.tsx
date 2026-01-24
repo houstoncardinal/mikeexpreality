@@ -341,30 +341,17 @@ export function VoiceAgentWidget() {
       <AnimatePresence>
         {!isOpen && (
           <motion.button
-            initial={{ x: 60, opacity: 0 }}
+            initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 60, opacity: 0 }}
-            transition={{ delay: 0.5, duration: 0.3, ease: "easeOut" }}
+            exit={{ x: 20, opacity: 0 }}
+            transition={{ delay: 0.5, duration: 0.2, ease: "easeOut" }}
             onClick={() => setIsOpen(true)}
-            className="fixed z-40 flex items-center justify-center transition-all duration-200 group
-              /* Mobile: minimal tab hugging right edge at 50% height */
-              right-0 top-1/2 -translate-y-1/2 w-10 h-16 bg-accent rounded-l-lg shadow-lg
-              /* Desktop: horizontal button bottom right */
-              md:right-6 md:top-auto md:bottom-6 md:translate-y-0 md:w-auto md:h-auto md:py-2.5 md:px-4 md:rounded-full md:bg-card md:border md:border-border"
+            className="fixed z-40 flex items-center justify-center transition-all duration-200
+              right-0 top-1/2 -translate-y-1/2 w-8 h-10 bg-accent rounded-l-md shadow-md
+              md:right-4 md:top-auto md:bottom-4 md:translate-y-0 md:w-9 md:h-9 md:rounded-full"
             aria-label="Open voice assistant"
           >
-            {/* Mobile icon */}
-            <div className="md:hidden">
-              <Bot className="w-5 h-5 text-accent-foreground" />
-            </div>
-            
-            {/* Desktop layout */}
-            <div className="hidden md:flex items-center gap-2">
-              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                <Bot className="w-4 h-4 text-accent-foreground" />
-              </div>
-              <span className="text-sm font-medium text-foreground">Talk to Mike O AI</span>
-            </div>
+            <Bot className="w-4 h-4 text-accent-foreground" />
           </motion.button>
         )}
       </AnimatePresence>
