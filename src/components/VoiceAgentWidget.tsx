@@ -5,6 +5,7 @@ import { Mic, MicOff, X, Bot, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TranscriptMessage {
   id: string;
@@ -337,22 +338,31 @@ export function VoiceAgentWidget() {
 
   return (
     <>
-      {/* Voice Agent Button - Hugs right edge, halfway up on mobile */}
+      {/* Voice Agent Button - Compact with pulse and tooltip */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 20, opacity: 0 }}
-            transition={{ delay: 0.5, duration: 0.2, ease: "easeOut" }}
-            onClick={() => setIsOpen(true)}
-            className="fixed z-40 flex items-center justify-center transition-all duration-200
-              right-0 top-1/2 -translate-y-1/2 w-8 h-10 bg-accent rounded-l-md shadow-md
-              md:right-4 md:top-auto md:bottom-4 md:translate-y-0 md:w-9 md:h-9 md:rounded-full"
-            aria-label="Open voice assistant"
-          >
-            <Bot className="w-4 h-4 text-accent-foreground" />
-          </motion.button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.button
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={{ delay: 0.5, duration: 0.2, ease: "easeOut" }}
+                onClick={() => setIsOpen(true)}
+                className="fixed z-40 flex items-center justify-center transition-all duration-200 group
+                  right-0 top-1/2 -translate-y-1/2 w-8 h-10 bg-accent rounded-l-md shadow-md
+                  md:right-4 md:top-auto md:bottom-4 md:translate-y-0 md:w-9 md:h-9 md:rounded-full"
+                aria-label="Open voice assistant"
+              >
+                {/* Gentle pulse ring */}
+                <span className="absolute inset-0 rounded-l-md md:rounded-full bg-accent/50 animate-[pulse_3s_ease-in-out_infinite]" />
+                <Bot className="relative w-4 h-4 text-accent-foreground" />
+              </motion.button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="hidden md:block">
+              Talk to Mike O AI
+            </TooltipContent>
+          </Tooltip>
         )}
       </AnimatePresence>
 
