@@ -318,39 +318,34 @@ export function VoiceAgentWidget() {
 
   return (
     <>
-      {/* Voice Agent Button - Right side vertical pill, above mobile toolbar on mobile */}
+      {/* Voice Agent Button - Hugs right edge, halfway up on mobile */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
-            initial={{ x: 100, opacity: 0 }}
+            initial={{ x: 60, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            exit={{ x: 60, opacity: 0 }}
+            transition={{ delay: 0.5, duration: 0.3, ease: "easeOut" }}
             onClick={() => setIsOpen(true)}
-            className="fixed z-40 bg-card/95 backdrop-blur border border-border shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group
-              /* Mobile: vertical pill on right side, above toolbar */
-              bottom-32 right-3 flex-col py-3 px-2 rounded-2xl
+            className="fixed z-40 flex items-center justify-center transition-all duration-200 group
+              /* Mobile: minimal tab hugging right edge at 50% height */
+              right-0 top-1/2 -translate-y-1/2 w-10 h-16 bg-accent rounded-l-lg shadow-lg
               /* Desktop: horizontal button bottom right */
-              md:bottom-6 md:right-6 md:flex-row md:py-2.5 md:px-4 md:rounded-full"
+              md:right-6 md:top-auto md:bottom-6 md:translate-y-0 md:w-auto md:h-auto md:py-2.5 md:px-4 md:rounded-full md:bg-card md:border md:border-border"
             aria-label="Open voice assistant"
           >
-            {/* Gradient accent line */}
-            <div className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-gradient-to-b from-royal via-royal/80 to-royal/60 rounded-full md:hidden" />
-            
-            {/* Icon container */}
-            <div className="relative w-10 h-10 bg-gradient-to-br from-royal to-royal/80 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Bot className="w-5 h-5 text-white" />
-              <span className="absolute inset-0 rounded-xl bg-royal/30 animate-ping" />
+            {/* Mobile icon */}
+            <div className="md:hidden">
+              <Bot className="w-5 h-5 text-accent-foreground" />
             </div>
             
-            {/* Label - vertical on mobile, horizontal on desktop */}
-            <span
-              className="text-[10px] font-semibold text-foreground tracking-wide uppercase md:text-xs md:font-medium md:normal-case md:tracking-normal"
-              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-            >
-              <span className="md:hidden">AI</span>
-              <span className="hidden md:inline">Talk to Mike O AI</span>
-            </span>
+            {/* Desktop layout */}
+            <div className="hidden md:flex items-center gap-2">
+              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                <Bot className="w-4 h-4 text-accent-foreground" />
+              </div>
+              <span className="text-sm font-medium text-foreground">Talk to Mike O AI</span>
+            </div>
           </motion.button>
         )}
       </AnimatePresence>
@@ -370,11 +365,11 @@ export function VoiceAgentWidget() {
 
             {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-32 right-4 z-50 w-[calc(100%-2rem)] max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden md:bottom-24 md:right-6 md:w-96"
+              className="fixed top-1/2 -translate-y-1/2 right-4 z-50 w-[calc(100%-2rem)] max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden md:top-auto md:translate-y-0 md:bottom-24 md:right-6 md:w-96"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
