@@ -3,21 +3,41 @@ import { Layout } from "@/components/layout";
 import { ExternalLink, Crown, Home, Award, Search as SearchIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { siteConfig } from "@/lib/siteConfig";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { getMLSSearchPageSchemas } from "@/lib/schema";
 
 const MLSSearch = () => {
   const mikeListingsUrl = "https://www.har.com/idx/mls/listing?sitetype=aws&cid=598724&mlsorgid=1&allmls=n";
   const harSoldUrl = "https://www.har.com/idx/mls/sold/listing?sitetype=aws&cid=598724&allmls=n&mlsorgid=";
   const harSearchUrl = "https://www.har.com/idx/mls/search?sitetype=aws&cid=598724&mlsorgid=1&allmls=n&for_sale=1";
+  const schemas = getMLSSearchPageSchemas();
 
   return (
     <Layout>
       <Helmet>
-        <title>My Listings | Mike Ogunkeye Real Estate</title>
-        <meta name="description" content="Browse Mike Ogunkeye's exclusive Houston property listings. Find homes for sale represented by a top Houston realtor." />
-        <meta property="og:title" content="Mike Ogunkeye's Exclusive Listings | Houston Real Estate" />
-        <meta property="og:description" content="Browse my exclusive portfolio of Houston properties. Each listing is personally represented." />
+        <title>My Listings & Houston MLS Search | {siteConfig.name}</title>
+        <meta name="description" content="Browse Mike Ogunkeye's exclusive Houston property listings, recently sold homes, and search all Houston MLS listings. Find your dream home in Sugar Land, Katy, Cypress, and more." />
+        <meta name="keywords" content="Mike Ogunkeye listings, Houston MLS search, homes for sale Houston, Sugar Land homes, Katy real estate, exclusive listings eXp Realty" />
+        <link rel="canonical" href={`${siteConfig.url}/mls-search`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={`Exclusive Listings & MLS Search | ${siteConfig.name}`} />
+        <meta property="og:description" content="Browse Mike Ogunkeye's exclusive portfolio of Houston properties. Search all Houston MLS listings." />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteConfig.url}/mls-search`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`My Listings | ${siteConfig.name}`} />
+        <meta name="twitter:description" content="Browse exclusive Houston property listings from Mike Ogunkeye at eXp Realty." />
       </Helmet>
+      
+      {/* Advanced Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center mb-8">

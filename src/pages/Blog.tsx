@@ -111,12 +111,25 @@ const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Houston Real Estate Blog | Market Reports, Buying & Selling Tips | {siteConfig.name}</title>
+        <title>Houston Real Estate Blog | Market Reports & Buying Tips | {siteConfig.name}</title>
         <meta
           name="description"
-          content="Expert insights on Houston real estate. Read market reports, neighborhood guides, buying tips, and selling strategies from Houston's top realtors."
+          content="Expert insights on Houston real estate from Mike Ogunkeye. Read market reports, neighborhood guides, home buying tips, and selling strategies for Sugar Land, Katy, Cypress & more."
         />
+        <meta name="keywords" content="Houston real estate blog, housing market reports, home buying tips Texas, selling advice Houston, neighborhood guides, Sugar Land market, Katy real estate news" />
         <link rel="canonical" href={`${siteConfig.url}/blog`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Houston Real Estate Blog | Expert Insights" />
+        <meta property="og:description" content="Market reports, buying tips, and selling strategies from a top Houston realtor." />
+        <meta property="og:type" content="blog" />
+        <meta property="og:url" content={`${siteConfig.url}/blog`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Houston Real Estate Blog | Mike Ogunkeye" />
+        <meta name="twitter:description" content="Expert insights on Houston real estate market." />
       </Helmet>
 
       {/* Centralized Schema Markup */}

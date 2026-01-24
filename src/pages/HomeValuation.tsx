@@ -12,6 +12,8 @@ import { siteConfig } from "@/lib/siteConfig";
 import { trackHomeValuation, trackCTAClick } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import { Home, DollarSign, TrendingUp, Clock, CheckCircle, MapPin, Phone, Mail } from "lucide-react";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { getHomeValuationSchemas } from "@/lib/schema";
 
 const HomeValuation = () => {
   const { toast } = useToast();
@@ -148,51 +150,37 @@ const HomeValuation = () => {
     },
   ];
 
-  const schemaMarkup = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: "Free Home Valuation | Mike Ogunkeye Real Estate",
-    description: "Get a free, no-obligation home valuation from Mike Ogunkeye. Find out what your home is worth in today's market.",
-    url: `${siteConfig.url}/home-valuation`,
-    mainEntity: {
-      "@type": "Service",
-      name: "Free Home Valuation",
-      provider: {
-        "@type": "RealEstateAgent",
-        name: siteConfig.name,
-        telephone: siteConfig.phone,
-        email: siteConfig.email,
-      },
-      description: "Professional home valuation service providing accurate market analysis for homeowners.",
-      areaServed: siteConfig.serviceAreas.map((n) => ({
-        "@type": "City",
-        name: n,
-        containedInPlace: {
-          "@type": "State",
-          name: "Texas",
-        },
-      })),
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-        availability: "https://schema.org/InStock",
-      },
-    },
-  };
+  // Use centralized schema
+  const schemas = getHomeValuationSchemas();
 
   return (
     <Layout>
       <Helmet>
-        <title>Free Home Valuation | What's Your Home Worth? | Mike Ogunkeye Real Estate</title>
+        <title>Free Home Valuation | What's Your Houston Home Worth? | {siteConfig.name}</title>
         <meta
           name="description"
-          content="Get a free, no-obligation home valuation from Mike Ogunkeye. Find out what your Dallas-Fort Worth area home is worth in today's competitive market."
+          content="Get a free, no-obligation home valuation from Mike Ogunkeye. Discover what your Houston, Sugar Land, Katy, or Cypress home is worth in today's competitive market within 24 hours."
         />
-        <meta name="keywords" content="home valuation, what's my home worth, free home estimate, Dallas home value, Fort Worth property value, sell my home" />
+        <meta name="keywords" content="home valuation Houston, what's my home worth, free home estimate, Sugar Land home value, Katy property value, sell my home Texas, CMA report Houston" />
         <link rel="canonical" href={`${siteConfig.url}/home-valuation`} />
-        <script type="application/ld+json">{JSON.stringify(schemaMarkup)}</script>
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Free Home Valuation | What's Your Home Worth?" />
+        <meta property="og:description" content="Get a free, no-obligation home valuation from Mike Ogunkeye. Find out your property's market value within 24 hours." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteConfig.url}/home-valuation`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free Home Valuation | Mike Ogunkeye Real Estate" />
+        <meta name="twitter:description" content="Get your Houston home's market value free within 24 hours. No obligation." />
       </Helmet>
+      
+      {/* Advanced Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/10 via-background to-secondary/20 py-16 md:py-24">

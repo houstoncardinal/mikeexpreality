@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/accordion";
 import { getSellerResourcesSchemas, HowToStep, FAQItem } from "@/lib/schema";
 import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { siteConfig } from "@/lib/siteConfig";
 
 const sellingSteps = [
   {
@@ -101,12 +102,25 @@ const SellerResources = () => {
   return (
     <>
       <Helmet>
-        <title>Sell Your Houston Home | Home Valuation & Seller Resources | Houston Elite</title>
+        <title>Sell Your Houston Home | Free Valuation & Marketing | {siteConfig.name}</title>
         <meta
           name="description"
-          content="Sell your Houston home for top dollar. Free home valuation, professional marketing, expert negotiation. Learn about our proven selling process and get started today."
+          content="Sell your Houston home for top dollar with Mike Ogunkeye. Free home valuation, professional photography, strategic marketing. Homes sell in 30-60 days. Get your net sheet today."
         />
-        <link rel="canonical" href="https://houstonelite.com/seller-resources" />
+        <meta name="keywords" content="sell my home Houston, home valuation Houston, list my house Sugar Land, selling a home Katy, real estate agent for sellers, home selling process Texas" />
+        <link rel="canonical" href={`${siteConfig.url}/seller-resources`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Sell Your Houston Home for Top Dollar | Free Valuation" />
+        <meta property="og:description" content="Professional marketing, expert negotiation, and seamless closing. Homes sell in 30-60 days." />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`${siteConfig.url}/seller-resources`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Sell Your Home | Mike Ogunkeye Real Estate" />
+        <meta name="twitter:description" content="Free home valuation and professional marketing to sell your Houston home fast." />
       </Helmet>
 
       {/* Centralized Schema Markup with HowTo + FAQ */}

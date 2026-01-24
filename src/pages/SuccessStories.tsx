@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { testimonials, siteConfig } from "@/lib/siteConfig";
 import { useEffect, useState, useRef } from "react";
+import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { getSuccessStoriesSchemas } from "@/lib/schema";
+
 // Animated counter component
 function AnimatedCounter({ value, suffix, duration = 2000 }: { value: number; suffix: string; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -48,6 +51,7 @@ function AnimatedCounter({ value, suffix, duration = 2000 }: { value: number; su
 
 const SuccessStories = () => {
   const harSoldUrl = "https://www.har.com/idx/mls/sold/listing?sitetype=aws&cid=598724&allmls=n&mlsorgid=";
+  const schemas = getSuccessStoriesSchemas();
 
   const stats = [
     { icon: <Home className="w-6 h-6 text-accent" />, value: 150, suffix: "+", label: "Homes Sold" },
@@ -59,15 +63,32 @@ const SuccessStories = () => {
   return (
     <>
       <Helmet>
-        <title>Success Stories | {siteConfig.name}</title>
+        <title>Success Stories & Client Reviews | 150+ Homes Sold | {siteConfig.name}</title>
         <meta 
           name="description" 
-          content="See our track record of successful home sales in Houston. Browse sold properties and read testimonials from satisfied clients." 
+          content="See Mike Ogunkeye's proven track record: 150+ homes sold, 99% client satisfaction, 5-star reviews. Browse sold properties and read testimonials from Houston homeowners." 
         />
-        <meta property="og:title" content={`Success Stories | ${siteConfig.name}`} />
-        <meta property="og:description" content="View our proven track record of successful home sales across Houston and surrounding areas." />
+        <meta name="keywords" content="Houston realtor reviews, Mike Ogunkeye testimonials, sold homes Houston, real estate success stories, 5-star realtor Houston, eXp Realty reviews" />
+        <link rel="canonical" href={`${siteConfig.url}/success-stories`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={`Success Stories & Client Reviews | ${siteConfig.name}`} />
+        <meta property="og:description" content="150+ homes sold with 99% client satisfaction. See our proven track record and read 5-star reviews from satisfied Houston homeowners." />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteConfig.url}/success-stories`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`Success Stories | ${siteConfig.name}`} />
+        <meta name="twitter:description" content="150+ homes sold with 5-star reviews. See our proven track record in Houston real estate." />
+        <meta name="twitter:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
       </Helmet>
+      
+      {/* Advanced Schema Markup */}
+      <SchemaMarkup schemas={schemas} />
 
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 bg-gradient-to-b from-secondary to-background overflow-hidden">

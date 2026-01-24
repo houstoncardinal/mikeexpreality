@@ -150,12 +150,27 @@ const Listings = () => {
   return (
     <>
       <Helmet>
-        <title>Houston Homes for Sale | Luxury Properties | {siteConfig.name}</title>
+        <title>Houston Homes for Sale | Luxury Properties in Sugar Land, Katy, Cypress | {siteConfig.name}</title>
         <meta
           name="description"
-          content="Browse luxury homes for sale in Houston, Sugar Land, Katy, Cypress, Richmond, and Missouri City. Find your dream property with Mike Ogunkeye Real Estate."
+          content={`Browse ${filteredAndSortedListings.length}+ luxury homes for sale in Houston, Sugar Land, Katy, Cypress, Richmond & Missouri City. Filter by price, beds, baths. Find your dream property with Mike Ogunkeye at eXp Realty.`}
         />
+        <meta name="keywords" content="Houston homes for sale, Sugar Land real estate, Katy homes, Cypress houses, Richmond TX homes, Missouri City properties, luxury homes Houston, eXp Realty listings" />
         <link rel="canonical" href={`${siteConfig.url}/listings`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Houston Homes for Sale | Mike Ogunkeye Real Estate" />
+        <meta property="og:description" content="Browse luxury homes in Houston, Sugar Land, Katy, Cypress & more. Expert guidance from a top Houston realtor." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteConfig.url}/listings`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Houston Homes for Sale | Mike Ogunkeye Real Estate" />
+        <meta name="twitter:description" content="Browse luxury homes in Houston and surrounding areas. Find your dream property today." />
       </Helmet>
 
       {/* Centralized Schema Markup */}

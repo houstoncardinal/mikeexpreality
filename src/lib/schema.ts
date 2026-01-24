@@ -1136,3 +1136,179 @@ export const getNeighborhoodDetailSchemas = (neighborhood: {
     { name: neighborhood.name, url: `${siteConfig.url}/neighborhoods/${neighborhood.slug}` },
   ]),
 ];
+
+// ==================== NEW PAGE SCHEMAS ====================
+
+/**
+ * Generate Success Stories page schemas with AggregateRating
+ */
+export const getSuccessStoriesSchemas = () => [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/success-stories#webpage`,
+    name: `Success Stories & Client Testimonials | ${siteConfig.name}`,
+    description: "See our proven track record of successful home sales in Houston. Browse sold properties and read 5-star reviews from satisfied clients.",
+    url: `${siteConfig.url}/success-stories`,
+    isPartOf: { "@id": `${siteConfig.url}#website` },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: `${siteConfig.url}/logo-primary.jpeg`,
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    name: siteConfig.name,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "5.0",
+      bestRating: "5",
+      worstRating: "1",
+      ratingCount: testimonials.length,
+      reviewCount: testimonials.length,
+    },
+    review: testimonials.map((t) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: t.name },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: t.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: t.text,
+    })),
+  },
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Success Stories", url: `${siteConfig.url}/success-stories` },
+  ]),
+];
+
+/**
+ * Generate MLS Search page schemas
+ */
+export const getMLSSearchPageSchemas = () => [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/mls-search#webpage`,
+    name: `Exclusive Listings & MLS Search | ${siteConfig.name}`,
+    description: "Browse Mike Ogunkeye's exclusive Houston property listings, recently sold homes, and search all Houston MLS listings.",
+    url: `${siteConfig.url}/mls-search`,
+    isPartOf: { "@id": `${siteConfig.url}#website` },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteConfig.url}/mls-search?search={search_term}`,
+      },
+      "query-input": "required name=search_term",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Mike Ogunkeye's Exclusive Property Listings",
+    description: "Personally represented properties by Mike Ogunkeye in the Houston area",
+    url: `${siteConfig.url}/mls-search`,
+    numberOfItems: featuredListings.length,
+    itemListElement: featuredListings.map((listing, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "RealEstateListing",
+        name: listing.title,
+        url: `${siteConfig.url}/property/${listing.id}`,
+      },
+    })),
+  },
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "My Listings", url: `${siteConfig.url}/mls-search` },
+  ]),
+];
+
+/**
+ * Generate Home Valuation page schemas
+ */
+export const getHomeValuationSchemas = () => [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/home-valuation#webpage`,
+    name: `Free Home Valuation | What's Your Houston Home Worth?`,
+    description: "Get a free, no-obligation home valuation from Mike Ogunkeye. Discover your Houston property's market value with expert analysis.",
+    url: `${siteConfig.url}/home-valuation`,
+    isPartOf: { "@id": `${siteConfig.url}#website` },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${siteConfig.url}/home-valuation#service`,
+    name: "Free Home Valuation Service",
+    description: "Professional home valuation service providing accurate market analysis for Houston homeowners. Get your property's worth within 24 hours.",
+    provider: { "@id": `${siteConfig.url}#agent` },
+    areaServed: siteConfig.serviceAreas.map((area) => ({
+      "@type": "City",
+      name: area,
+      containedInPlace: { "@type": "State", name: "Texas" },
+    })),
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      description: "Free, no-obligation home valuation",
+      availability: "https://schema.org/InStock",
+    },
+    serviceType: "Home Valuation",
+    termsOfService: "Free service with no obligation",
+  },
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Home Valuation", url: `${siteConfig.url}/home-valuation` },
+  ]),
+];
+
+/**
+ * Generate Privacy Policy page schema
+ */
+export const getPrivacyPolicySchemas = () => [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/privacy-policy#webpage`,
+    name: `Privacy Policy | ${siteConfig.name}`,
+    description: "Privacy Policy for Mike Ogunkeye Real Estate. Learn how we collect, use, and protect your personal information.",
+    url: `${siteConfig.url}/privacy-policy`,
+    isPartOf: { "@id": `${siteConfig.url}#website` },
+    dateModified: new Date().toISOString().split("T")[0],
+    inLanguage: "en-US",
+  },
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Privacy Policy", url: `${siteConfig.url}/privacy-policy` },
+  ]),
+];
+
+/**
+ * Generate Terms page schema
+ */
+export const getTermsSchemas = () => [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/terms#webpage`,
+    name: `Terms & Conditions | ${siteConfig.name}`,
+    description: "Terms and Conditions for Mike Ogunkeye Real Estate website and services. Fair housing statement and TREC information included.",
+    url: `${siteConfig.url}/terms`,
+    isPartOf: { "@id": `${siteConfig.url}#website` },
+    dateModified: new Date().toISOString().split("T")[0],
+    inLanguage: "en-US",
+  },
+  getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Terms & Conditions", url: `${siteConfig.url}/terms` },
+  ]),
+];
