@@ -30,6 +30,7 @@ export function VoiceAgentWidget() {
   const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isManualDisconnectRef = useRef(false);
+  const isRestartingRef = useRef(false);
   const lastConnectedAtRef = useRef<number | null>(null);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const conversationRef = useRef<ReturnType<typeof useConversation> | null>(null);
@@ -106,6 +107,12 @@ export function VoiceAgentWidget() {
       console.log("Disconnected from agent");
       stopKeepAlive();
       stopVolumeMonitoring();
+
+      // If we're deliberately restarting the session (endSession -> startSession),
+      // ignore this disconnect so we don't trigger a reconnect loop.
+      if (isRestartingRef.current) {
+        return;
+      }
 
       // If WebRTC drops immediately (common when corporate/ISP blocks UDP), fall back to WebSocket.
       const lastConnectedAt = lastConnectedAtRef.current;
@@ -245,6 +252,7 @@ export function VoiceAgentWidget() {
     try {
       // Ensure we don't stack sessions (can cause immediate disconnect loops).
       try {
+        isRestartingRef.current = true;
         await conversation.endSession();
       } catch {
         // ignore
@@ -261,6 +269,7 @@ export function VoiceAgentWidget() {
     } catch (error) {
       console.error("Reconnection failed:", error);
     } finally {
+      isRestartingRef.current = false;
       setIsConnecting(false);
     }
   }, [conversation, fetchToken, isConnecting, preferredConnectionType]);
@@ -281,6 +290,7 @@ export function VoiceAgentWidget() {
     try {
       // Ensure we don't stack sessions (can cause immediate disconnect loops).
       try {
+        isRestartingRef.current = true;
         await conversation.endSession();
       } catch {
         // ignore
@@ -305,6 +315,7 @@ export function VoiceAgentWidget() {
         }
       }
     } finally {
+      isRestartingRef.current = false;
       setIsConnecting(false);
     }
   }, [conversation, fetchToken, preferredConnectionType]);
