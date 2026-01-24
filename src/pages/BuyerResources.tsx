@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/accordion";
 import { getBuyerResourcesSchemas, HowToStep, FAQItem } from "@/lib/schema";
 import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { siteConfig } from "@/lib/siteConfig";
 
 const buyingSteps = [
   {
@@ -91,12 +92,25 @@ const BuyerResources = () => {
   return (
     <>
       <Helmet>
-        <title>First-Time Home Buyer Guide Houston | Buyer Resources | Houston Elite</title>
+        <title>First-Time Home Buyer Guide Houston | 5-Step Process | {siteConfig.name}</title>
         <meta
           name="description"
-          content="Complete guide to buying a home in Houston. Learn about the home buying process, mortgage pre-approval, closing costs, and work with Houston's top buyer's agents."
+          content="Complete guide to buying a home in Houston, Sugar Land, Katy & Cypress. Learn about mortgage pre-approval, closing costs, and work with a top Houston buyer's agent. Free buyer consultation."
         />
-        <link rel="canonical" href="https://houstonelite.com/buyer-resources" />
+        <meta name="keywords" content="first-time home buyer Houston, buying a home Texas, Houston buyer's agent, mortgage pre-approval, closing costs guide, home buying process" />
+        <link rel="canonical" href={`${siteConfig.url}/buyer-resources`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="First-Time Home Buyer Guide | Houston Real Estate" />
+        <meta property="og:description" content="Complete guide to buying a home in Houston. Learn the 5-step process from pre-approval to closing." />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`${siteConfig.url}/buyer-resources`} />
+        <meta property="og:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Home Buyer Guide Houston | Mike Ogunkeye Real Estate" />
+        <meta name="twitter:description" content="Your complete guide to buying a home in Houston. 5-step process explained." />
       </Helmet>
 
       {/* Centralized Schema Markup with HowTo + FAQ */}

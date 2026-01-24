@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/select";
 import { getMapSearchSchemas } from "@/lib/schema";
 import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
+import { siteConfig } from "@/lib/siteConfig";
 
 interface MapFilters {
   search: string;
@@ -696,9 +697,17 @@ export default function MapSearch() {
   return (
     <>
       <Helmet>
-        <title>Map Search | Houston Real Estate</title>
-        <meta name="description" content="Explore Houston properties on an interactive map with satellite view, 3D buildings, and neighborhood boundaries." />
+        <title>Interactive Map Search | Find Houston Homes by Location | {siteConfig.name}</title>
+        <meta name="description" content="Search Houston homes on an interactive map with satellite view, 3D buildings, and neighborhood boundaries. Explore Sugar Land, Katy, Cypress & more areas visually." />
+        <meta name="keywords" content="Houston map search, homes near me, interactive property map, Sugar Land map, Katy homes map, neighborhood search Houston" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <link rel="canonical" href={`${siteConfig.url}/map-search`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Interactive Map Search | Houston Real Estate" />
+        <meta property="og:description" content="Find homes on an interactive map. Explore Houston neighborhoods with satellite view and 3D buildings." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteConfig.url}/map-search`} />
       </Helmet>
 
       {/* SearchAction Schema for Map Search */}
