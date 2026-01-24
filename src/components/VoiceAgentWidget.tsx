@@ -19,7 +19,8 @@ export function VoiceAgentWidget() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [lastToken, setLastToken] = useState<string | null>(null);
-  const [preferredConnectionType, setPreferredConnectionType] = useState<"webrtc" | "websocket">("webrtc");
+  // Default to WebSocket for maximum compatibility (many networks block WebRTC / UDP and cause 1006 drops).
+  const [preferredConnectionType, setPreferredConnectionType] = useState<"webrtc" | "websocket">("websocket");
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [inputVolume, setInputVolume] = useState(0);
   const [outputVolume, setOutputVolume] = useState(0);
@@ -242,6 +243,13 @@ export function VoiceAgentWidget() {
     
     setIsConnecting(true);
     try {
+      // Ensure we don't stack sessions (can cause immediate disconnect loops).
+      try {
+        await conversation.endSession();
+      } catch {
+        // ignore
+      }
+
       const type = preferredConnectionType;
       const credential = await fetchToken(type);
 
@@ -271,6 +279,13 @@ export function VoiceAgentWidget() {
     setTranscript([]);
     
     try {
+      // Ensure we don't stack sessions (can cause immediate disconnect loops).
+      try {
+        await conversation.endSession();
+      } catch {
+        // ignore
+      }
+
       await navigator.mediaDevices.getUserMedia({ audio: true });
       const type = preferredConnectionType;
       const credential = await fetchToken(type);
@@ -355,7 +370,7 @@ export function VoiceAgentWidget() {
                 aria-label="Open voice assistant"
               >
                 {/* Gentle pulse ring */}
-                <span className="absolute inset-0 rounded-l-md md:rounded-full bg-accent/50 animate-[pulse_3s_ease-in-out_infinite]" />
+                <span className="pointer-events-none absolute inset-0 rounded-l-md md:rounded-full bg-accent/30 animate-[pulse_4s_ease-in-out_infinite]" />
                 <Bot className="relative w-4 h-4 text-accent-foreground" />
               </motion.button>
             </TooltipTrigger>
