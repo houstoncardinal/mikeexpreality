@@ -11,6 +11,9 @@ serve(async (req) => {
   }
 
   try {
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const connectionType = (body?.connectionType ?? "webrtc") as "webrtc" | "websocket";
+
     const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
     const ELEVENLABS_AGENT_ID = Deno.env.get("ELEVENLABS_AGENT_ID");
 
@@ -22,14 +25,16 @@ serve(async (req) => {
       throw new Error("ELEVENLABS_AGENT_ID is not configured");
     }
 
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${ELEVENLABS_AGENT_ID}`,
-      {
-        headers: {
-          "xi-api-key": ELEVENLABS_API_KEY,
-        },
-      }
-    );
+    const url =
+      connectionType === "websocket"
+        ? `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${ELEVENLABS_AGENT_ID}`
+        : `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${ELEVENLABS_AGENT_ID}`;
+
+    const response = await fetch(url, {
+      headers: {
+        "xi-api-key": ELEVENLABS_API_KEY,
+      },
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -37,7 +42,22 @@ serve(async (req) => {
       throw new Error(`ElevenLabs API error: ${response.status}`);
     }
 
-    const { token } = await response.json();
+    const json = await response.json();
+    const token = json?.token;
+    const signedUrl = json?.signed_url;
+
+    if (connectionType === "websocket") {
+      if (!signedUrl) {
+        throw new Error("ElevenLabs did not return a signed_url");
+      }
+      return new Response(JSON.stringify({ signed_url: signedUrl }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!token) {
+      throw new Error("ElevenLabs did not return a token");
+    }
 
     return new Response(JSON.stringify({ token }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

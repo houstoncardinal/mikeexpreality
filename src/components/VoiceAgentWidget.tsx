@@ -18,6 +18,7 @@ export function VoiceAgentWidget() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [lastToken, setLastToken] = useState<string | null>(null);
+  const [preferredConnectionType, setPreferredConnectionType] = useState<"webrtc" | "websocket">("webrtc");
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [inputVolume, setInputVolume] = useState(0);
   const [outputVolume, setOutputVolume] = useState(0);
@@ -27,6 +28,7 @@ export function VoiceAgentWidget() {
   const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isManualDisconnectRef = useRef(false);
+  const lastConnectedAtRef = useRef<number | null>(null);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const conversationRef = useRef<ReturnType<typeof useConversation> | null>(null);
   const maxReconnectAttempts = 3;
@@ -93,6 +95,7 @@ export function VoiceAgentWidget() {
       toast.success("Connected to voice assistant");
       setConnectionAttempts(0);
       isManualDisconnectRef.current = false;
+      lastConnectedAtRef.current = Date.now();
       
       startKeepAlive();
       startVolumeMonitoring();
@@ -101,6 +104,15 @@ export function VoiceAgentWidget() {
       console.log("Disconnected from agent");
       stopKeepAlive();
       stopVolumeMonitoring();
+
+      // If WebRTC drops immediately (common when corporate/ISP blocks UDP), fall back to WebSocket.
+      const lastConnectedAt = lastConnectedAtRef.current;
+      const connectedDurationMs = lastConnectedAt ? Date.now() - lastConnectedAt : null;
+      if (!isManualDisconnectRef.current && preferredConnectionType === "webrtc" && connectedDurationMs !== null && connectedDurationMs < 6000) {
+        console.warn("WebRTC disconnected quickly; switching to WebSocket fallback");
+        setPreferredConnectionType("websocket");
+        toast.info("Switching to a more compatible connection...");
+      }
       
       if (!isManualDisconnectRef.current && connectionAttempts < maxReconnectAttempts) {
         console.log(`Connection lost. Attempting reconnect (${connectionAttempts + 1}/${maxReconnectAttempts})...`);
@@ -204,21 +216,24 @@ export function VoiceAgentWidget() {
     };
   }, [stopKeepAlive, stopVolumeMonitoring]);
 
-  const fetchToken = useCallback(async () => {
-    const { data, error } = await supabase.functions.invoke(
-      "elevenlabs-conversation-token"
-    );
+  const fetchToken = useCallback(async (connectionType: "webrtc" | "websocket") => {
+    const { data, error } = await supabase.functions.invoke("elevenlabs-conversation-token", {
+      body: { connectionType },
+    });
 
     if (error) {
       throw new Error(error.message || "Failed to get conversation token");
     }
 
-    if (!data?.token) {
-      throw new Error("No token received");
+    if (connectionType === "websocket") {
+      if (!data?.signed_url) throw new Error("No signed URL received");
+      setLastToken(data.signed_url);
+      return data.signed_url as string;
     }
 
+    if (!data?.token) throw new Error("No token received");
     setLastToken(data.token);
-    return data.token;
+    return data.token as string;
   }, []);
 
   const attemptReconnect = useCallback(async () => {
@@ -226,18 +241,20 @@ export function VoiceAgentWidget() {
     
     setIsConnecting(true);
     try {
-      const token = await fetchToken();
-      
-      await conversation.startSession({
-        conversationToken: token,
-        connectionType: "webrtc",
-      });
+      const type = preferredConnectionType;
+      const credential = await fetchToken(type);
+
+      await conversation.startSession(
+        type === "websocket"
+          ? { signedUrl: credential, connectionType: "websocket" }
+          : { conversationToken: credential, connectionType: "webrtc" }
+      );
     } catch (error) {
       console.error("Reconnection failed:", error);
     } finally {
       setIsConnecting(false);
     }
-  }, [conversation, fetchToken, isConnecting]);
+  }, [conversation, fetchToken, isConnecting, preferredConnectionType]);
 
   // Effect to handle reconnection attempts
   useEffect(() => {
@@ -254,12 +271,14 @@ export function VoiceAgentWidget() {
     
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
-      const token = await fetchToken();
+      const type = preferredConnectionType;
+      const credential = await fetchToken(type);
 
-      await conversation.startSession({
-        conversationToken: token,
-        connectionType: "webrtc",
-      });
+      await conversation.startSession(
+        type === "websocket"
+          ? { signedUrl: credential, connectionType: "websocket" }
+          : { conversationToken: credential, connectionType: "webrtc" }
+      );
     } catch (error) {
       console.error("Failed to start conversation:", error);
       if (error instanceof Error) {
@@ -272,7 +291,7 @@ export function VoiceAgentWidget() {
     } finally {
       setIsConnecting(false);
     }
-  }, [conversation, fetchToken]);
+  }, [conversation, fetchToken, preferredConnectionType]);
 
   const stopConversation = useCallback(async () => {
     isManualDisconnectRef.current = true;
