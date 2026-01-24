@@ -229,7 +229,8 @@ export function VoiceAgentWidget() {
       const token = await fetchToken();
       
       await conversation.startSession({
-        signedUrl: token,
+        conversationToken: token,
+        connectionType: "webrtc",
       });
     } catch (error) {
       console.error("Reconnection failed:", error);
@@ -256,7 +257,8 @@ export function VoiceAgentWidget() {
       const token = await fetchToken();
 
       await conversation.startSession({
-        signedUrl: token,
+        conversationToken: token,
+        connectionType: "webrtc",
       });
     } catch (error) {
       console.error("Failed to start conversation:", error);
@@ -325,15 +327,15 @@ export function VoiceAgentWidget() {
             exit={{ x: 100, opacity: 0 }}
             transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
             onClick={() => setIsOpen(true)}
-            className="fixed z-40 bg-white border border-border shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group
+            className="fixed z-40 bg-card/95 backdrop-blur border border-border shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group
               /* Mobile: vertical pill on right side, above toolbar */
-              bottom-24 right-3 flex-col py-3 px-2 rounded-2xl
+              bottom-32 right-3 flex-col py-3 px-2 rounded-2xl
               /* Desktop: horizontal button bottom right */
               md:bottom-6 md:right-6 md:flex-row md:py-2.5 md:px-4 md:rounded-full"
             aria-label="Open voice assistant"
           >
             {/* Gradient accent line */}
-            <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-gradient-to-b from-royal via-royal/80 to-royal/60 rounded-full md:hidden" />
+            <div className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-gradient-to-b from-royal via-royal/80 to-royal/60 rounded-full md:hidden" />
             
             {/* Icon container */}
             <div className="relative w-10 h-10 bg-gradient-to-br from-royal to-royal/80 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -342,8 +344,9 @@ export function VoiceAgentWidget() {
             </div>
             
             {/* Label - vertical on mobile, horizontal on desktop */}
-            <span className="text-[10px] font-semibold text-foreground tracking-wide uppercase md:text-xs md:font-medium md:normal-case md:tracking-normal writing-mode-vertical md:writing-mode-horizontal"
-              style={{ writingMode: 'vertical-rl' }}
+            <span
+              className="text-[10px] font-semibold text-foreground tracking-wide uppercase md:text-xs md:font-medium md:normal-case md:tracking-normal"
+              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
             >
               <span className="md:hidden">AI</span>
               <span className="hidden md:inline">Talk to Mike O AI</span>
@@ -371,7 +374,7 @@ export function VoiceAgentWidget() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-24 right-4 z-50 w-[calc(100%-2rem)] max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden md:bottom-24 md:right-6 md:w-96"
+              className="fixed bottom-32 right-4 z-50 w-[calc(100%-2rem)] max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden md:bottom-24 md:right-6 md:w-96"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
