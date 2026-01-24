@@ -1,11 +1,12 @@
 import { useConversation } from "@elevenlabs/react";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, X, Bot, Loader2, RefreshCw } from "lucide-react";
+import { Mic, MicOff, X, Bot, Loader2, RefreshCw, Send, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
 
 interface TranscriptMessage {
   id: string;
@@ -14,18 +15,22 @@ interface TranscriptMessage {
   timestamp: Date;
 }
 
+type ConnectionMode = "voice" | "text";
+
 export function VoiceAgentWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [lastToken, setLastToken] = useState<string | null>(null);
-  // Default to WebSocket for maximum compatibility (many networks block WebRTC / UDP and cause 1006 drops).
   const [preferredConnectionType, setPreferredConnectionType] = useState<"webrtc" | "websocket">("websocket");
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [inputVolume, setInputVolume] = useState(0);
   const [outputVolume, setOutputVolume] = useState(0);
+  // Mode: voice or text fallback
+  const [connectionMode, setConnectionMode] = useState<ConnectionMode>("voice");
+  const [textInput, setTextInput] = useState("");
+  const [isSendingText, setIsSendingText] = useState(false);
   
-  // Refs for managing reconnection, keep-alive, and audio visualization
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -57,6 +62,7 @@ export function VoiceAgentWidget() {
     stopKeepAlive();
     
     keepAliveIntervalRef.current = setInterval(() => {
+      // Only send keep-alive if connected and the underlying socket is open
       if (conversationRef.current?.status === "connected") {
         try {
           conversationRef.current.sendUserActivity();
@@ -108,21 +114,29 @@ export function VoiceAgentWidget() {
       stopKeepAlive();
       stopVolumeMonitoring();
 
-      // If we're deliberately restarting the session (endSession -> startSession),
-      // ignore this disconnect so we don't trigger a reconnect loop.
+      // Ignore disconnect during intentional restart cycle
       if (isRestartingRef.current) {
         return;
       }
 
-      // If WebRTC drops immediately (common when corporate/ISP blocks UDP), fall back to WebSocket.
+      // If browser is offline, do nothing – let the user retry manually
+      if (!navigator.onLine) {
+        console.warn("Browser is offline; skipping auto-reconnect.");
+        toast.error("You're offline. Reconnect when back online.");
+        return;
+      }
+
       const lastConnectedAt = lastConnectedAtRef.current;
       const connectedDurationMs = lastConnectedAt ? Date.now() - lastConnectedAt : null;
+
+      // Quick drop fallback to WebSocket (in case WebRTC was being blocked)
       if (!isManualDisconnectRef.current && preferredConnectionType === "webrtc" && connectedDurationMs !== null && connectedDurationMs < 6000) {
         console.warn("WebRTC disconnected quickly; switching to WebSocket fallback");
         setPreferredConnectionType("websocket");
         toast.info("Switching to a more compatible connection...");
       }
       
+      // Auto-reconnect logic
       if (!isManualDisconnectRef.current && connectionAttempts < maxReconnectAttempts) {
         console.log(`Connection lost. Attempting reconnect (${connectionAttempts + 1}/${maxReconnectAttempts})...`);
         toast.info("Connection lost. Reconnecting...");
@@ -136,7 +150,10 @@ export function VoiceAgentWidget() {
           setConnectionAttempts(prev => prev + 1);
         }, delay);
       } else if (connectionAttempts >= maxReconnectAttempts) {
-        toast.error("Unable to maintain connection. Please try again.");
+        // Ran out of retries – offer text fallback
+        console.warn("Max reconnect attempts reached; switching to text mode.");
+        toast.error("Voice couldn't stay connected. Switching to text chat.");
+        setConnectionMode("text");
         setConnectionAttempts(0);
       }
     },
@@ -202,19 +219,16 @@ export function VoiceAgentWidget() {
     },
   });
 
-  // Store conversation in ref for callbacks
   useEffect(() => {
     conversationRef.current = conversation;
   }, [conversation]);
 
-  // Auto-scroll transcript to bottom
   useEffect(() => {
     if (transcriptEndRef.current) {
       transcriptEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [transcript]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopKeepAlive();
@@ -250,7 +264,6 @@ export function VoiceAgentWidget() {
     
     setIsConnecting(true);
     try {
-      // Ensure we don't stack sessions (can cause immediate disconnect loops).
       try {
         isRestartingRef.current = true;
         await conversation.endSession();
@@ -274,7 +287,6 @@ export function VoiceAgentWidget() {
     }
   }, [conversation, fetchToken, isConnecting, preferredConnectionType]);
 
-  // Effect to handle reconnection attempts
   useEffect(() => {
     if (connectionAttempts > 0 && connectionAttempts < maxReconnectAttempts && !isManualDisconnectRef.current) {
       attemptReconnect();
@@ -286,9 +298,9 @@ export function VoiceAgentWidget() {
     isManualDisconnectRef.current = false;
     setConnectionAttempts(0);
     setTranscript([]);
+    setConnectionMode("voice");
     
     try {
-      // Ensure we don't stack sessions (can cause immediate disconnect loops).
       try {
         isRestartingRef.current = true;
         await conversation.endSession();
@@ -343,8 +355,50 @@ export function VoiceAgentWidget() {
 
   const handleRetry = useCallback(() => {
     setConnectionAttempts(0);
+    setConnectionMode("voice");
     startConversation();
   }, [startConversation]);
+
+  // ----- Text fallback -----
+  const handleSendTextMessage = useCallback(async () => {
+    const trimmed = textInput.trim();
+    if (!trimmed || isSendingText) return;
+
+    const userMsg: TranscriptMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      text: trimmed,
+      timestamp: new Date()
+    };
+    setTranscript(prev => [...prev, userMsg]);
+    setTextInput("");
+    setIsSendingText(true);
+
+    // In text-only fallback, if the voice session is still connected, send via SDK.
+    // Otherwise, just echo that the agent is currently offline.
+    if (conversation.status === "connected") {
+      try {
+        await conversation.sendUserMessage(trimmed);
+      } catch (err) {
+        console.error("Failed to send text message:", err);
+      }
+    } else {
+      // Agent offline – simulate placeholder reply
+      setTimeout(() => {
+        setTranscript(prev => [...prev, {
+          id: `agent-${Date.now()}`,
+          role: "agent",
+          text: "I'm having trouble maintaining a connection right now. Please call or email our team for assistance.",
+          timestamp: new Date()
+        }]);
+      }, 600);
+    }
+    setIsSendingText(false);
+  }, [conversation, textInput, isSendingText]);
+
+  const switchToTextMode = useCallback(() => {
+    setConnectionMode("text");
+  }, []);
 
   const isConnected = conversation.status === "connected";
   const showRetryButton = connectionAttempts >= maxReconnectAttempts;
@@ -380,7 +434,6 @@ export function VoiceAgentWidget() {
                   md:right-4 md:top-auto md:bottom-4 md:translate-y-0 md:w-9 md:h-9 md:rounded-full"
                 aria-label="Open voice assistant"
               >
-                {/* Gentle pulse ring */}
                 <span className="pointer-events-none absolute inset-0 rounded-l-md md:rounded-full bg-accent/30 animate-[pulse_4s_ease-in-out_infinite]" />
                 <Bot className="relative w-4 h-4 text-accent-foreground" />
               </motion.button>
@@ -418,7 +471,7 @@ export function VoiceAgentWidget() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-royal to-royal/80 flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-white" />
+                      {connectionMode === "text" ? <MessageSquare className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-white" />}
                     </div>
                     {isConnected && (
                       <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-card" />
@@ -427,7 +480,15 @@ export function VoiceAgentWidget() {
                   <div>
                     <h3 className="font-semibold text-foreground">Mike O AI</h3>
                     <p className="text-xs text-muted-foreground">
-                      {isConnecting ? "Connecting..." : isConnected ? "Active" : showRetryButton ? "Connection failed" : "Ready to chat"}
+                      {connectionMode === "text"
+                        ? "Text chat"
+                        : isConnecting
+                        ? "Connecting..."
+                        : isConnected
+                        ? "Active"
+                        : showRetryButton
+                        ? "Connection failed"
+                        : "Ready to chat"}
                     </p>
                   </div>
                 </div>
@@ -440,8 +501,8 @@ export function VoiceAgentWidget() {
                 </button>
               </div>
 
-              {/* Audio Waveform Visualization */}
-              {isConnected && (
+              {/* Audio Waveform Visualization (only when voice mode + connected) */}
+              {connectionMode === "voice" && isConnected && (
                 <div className="px-4 py-3 border-b border-border bg-muted/30">
                   <div className="flex items-center justify-between gap-4">
                     {/* User (Input) Waveform */}
@@ -482,13 +543,13 @@ export function VoiceAgentWidget() {
                 </div>
               )}
 
-              {/* Transcript Area */}
-              {isConnected && (
+              {/* Transcript Area (both voice + text modes when there are messages) */}
+              {(connectionMode === "text" || (connectionMode === "voice" && isConnected)) && (
                 <ScrollArea className="h-48">
                   <div className="px-4 py-3">
                     {transcript.length === 0 ? (
                       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                        <p>Start speaking to see the conversation...</p>
+                        <p>{connectionMode === "text" ? "Type a message below..." : "Start speaking to see the conversation..."}</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -522,8 +583,8 @@ export function VoiceAgentWidget() {
                 </ScrollArea>
               )}
 
-              {/* Content - Microphone Visualization (when not connected) */}
-              {!isConnected && (
+              {/* Voice controls (not connected and not in text mode) */}
+              {connectionMode === "voice" && !isConnected && (
                 <div className="p-6 flex flex-col items-center">
                   <div className="relative mb-6">
                     <motion.div
@@ -607,11 +668,42 @@ export function VoiceAgentWidget() {
                       Reconnecting... Attempt {connectionAttempts}/{maxReconnectAttempts}
                     </p>
                   )}
+
+                  {/* Offer text fallback link */}
+                  <button
+                    onClick={switchToTextMode}
+                    className="mt-4 text-xs text-muted-foreground underline hover:text-foreground transition-colors"
+                  >
+                    Or chat via text instead
+                  </button>
                 </div>
               )}
 
-              {/* Action Button (when connected) */}
-              {isConnected && (
+              {/* Text input bar (text mode) */}
+              {connectionMode === "text" && (
+                <div className="p-4 border-t border-border flex items-center gap-2">
+                  <Input
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSendTextMessage();
+                    }}
+                    placeholder="Type a message..."
+                    className="flex-1"
+                  />
+                  <button
+                    onClick={handleSendTextMessage}
+                    disabled={isSendingText || !textInput.trim()}
+                    className="p-2 rounded-full bg-royal text-white disabled:opacity-50 hover:bg-royal/90 transition-colors"
+                    aria-label="Send message"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Voice controls (when connected) */}
+              {connectionMode === "voice" && isConnected && (
                 <div className="p-4 border-t border-border">
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`w-2 h-2 rounded-full ${conversation.isSpeaking ? "bg-royal animate-pulse" : "bg-green-500"}`} />
