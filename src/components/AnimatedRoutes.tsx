@@ -25,6 +25,7 @@ import MLSSearch from "@/pages/MLSSearch";
 import SuccessStories from "@/pages/SuccessStories";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
+import HomeSearch from "@/pages/HomeSearch";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -206,6 +207,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <Terms />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/home-search"
+          element={
+            <PageTransition>
+              <HomeSearch />
             </PageTransition>
           }
         />

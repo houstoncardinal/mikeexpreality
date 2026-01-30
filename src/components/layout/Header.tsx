@@ -94,6 +94,13 @@ const navigation: NavItem[] = [
     megaMenu: true,
     children: [
       { 
+        name: "Find Your Dream Home", 
+        href: "/home-search",
+        description: "Take our personalized home search questionnaire",
+        icon: Heart,
+        featured: true
+      },
+      { 
         name: "MLS Search", 
         href: "/mls-search",
         description: "Search all Houston MLS listings powered by HAR",
@@ -529,15 +536,15 @@ export function Header() {
               </div>
               <span className="hidden 2xl:block">{siteConfig.phone}</span>
             </a>
-            <Link to="/contact">
+            <Link to="/home-search">
               <Button
                 variant="royal"
                 size="default"
                 className="gap-2 shadow-lg hover:shadow-xl transition-shadow whitespace-nowrap px-3 xl:px-4"
               >
-                <Sparkles className="h-4 w-4" />
-                <span className="hidden 2xl:inline">Let's Connect</span>
-                <span className="2xl:hidden">Contact</span>
+                <Heart className="h-4 w-4" />
+                <span className="hidden 2xl:inline">Find Your Home</span>
+                <span className="2xl:hidden">Search</span>
               </Button>
             </Link>
           </div>
