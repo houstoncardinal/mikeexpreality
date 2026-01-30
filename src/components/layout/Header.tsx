@@ -542,17 +542,29 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-slate-700" />
-            ) : (
-              <Menu className="h-6 w-6 text-slate-700" />
-            )}
-          </button>
+          {/* Mobile Right Side - Call + Menu */}
+          <div className="flex lg:hidden items-center gap-2">
+            {/* Click-to-call for mobile */}
+            <a
+              href={`tel:${siteConfig.phoneRaw}`}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-accent/10 hover:bg-accent/20 transition-colors"
+              aria-label="Call us"
+            >
+              <Phone className="h-5 w-5 text-accent" />
+            </a>
+            
+            {/* Mobile Menu Button */}
+            <button
+              className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6 text-slate-700" />
+              ) : (
+                <Menu className="h-6 w-6 text-slate-700" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}

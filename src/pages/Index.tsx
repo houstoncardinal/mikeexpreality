@@ -14,6 +14,7 @@ import { siteConfig } from "@/lib/siteConfig";
 import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 import { getHomepageSchemas, getFAQSchema } from "@/lib/schema";
 import { FloatingSideNav } from "@/components/home/FloatingSideNav";
+import { LeadMagnetSection } from "@/components/home/LeadMagnetSection";
 
 // Common real estate FAQs for homepage
 const homepageFAQs = [
@@ -92,6 +93,9 @@ const Index = () => {
         <MLSSearchSection />
       </div>
       <CombinedFeaturedSection />
+      <div id="lead-magnet">
+        <LeadMagnetSection />
+      </div>
       <div id="neighborhoods">
         <NeighborhoodSection />
       </div>

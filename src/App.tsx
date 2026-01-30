@@ -23,6 +23,7 @@ import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 import Health from "@/pages/Health";
 import { SplashScreen } from "@/components/SplashScreen";
 import { VoiceAgentWidget } from "@/components/VoiceAgentWidget";
+import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { PageTransition } from "@/components/PageTransition";
@@ -141,6 +142,7 @@ const App = () => {
                   </AnalyticsTracker>
                   <MobileToolbar />
                   <VoiceAgentWidget />
+                  <ExitIntentPopup />
                 </ComparisonProvider>
               </AuthProvider>
             </BrowserRouter>
