@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { siteConfig } from "@/lib/siteConfig";
+import { NewsletterForm } from "@/components/NewsletterForm";
 
 const footerLinks = {
   explore: [
@@ -32,16 +31,7 @@ export function Footer() {
             <p className="text-primary-foreground/70 mb-8">
               Are you interested in buying a home? Get listings tailored to your dream home criteria sent directly to your inbox.
             </p>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-accent"
-              />
-              <Button variant="gold" size="lg" type="submit">
-                Subscribe
-              </Button>
-            </form>
+            <NewsletterForm variant="footer" />
           </div>
         </div>
       </div>

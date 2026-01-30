@@ -351,23 +351,40 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           ))}
         </motion.div>
 
-        {/* Description */}
+        {/* Description with urgency */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2 }}
-          className="text-lg md:text-xl lg:text-2xl text-white/80 max-w-3xl mx-auto mb-12 leading-relaxed font-light"
+          className="text-lg md:text-xl lg:text-2xl text-white/80 max-w-3xl mx-auto mb-8 leading-relaxed font-light"
           style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}
         >
           Experience elevated real estate with personalized service, 
           expert market insights, and a commitment to finding your perfect property.
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* Urgency Banner */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 1.3 }}
+          className="inline-flex items-center gap-2 px-5 py-2.5 mb-8 rounded-full bg-gradient-to-r from-red-500/20 to-amber-500/20 border border-amber-400/30 backdrop-blur-sm"
+        >
+          <motion.div 
+            className="w-2 h-2 rounded-full bg-green-400"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+          <span className="text-sm font-medium text-amber-100">
+            🔥 Houston market is hot — <span className="text-amber-300">47 new listings</span> this week!
+          </span>
+        </motion.div>
+
+        {/* CTA Buttons - Enhanced */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.3 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-5"
         >
           <Button 
@@ -377,7 +394,7 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
           >
             <Link to="/contact">
               <span className="relative z-10 flex items-center">
-                Schedule Consultation
+                Get FREE Consultation
                 <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </span>
               <motion.span 
@@ -394,11 +411,27 @@ function HeroContent({ heroContentRef }: { heroContentRef: React.RefObject<HTMLD
             size="lg" 
             className="group px-10 h-16 text-base backdrop-blur-xl bg-white/5 border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 hover:text-white shadow-2xl"
           >
-            <Link to="/listings">
-              <Play className="mr-3 h-5 w-5 text-amber-400" />
-              Browse Listings
+            <Link to="/home-valuation">
+              <Star className="mr-3 h-5 w-5 text-amber-400" />
+              What's My Home Worth?
             </Link>
           </Button>
+        </motion.div>
+        
+        {/* Sub-CTA for listings */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.6 }}
+          className="mt-5"
+        >
+          <Link 
+            to="/listings" 
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white/90 transition-colors text-sm"
+          >
+            <Play className="h-4 w-4 text-amber-400" />
+            Or browse available properties →
+          </Link>
         </motion.div>
 
         {/* Trust indicators */}
