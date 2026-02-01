@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { TestimonialCarousel } from "@/components/home/TestimonialCarousel";
 import {
   Home,
   MapPin,
@@ -29,6 +30,8 @@ import {
   TreePine,
   Car,
   Phone,
+  Mail,
+  Clock,
 } from "lucide-react";
 
 // Form schema
@@ -258,7 +261,7 @@ RAW DATA: ${JSON.stringify(preferences)}
 
       if (error) throw error;
 
-      // Send notification
+      // Send immediate notification to agent
       try {
         await supabase.functions.invoke("send-lead-notification", {
           body: {
@@ -271,6 +274,26 @@ RAW DATA: ${JSON.stringify(preferences)}
         });
       } catch (notifyError) {
         console.error("Notification error:", notifyError);
+      }
+
+      // Send personalized property recommendations email
+      try {
+        await supabase.functions.invoke("send-property-recommendations", {
+          body: {
+            name: data.name,
+            email: data.email,
+            homeType: data.homeType,
+            budget: { min: data.budgetMin, max: data.budgetMax },
+            areas: data.preferredAreas,
+            bedrooms: data.bedrooms,
+            bathrooms: data.bathrooms,
+            mustHaves: data.mustHaves,
+            timeline: data.timeline,
+            schoolPriority: data.schoolPriority,
+          },
+        });
+      } catch (recommendError) {
+        console.error("Recommendations email error:", recommendError);
       }
 
       setIsComplete(true);
@@ -300,48 +323,121 @@ RAW DATA: ${JSON.stringify(preferences)}
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-12 px-4">
         <Helmet>
           <title>Thank You | {siteConfig.name}</title>
         </Helmet>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-lg w-full text-center"
-        >
-          <div className="bg-card border border-border rounded-3xl p-8 md:p-12 shadow-2xl">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="w-24 h-24 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center mx-auto mb-6"
-            >
-              <CheckCircle2 className="w-12 h-12 text-primary-foreground" />
-            </motion.div>
-            <h1 className="text-3xl font-bold mb-4">You're All Set!</h1>
-            <p className="text-muted-foreground mb-8">
-              Mike has received your home search preferences and will personally 
-              curate properties that match your criteria. Expect a call within 24 hours!
-            </p>
-            <div className="space-y-4">
-              <Button
-                size="lg"
-                className="w-full bg-primary hover:bg-primary/90"
-                onClick={() => navigate("/listings")}
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            {/* Success Card */}
+            <div className="bg-card border border-border rounded-3xl p-8 md:p-12 shadow-2xl mb-8">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="w-24 h-24 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center mx-auto mb-6"
               >
-                Browse Available Listings
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full"
-                onClick={() => navigate("/")}
-              >
-                Return Home
-              </Button>
+                <CheckCircle2 className="w-12 h-12 text-primary-foreground" />
+              </motion.div>
+              <h1 className="text-3xl font-bold mb-4">You're All Set!</h1>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                Mike has received your home search preferences and will personally 
+                curate properties that match your criteria.
+              </p>
+
+              {/* What Happens Next */}
+              <div className="bg-primary/5 rounded-2xl p-6 mb-8 text-left">
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  What Happens Next
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Check Your Email</p>
+                      <p className="text-sm text-muted-foreground">
+                        You'll receive personalized property recommendations based on your preferences
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Personal Call Within 24 Hours</p>
+                      <p className="text-sm text-muted-foreground">
+                        Mike will call to discuss your search and answer any questions
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Home className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Private Showings</p>
+                      <p className="text-sm text-muted-foreground">
+                        We'll schedule tours of homes that match your criteria
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Button
+                  size="lg"
+                  className="w-full bg-primary hover:bg-primary/90"
+                  onClick={() => navigate("/listings")}
+                >
+                  Browse Available Listings
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  onClick={() => navigate("/")}
+                >
+                  Return Home
+                </Button>
+              </div>
             </div>
-          </div>
-        </motion.div>
+
+            {/* Testimonials */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <TestimonialCarousel />
+            </motion.div>
+
+            {/* Quick Contact */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-8 p-6 bg-card rounded-2xl border border-border"
+            >
+              <p className="text-muted-foreground mb-3">Can't wait? Call Mike directly:</p>
+              <a
+                href={`tel:${siteConfig.phoneRaw}`}
+                className="inline-flex items-center gap-2 text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+              >
+                <Phone className="w-5 h-5" />
+                {siteConfig.phone}
+              </a>
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
     );
   }
