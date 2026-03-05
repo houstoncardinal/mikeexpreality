@@ -599,7 +599,7 @@ const NeighborhoodDetail = ({ neighborhood }: { neighborhood: typeof neighborhoo
               </p>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {localListings.map((listing) => (
-                  <PropertyCard key={listing.id} property={listing} />
+                  <PropertyCard key={listing.id} listing={listing} />
                 ))}
               </div>
               <div className="text-center mt-10">
