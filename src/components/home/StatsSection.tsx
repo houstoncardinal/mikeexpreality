@@ -69,13 +69,13 @@ export function StatsSection() {
   const stats = [
     {
       icon: <Home className="w-8 h-8 text-accent" />,
-      value: 150,
+      value: 500,
       suffix: "+",
       label: "Homes Sold",
     },
     {
       icon: <Calendar className="w-8 h-8 text-accent" />,
-      value: 10,
+      value: 15,
       suffix: "+",
       label: "Years Experience",
     },
@@ -87,7 +87,7 @@ export function StatsSection() {
     },
     {
       icon: <Users className="w-8 h-8 text-accent" />,
-      value: 200,
+      value: 500,
       suffix: "+",
       label: "Happy Clients",
     },

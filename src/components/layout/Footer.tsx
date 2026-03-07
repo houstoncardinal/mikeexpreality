@@ -5,14 +5,17 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 
 const footerLinks = {
   explore: [
-    { name: "Home Search", href: "/listings" },
+    { name: "Browse Listings", href: "/listings" },
     { name: "Neighborhoods", href: "/neighborhoods" },
-    { name: "Home Valuation", href: "/seller-resources" },
+    { name: "Map Search", href: "/map-search" },
+    { name: "MLS Search", href: "/mls-search" },
     { name: "Blog", href: "/blog" },
   ],
   resources: [
     { name: "Buyer Resources", href: "/buyer-resources" },
     { name: "Seller Resources", href: "/seller-resources" },
+    { name: "Home Valuation", href: "/home-valuation" },
+    { name: "Mortgage Calculator", href: "/mortgage-calculator" },
     { name: "About Mike", href: "/about" },
     { name: "Contact", href: "/contact" },
   ],
@@ -164,18 +167,50 @@ export function Footer() {
           </a>
         </div>
 
-        {/* Copyright */}
-        <div className="text-center mt-8 pt-8 border-t border-primary-foreground/10">
-          <p className="text-primary-foreground/50 text-sm">
-            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved. Brokered by {siteConfig.brokerage}.
-          </p>
-          <div className="flex items-center justify-center gap-6 mt-4 text-sm">
-            <Link to="/privacy-policy" className="text-primary-foreground/50 hover:text-accent transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-primary-foreground/50 hover:text-accent transition-colors">
-              Terms & Conditions
-            </Link>
+        {/* Fair Housing & TREC */}
+        <div className="mt-8 pt-8 border-t border-primary-foreground/10">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+            <img 
+              src="/imgi_34_realtor-eho-logo-07232021-update-light.webp" 
+              alt="Equal Housing Opportunity" 
+              className="h-10 w-auto opacity-70"
+              loading="lazy"
+            />
+            <div className="text-center md:text-left">
+              <p className="text-primary-foreground/60 text-xs leading-relaxed max-w-xl">
+                We are committed to the Fair Housing Act and providing equal housing opportunity. 
+                All information deemed reliable but not guaranteed. Prices, availability, and terms subject to change without notice.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mb-6">
+            <p className="text-primary-foreground/40 text-xs">
+              Texas Real Estate Commission Consumer Protection Notice &nbsp;|&nbsp; 
+              Texas Real Estate Commission Information About Brokerage Services &nbsp;|&nbsp; 
+              {siteConfig.agent.license}
+            </p>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center">
+            <p className="text-primary-foreground/50 text-sm">
+              © {new Date().getFullYear()} {siteConfig.name}. All rights reserved. Brokered by {siteConfig.brokerage}.
+            </p>
+            <div className="flex items-center justify-center gap-6 mt-4 text-sm">
+              <Link to="/privacy-policy" className="text-primary-foreground/50 hover:text-accent transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="text-primary-foreground/50 hover:text-accent transition-colors">
+                Terms & Conditions
+              </Link>
+              <Link to="/success-stories" className="text-primary-foreground/50 hover:text-accent transition-colors">
+                Success Stories
+              </Link>
+              <Link to="/mortgage-calculator" className="text-primary-foreground/50 hover:text-accent transition-colors">
+                Mortgage Calculator
+              </Link>
+            </div>
           </div>
         </div>
       </div>
