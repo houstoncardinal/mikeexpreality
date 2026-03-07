@@ -49,7 +49,7 @@ export const siteConfig = {
     name: "Mike Ogunkeye",
     fullName: "Mike Ogunkeye",
     title: "Real Estate Agent",
-    license: "TREC #",
+    license: "TREC Licensed Agent | eXp Realty",
   },
   
   // Hours

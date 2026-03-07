@@ -44,17 +44,17 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>{siteConfig.name} | Houston Luxury Real Estate | Sugar Land, Katy, Cypress Homes</title>
+        <title>{siteConfig.name} | Houston Luxury Real Estate | Sugar Land, Katy, Cypress Homes 2026</title>
         <meta
           name="description"
-          content="Mike Ogunkeye Real Estate - Your trusted Houston realtor with 10+ years experience. Buy or sell homes in Sugar Land, Katy, Cypress, Richmond & Missouri City. eXp Realty. 150+ homes sold. 5-star reviews."
+          content="Mike Ogunkeye Real Estate - Houston's top-rated realtor with 15+ years experience. Buy or sell homes in Sugar Land, Katy, Cypress, Richmond & Missouri City. eXp Realty. 500+ homes sold. 5-star reviews."
         />
-        <meta name="keywords" content="Mike Ogunkeye, Houston real estate agent, Sugar Land homes for sale, Katy realtor, Cypress homes, Richmond TX real estate, Missouri City homes, eXp Realty Houston, luxury homes Houston, first-time home buyer Houston" />
+        <meta name="keywords" content="Mike Ogunkeye, Houston real estate agent 2026, Sugar Land homes for sale, Katy realtor, Cypress homes, Richmond TX real estate, Missouri City homes, eXp Realty Houston, luxury homes Houston, first-time home buyer Houston, sell my house Houston" />
         <link rel="canonical" href={siteConfig.url} />
         
         {/* Open Graph */}
         <meta property="og:title" content={`${siteConfig.name} | Houston Luxury Real Estate Expert`} />
-        <meta property="og:description" content="Your trusted Houston realtor. 10+ years experience, 150+ homes sold, 5-star reviews. Serving Sugar Land, Katy, Cypress, Richmond & Missouri City." />
+        <meta property="og:description" content="Houston's top-rated realtor. 15+ years experience, 500+ homes sold, 5-star reviews. Serving Sugar Land, Katy, Cypress, Richmond & Missouri City." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={siteConfig.url} />
         <meta property="og:site_name" content={siteConfig.name} />
@@ -67,7 +67,7 @@ const Index = () => {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${siteConfig.name} | Houston Real Estate`} />
-        <meta name="twitter:description" content="Your trusted Houston realtor. Buy or sell homes in Sugar Land, Katy, Cypress & more. 5-star reviews." />
+        <meta name="twitter:description" content="Houston's top-rated realtor. Buy or sell homes in Sugar Land, Katy, Cypress & more. 500+ homes sold. 5-star reviews." />
         <meta name="twitter:image" content={`${siteConfig.url}/logo-primary.jpeg`} />
         <meta name="twitter:image:alt" content="Mike Ogunkeye Real Estate" />
         
