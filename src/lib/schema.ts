@@ -143,7 +143,7 @@ export const getRealEstateAgentSchema = () => ({
     ratingCount: testimonials.length,
     reviewCount: testimonials.length,
   },
-  review: testimonials.slice(0, 5).map((testimonial) => ({
+  review: testimonials.slice(0, 5).map((testimonial, idx) => ({
     "@type": "Review",
     author: {
       "@type": "Person",
@@ -156,7 +156,7 @@ export const getRealEstateAgentSchema = () => ({
       worstRating: 1,
     },
     reviewBody: testimonial.text,
-    datePublished: ["2025-08-15", "2025-06-22", "2025-09-10", "2025-04-18", "2025-11-05"][index] || "2025-07-01",
+    datePublished: ["2025-08-15", "2025-06-22", "2025-09-10", "2025-04-18", "2025-11-05"][idx] || "2025-07-01",
   })),
   parentOrganization: {
     "@type": "Organization",
