@@ -1,5 +1,5 @@
 # Robots.txt for Mike Ogunkeye Real Estate
-# https://mikeo.lovable.app
+# https://mikeogunkeye.com
 
 # Allow all major search engines full access
 User-agent: Googlebot
@@ -55,7 +55,7 @@ Disallow: /_next/
 Disallow: /private/
 
 # Sitemap location
-Sitemap: https://mikeo.lovable.app/sitemap.xml
+Sitemap: https://mikeogunkeye.com/sitemap.xml
 
 # Host directive
-Host: https://mikeo.lovable.app
+Host: https://mikeogunkeye.com

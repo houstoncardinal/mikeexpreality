@@ -31,9 +31,9 @@ export function VoiceAgentWidget() {
   const [textInput, setTextInput] = useState("");
   const [isSendingText, setIsSendingText] = useState(false);
   
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const keepAliveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const volumeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isManualDisconnectRef = useRef(false);
   const isRestartingRef = useRef(false);
   const lastConnectedAtRef = useRef<number | null>(null);
