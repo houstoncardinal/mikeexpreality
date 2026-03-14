@@ -41,7 +41,7 @@ const values = [
 const aboutFAQs = [
   {
     question: "What experience does Mike Ogunkeye have in real estate?",
-    answer: "Mike Ogunkeye has over 10 years of experience in the Houston real estate market, helping over 100 happy clients buy and sell homes. With deep knowledge of Sugar Land, Katy, Cypress, Richmond, and Missouri City, Mike brings expertise and dedication to every transaction.",
+    answer: "Mike Ogunkeye has over 15 years of experience in the Houston real estate market, helping over 500 clients buy and sell homes. With deep knowledge of Sugar Land, Katy, Cypress, Richmond, and Missouri City, Mike brings expertise and dedication to every transaction.",
   },
   {
     question: "What brokerage is Mike Ogunkeye affiliated with?",

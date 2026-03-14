@@ -947,14 +947,17 @@ export const getArticleSchemaWithSpeakable = (post: BlogPostSchemaData) => ({
 /**
  * Generate all homepage schemas
  */
-export const getHomepageSchemas = () => [
-  getRealEstateAgentSchema(),
-  getPersonSchema(),
-  getWebSiteSchema(),
-  getLocalBusinessSchema(),
-  getOrganizationSchema(),
-  getBreadcrumbSchema([{ name: "Home", url: siteConfig.url }]),
-];
+export const getHomepageSchemas = () => [{
+  "@context": "https://schema.org",
+  "@graph": [
+    getRealEstateAgentSchema(),
+    getPersonSchema(),
+    getWebSiteSchema(),
+    getLocalBusinessSchema(),
+    getOrganizationSchema(),
+    getBreadcrumbSchema([{ name: "Home", url: siteConfig.url }]),
+  ].map(s => { const { "@context": _, ...rest } = s; return rest; }),
+}];
 
 /**
  * Generate property detail page schemas
