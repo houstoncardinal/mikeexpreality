@@ -172,7 +172,7 @@ export function Header() {
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
-  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dropdownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { user, signOut } = useAuth();
 
   useEffect(() => {

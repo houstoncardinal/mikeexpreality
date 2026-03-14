@@ -35,7 +35,7 @@ export function ExitIntentPopup() {
 
   // Scroll-based trigger for mobile (show after 50% scroll + 10 seconds)
   useEffect(() => {
-    let scrollTimeout: NodeJS.Timeout;
+    let scrollTimeout: ReturnType<typeof setTimeout>;
     const handleScroll = () => {
       if (hasShown || isOpen) return;
       
