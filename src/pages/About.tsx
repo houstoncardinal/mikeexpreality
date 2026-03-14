@@ -10,9 +10,9 @@ import { getAboutPageSchemas, getFAQSchema, getAggregateRatingSchema } from "@/l
 
 const stats = [
   { label: "Service Areas", value: "9+" },
-  { label: "Happy Clients", value: "100+" },
+  { label: "Homes Sold", value: "500+" },
   { label: "5-Star Reviews", value: "50+" },
-  { label: "Years Experience", value: "10+" },
+  { label: "Years Experience", value: "15+" },
 ];
 
 const values = [
