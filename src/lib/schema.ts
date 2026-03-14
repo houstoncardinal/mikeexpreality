@@ -1278,7 +1278,7 @@ export const getPrivacyPolicySchemas = () => [
     description: "Privacy Policy for Mike Ogunkeye Real Estate. Learn how we collect, use, and protect your personal information.",
     url: `${siteConfig.url}/privacy-policy`,
     isPartOf: { "@id": `${siteConfig.url}#website` },
-    dateModified: new Date().toISOString().split("T")[0],
+    dateModified: "2026-01-15",
     inLanguage: "en-US",
   },
   getBreadcrumbSchema([
@@ -1299,7 +1299,7 @@ export const getTermsSchemas = () => [
     description: "Terms and Conditions for Mike Ogunkeye Real Estate website and services. Fair housing statement and TREC information included.",
     url: `${siteConfig.url}/terms`,
     isPartOf: { "@id": `${siteConfig.url}#website` },
-    dateModified: new Date().toISOString().split("T")[0],
+    dateModified: "2026-01-15",
     inLanguage: "en-US",
   },
   getBreadcrumbSchema([
