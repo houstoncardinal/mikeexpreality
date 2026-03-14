@@ -786,21 +786,16 @@ export const getHowToSchema = (howTo: {
 });
 
 /**
- * Review schema for property listings
+ * Review schema for property listings — only use with REAL reviews
+ * Do not generate synthetic reviews as Google penalizes fabricated content
  */
 export const getPropertyReviewSchema = (property: PropertySchemaData, reviews?: {
   author: string;
   rating: number;
   text: string;
-  date?: string;
+  date: string;
 }[]) => {
-  // Generate synthetic review based on property features
-  const syntheticReviews = reviews || [{
-    author: "Property Viewer",
-    rating: 5,
-    text: `Beautiful ${property.propertyType.replace(/_/g, " ")} in ${property.city} with ${property.beds} bedrooms and ${property.baths} bathrooms. Great value at ${property.sqft?.toLocaleString()} sqft.`,
-    date: new Date().toISOString().split("T")[0],
-  }];
+  if (!reviews || reviews.length === 0) return null;
 
   return {
     "@context": "https://schema.org",
@@ -808,18 +803,18 @@ export const getPropertyReviewSchema = (property: PropertySchemaData, reviews?: 
     name: property.title,
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: 4.8,
-      reviewCount: syntheticReviews.length,
+      ratingValue: (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1),
+      reviewCount: reviews.length,
       bestRating: 5,
       worstRating: 1,
     },
-    review: syntheticReviews.map(review => ({
+    review: reviews.map(review => ({
       "@type": "Review",
       author: {
         "@type": "Person",
         name: review.author,
       },
-      datePublished: review.date || new Date().toISOString().split("T")[0],
+      datePublished: review.date,
       reviewRating: {
         "@type": "Rating",
         ratingValue: review.rating,
