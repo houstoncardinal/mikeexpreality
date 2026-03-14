@@ -475,7 +475,7 @@ export const getPropertyProductSchema = (property: PropertySchemaData) => ({
       telephone: siteConfig.phone,
       email: siteConfig.email,
     },
-    validFrom: new Date().toISOString(),
+    validFrom: "2025-01-01T00:00:00Z",
   },
   additionalProperty: [
     { "@type": "PropertyValue", name: "Bedrooms", value: property.beds },
