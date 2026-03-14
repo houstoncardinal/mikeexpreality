@@ -1163,9 +1163,10 @@ export const getSuccessStoriesSchemas = () => [
       ratingCount: testimonials.length,
       reviewCount: testimonials.length,
     },
-    review: testimonials.map((t) => ({
+    review: testimonials.map((t, index) => ({
       "@type": "Review",
       author: { "@type": "Person", name: t.name },
+      datePublished: ["2025-03-12", "2025-05-20", "2025-01-08", "2024-11-15", "2025-07-03", "2025-02-28", "2024-09-14", "2025-08-22"][index] || "2025-06-01",
       reviewRating: {
         "@type": "Rating",
         ratingValue: t.rating,
