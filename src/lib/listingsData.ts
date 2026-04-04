@@ -184,7 +184,7 @@ export const allListings: PropertyListing[] = [
     city: "Katy",
     state: "TX",
     zip: "77493",
-    price: 5000,
+    price: 3800,
     priceType: "lease",
     beds: 5,
     baths: 5,
