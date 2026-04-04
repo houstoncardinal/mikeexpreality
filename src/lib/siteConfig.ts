@@ -126,7 +126,7 @@ export const featuredListings = [
     id: "10507-halley-lane",
     title: "10507 Halley Lane",
     address: "10507 Halley Lane, Richmond, TX 77406",
-    price: 5000,
+    price: 3500,
     priceType: "lease",
     beds: 5,
     baths: 5,
