@@ -48,7 +48,7 @@ export const allListings: PropertyListing[] = [
     city: "Richmond",
     state: "TX",
     zip: "77406",
-    price: 5000,
+    price: 3500,
     priceType: "lease",
     beds: 5,
     baths: 5,
