@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, useLocation, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,18 +12,12 @@ import { initGA, trackPageView } from "@/lib/analytics";
 import { trackUserAction } from "@/lib/adaptiveLearning";
 import { preloadCriticalImages } from "@/lib/images";
 import { ScrollToTop } from "@/components/ScrollToTop";
-// GuidedTour disabled - was causing blocking modal issues
-// import { GuidedTour } from "@/components/GuidedTour";
-import { ScrollProgress } from "@/components/InteractiveEffects";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
 import { ComparisonModal } from "@/components/comparison/ComparisonModal";
 import { MobileToolbar } from "@/components/MobileToolbar";
 import { Layout } from "@/components/layout";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
-import Health from "@/pages/Health";
-import { SplashScreen } from "@/components/SplashScreen";
 import { VoiceAgentWidget } from "@/components/VoiceAgentWidget";
-import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { PageTransition } from "@/components/PageTransition";
@@ -51,22 +45,18 @@ import AdminMonitoring from "@/pages/admin/AdminMonitoring";
 
 const queryClient = new QueryClient();
 
-// Analytics wrapper component
 const AnalyticsTracker = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
     initGA();
-    // Preload critical images for better performance
     preloadCriticalImages();
   }, []);
 
   useEffect(() => {
     trackPageView(location.pathname);
-    // Track with adaptive learning system
     trackUserAction('page_view', location.pathname, {
       referrer: document.referrer,
-      userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
     });
   }, [location]);
@@ -74,7 +64,6 @@ const AnalyticsTracker = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Component to render correct layout based on route
 const AppRoutes = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -121,19 +110,15 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
-
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <TranslationProvider>
-            {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
             <BrowserRouter>
               <AuthProvider>
                 <ComparisonProvider>
                   <ScrollToTop />
-                  <ScrollProgress />
                   <Toaster />
                   <Sonner />
                   
@@ -142,7 +127,6 @@ const App = () => {
                   </AnalyticsTracker>
                   <MobileToolbar />
                   <VoiceAgentWidget />
-                  <ExitIntentPopup />
                 </ComparisonProvider>
               </AuthProvider>
             </BrowserRouter>
