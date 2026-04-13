@@ -1,14 +1,13 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
-import { NewsletterForm } from "@/components/NewsletterForm";
 
 const footerLinks = {
   explore: [
     { name: "Browse Listings", href: "/listings" },
     { name: "Neighborhoods", href: "/neighborhoods" },
-    { name: "Map Search", href: "/map-search" },
     { name: "MLS Search", href: "/mls-search" },
+    { name: "Success Stories", href: "/success-stories" },
     { name: "Blog", href: "/blog" },
   ],
   resources: [
@@ -16,7 +15,7 @@ const footerLinks = {
     { name: "Seller Resources", href: "/seller-resources" },
     { name: "Home Valuation", href: "/home-valuation" },
     { name: "Mortgage Calculator", href: "/mortgage-calculator" },
-    { name: "About Mike", href: "/about" },
+    { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ],
 };
@@ -24,71 +23,72 @@ const footerLinks = {
 export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground">
-      {/* Newsletter Section */}
-      <div className="border-b border-primary-foreground/10">
-        <div className="container-custom py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="font-serif text-3xl font-bold mb-4">
-              Receive Exclusive Listings in Your Inbox
-            </h3>
-            <p className="text-primary-foreground/70 mb-8">
-              Are you interested in buying a home? Get listings tailored to your dream home criteria sent directly to your inbox.
-            </p>
-            <NewsletterForm variant="footer" />
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer */}
-      <div className="container-custom py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+      <div className="container-custom py-16 md:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link to="/" className="inline-block mb-6">
-              <span className="font-serif text-2xl font-bold">{siteConfig.agent.name}</span>
-              <span className="block text-xs tracking-wider text-primary-foreground/60 uppercase">
+          <div className="lg:col-span-1">
+            <Link to="/" className="inline-block mb-5">
+              <span className="font-serif text-xl font-bold">{siteConfig.agent.name}</span>
+              <span className="block text-[10px] tracking-[0.2em] text-primary-foreground/50 uppercase mt-1">
                 {siteConfig.brokerage}
               </span>
             </Link>
-            <p className="text-primary-foreground/70 mb-6 max-w-sm leading-relaxed">
-              {siteConfig.tagline}. We combine in-depth knowledge of the Houston-area market with responsive service, strong negotiation skills, and a hands-on approach.
-            </p>
-            <div className="space-y-3">
+            <div className="space-y-2.5 text-sm text-primary-foreground/60">
               <a
                 href={`tel:${siteConfig.phoneRaw}`}
-                className="flex items-center gap-3 text-primary-foreground/70 hover:text-accent transition-colors"
+                className="flex items-center gap-2.5 hover:text-primary-foreground transition-colors"
               >
-                <Phone className="h-4 w-4" />
+                <Phone className="h-3.5 w-3.5" />
                 {siteConfig.phone}
               </a>
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="flex items-center gap-3 text-primary-foreground/70 hover:text-accent transition-colors"
+                className="flex items-center gap-2.5 hover:text-primary-foreground transition-colors"
               >
-                <Mail className="h-4 w-4" />
+                <Mail className="h-3.5 w-3.5" />
                 {siteConfig.email}
               </a>
-              <div className="flex items-start gap-3 text-primary-foreground/70">
-                <MapPin className="h-4 w-4 mt-1 shrink-0" />
+              <div className="flex items-start gap-2.5">
+                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                 <span>
-                  {siteConfig.address.street}<br />
-                  {siteConfig.address.city}, {siteConfig.address.state} {siteConfig.address.zip}
+                  {siteConfig.address.street}, {siteConfig.address.city}, {siteConfig.address.state} {siteConfig.address.zip}
                 </span>
               </div>
             </div>
+
+            {/* Social */}
+            <div className="flex items-center gap-3 mt-6">
+              {[
+                { icon: Instagram, href: siteConfig.social.instagram, label: "Instagram" },
+                { icon: Facebook, href: siteConfig.social.facebook, label: "Facebook" },
+                { icon: Linkedin, href: siteConfig.social.linkedin, label: "LinkedIn" },
+              ].map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg bg-primary-foreground/8 flex items-center justify-center text-primary-foreground/50 hover:text-primary-foreground hover:bg-primary-foreground/15 transition-colors"
+                  aria-label={label}
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Explore Links */}
+          {/* Explore */}
           <div>
-            <h4 className="font-semibold text-sm tracking-wide uppercase mb-4">
+            <h4 className="font-semibold text-xs tracking-widest uppercase mb-5 text-primary-foreground/80">
               Explore
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {footerLinks.explore.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors"
+                    className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -97,17 +97,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources Links */}
+          {/* Resources */}
           <div>
-            <h4 className="font-semibold text-sm tracking-wide uppercase mb-4">
+            <h4 className="font-semibold text-xs tracking-widest uppercase mb-5 text-primary-foreground/80">
               Resources
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {footerLinks.resources.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors"
+                    className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -118,15 +118,15 @@ export function Footer() {
 
           {/* Service Areas */}
           <div>
-            <h4 className="font-semibold text-sm tracking-wide uppercase mb-4">
+            <h4 className="font-semibold text-xs tracking-widest uppercase mb-5 text-primary-foreground/80">
               Service Areas
             </h4>
-            <ul className="space-y-3">
-              {siteConfig.serviceAreas.slice(0, 6).map((area) => (
+            <ul className="space-y-2.5">
+              {siteConfig.serviceAreas.slice(0, 8).map((area) => (
                 <li key={area}>
                   <Link
                     to={`/neighborhoods/${area.toLowerCase().replace(' ', '-')}`}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors"
+                    className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"
                   >
                     {area}
                   </Link>
@@ -135,81 +135,29 @@ export function Footer() {
             </ul>
           </div>
         </div>
+      </div>
 
-        {/* Social Links */}
-        <div className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-primary-foreground/10">
-          <a
-            href={siteConfig.social.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full bg-primary-foreground/10 text-primary-foreground/70 hover:bg-accent hover:text-accent-foreground transition-colors"
-            aria-label="Instagram"
-          >
-            <Instagram className="h-5 w-5" />
-          </a>
-          <a
-            href={siteConfig.social.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full bg-primary-foreground/10 text-primary-foreground/70 hover:bg-accent hover:text-accent-foreground transition-colors"
-            aria-label="Facebook"
-          >
-            <Facebook className="h-5 w-5" />
-          </a>
-          <a
-            href={siteConfig.social.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full bg-primary-foreground/10 text-primary-foreground/70 hover:bg-accent hover:text-accent-foreground transition-colors"
-            aria-label="LinkedIn"
-          >
-            <Linkedin className="h-5 w-5" />
-          </a>
-        </div>
-
-        {/* Fair Housing & TREC */}
-        <div className="mt-8 pt-8 border-t border-primary-foreground/10">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
-            <img 
-              src="/imgi_34_realtor-eho-logo-07232021-update-light.webp" 
-              alt="Equal Housing Opportunity" 
-              className="h-10 w-auto opacity-70"
-              loading="lazy"
-            />
-            <div className="text-center md:text-left">
-              <p className="text-primary-foreground/60 text-xs leading-relaxed max-w-xl">
-                We are committed to the Fair Housing Act and providing equal housing opportunity. 
-                All information deemed reliable but not guaranteed. Prices, availability, and terms subject to change without notice.
-              </p>
+      {/* Bottom Bar */}
+      <div className="border-t border-primary-foreground/10">
+        <div className="container-custom py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-primary-foreground/40">
+            <div className="flex items-center gap-4">
+              <img 
+                src="/imgi_34_realtor-eho-logo-07232021-update-light.webp" 
+                alt="Equal Housing Opportunity" 
+                className="h-7 w-auto opacity-50"
+                loading="lazy"
+              />
+              <p>© {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
             </div>
-          </div>
-
-          <div className="text-center mb-6">
-            <p className="text-primary-foreground/40 text-xs">
-              Texas Real Estate Commission Consumer Protection Notice &nbsp;|&nbsp; 
-              Texas Real Estate Commission Information About Brokerage Services &nbsp;|&nbsp; 
-              {siteConfig.agent.license}
-            </p>
-          </div>
-
-          {/* Copyright */}
-          <div className="text-center">
-            <p className="text-primary-foreground/50 text-sm">
-              © {new Date().getFullYear()} {siteConfig.name}. All rights reserved. Brokered by {siteConfig.brokerage}.
-            </p>
-            <div className="flex items-center justify-center gap-6 mt-4 text-sm">
-              <Link to="/privacy-policy" className="text-primary-foreground/50 hover:text-accent transition-colors">
-                Privacy Policy
+            <div className="flex items-center gap-4">
+              <Link to="/privacy-policy" className="hover:text-primary-foreground/70 transition-colors">
+                Privacy
               </Link>
-              <Link to="/terms" className="text-primary-foreground/50 hover:text-accent transition-colors">
-                Terms & Conditions
+              <Link to="/terms" className="hover:text-primary-foreground/70 transition-colors">
+                Terms
               </Link>
-              <Link to="/success-stories" className="text-primary-foreground/50 hover:text-accent transition-colors">
-                Success Stories
-              </Link>
-              <Link to="/mortgage-calculator" className="text-primary-foreground/50 hover:text-accent transition-colors">
-                Mortgage Calculator
-              </Link>
+              <span>{siteConfig.agent.license}</span>
             </div>
           </div>
         </div>
