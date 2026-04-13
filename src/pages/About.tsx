@@ -9,32 +9,32 @@ import { SchemaMarkup } from "@/components/seo/SchemaMarkup";
 import { getAboutPageSchemas, getFAQSchema, getAggregateRatingSchema } from "@/lib/schema";
 
 const stats = [
-  { label: "Service Areas", value: "9+" },
   { label: "Homes Sold", value: "500+" },
-  { label: "5-Star Reviews", value: "50+" },
   { label: "Years Experience", value: "15+" },
+  { label: "5-Star Reviews", value: "50+" },
+  { label: "Service Areas", value: "9+" },
 ];
 
 const values = [
   {
     icon: Users,
-    title: "Client-First Philosophy",
-    description: "We believe that exceptional service begins with being accessible, listening closely, and responding quickly to your needs.",
+    title: "Client-First",
+    description: "Exceptional service begins with listening closely and responding quickly to your needs.",
   },
   {
     icon: Target,
-    title: "Local Market Knowledge",
-    description: "Deep expertise in Houston, Sugar Land, Richmond, Missouri City, Katy, Cypress, and surrounding communities.",
+    title: "Local Expertise",
+    description: "Deep knowledge of Houston, Sugar Land, Katy, Cypress, Richmond, and Missouri City.",
   },
   {
     icon: Award,
-    title: "Strong Negotiation Skills",
-    description: "We negotiate with experience and expertise to ensure you get the best possible outcome in every transaction.",
+    title: "Strong Negotiation",
+    description: "Experience and expertise to ensure the best possible outcome in every transaction.",
   },
   {
     icon: Heart,
     title: "Trusted Network",
-    description: "Access to a comprehensive network of industry professionals including lenders, inspectors, and contractors.",
+    description: "Access to lenders, inspectors, contractors, and industry professionals.",
   },
 ];
 
@@ -70,97 +70,91 @@ const About = () => {
       </Helmet>
 
       <Layout>
-        {/* Hero Section */}
-        <section className="relative pt-40 pb-20 bg-primary">
+        {/* Hero */}
+        <section className="pt-28 pb-16 md:pt-32 md:pb-20 bg-primary">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-accent font-medium tracking-wider uppercase mb-4">
-                Meet the Team
+            <div className="max-w-2xl">
+              <p className="text-accent font-medium tracking-widest uppercase mb-4 text-xs">
+                About
               </p>
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
+              <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary-foreground mb-6 leading-tight">
                 {siteConfig.agent.fullName}
-                <span className="block text-gradient-gold">{siteConfig.brokerage}</span>
               </h1>
-              <p className="text-xl text-primary-foreground/70">
-                As a dedicated real estate team serving Houston, Sugar Land, Richmond, Missouri City, Katy, and Cypress, our approach is rooted in a strong client-first philosophy.
+              <p className="text-lg text-primary-foreground/60">
+                A dedicated real estate professional serving Houston and surrounding communities with a client-first approach.
               </p>
             </div>
           </div>
         </section>
 
         {/* Stats */}
-        <section className="py-16 bg-background border-b border-border">
+        <section className="py-14 bg-background border-b border-border">
           <div className="container-custom">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
               {stats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <p className="font-serif text-4xl md:text-5xl font-bold text-accent mb-2">
+                  <p className="font-serif text-3xl md:text-4xl font-bold text-accent mb-1">
                     {stat.value}
                   </p>
-                  <p className="text-muted-foreground">{stat.label}</p>
+                  <p className="text-muted-foreground text-sm">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Story Section */}
-        <section className="section-padding bg-background">
+        {/* Story */}
+        <section className="py-20 md:py-28 bg-background">
           <div className="container-custom">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                <p className="text-accent font-medium tracking-wider uppercase mb-2">
+                <p className="text-accent font-medium tracking-widest uppercase mb-3 text-xs">
                   Our Approach
                 </p>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
-                  Built on Trust,
-                  <span className="block text-muted-foreground">Driven by Results</span>
+                  Built on Trust, Driven by Results
                 </h2>
-                <div className="space-y-4 text-muted-foreground">
+                <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
                   <p>
-                    We believe that exceptional service begins with being accessible, listening closely, and responding quickly to your needs. With deep local market knowledge, strong negotiation skills, and a trusted network of industry professionals, we're here to guide you through every step of the buying or selling process.
+                    We believe that exceptional service begins with being accessible, listening closely, and responding quickly to your needs. With deep local market knowledge, strong negotiation skills, and a trusted network of industry professionals, we guide you through every step.
                   </p>
                   <p>
-                    By combining personalized service with the latest technology, we're able to deliver faster, more efficient results—always with your goals at the center of everything we do.
-                  </p>
-                  <p>
-                    Every client relationship is built on a foundation of trust, clear communication, and a genuine commitment to putting your needs first.
+                    By combining personalized service with the latest technology, we deliver faster, more efficient results—always with your goals at the center.
                   </p>
                 </div>
 
-                <div className="mt-8 space-y-3">
+                <div className="mt-8 space-y-2.5">
                   {[
                     "Deep Local Market Expertise",
                     "Strong Negotiation Skills",
                     "Trusted Network of Professionals",
                     "Personalized Client Service",
-                    "Latest Technology Integration",
                   ].map((item) => (
                     <div key={item} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-accent shrink-0" />
-                      <span className="text-foreground">{item}</span>
+                      <CheckCircle className="h-4 w-4 text-accent shrink-0" />
+                      <span className="text-foreground text-sm">{item}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <div className="mt-8 flex gap-3">
                   <a href={`tel:${siteConfig.phoneRaw}`}>
-                    <Button variant="gold" size="lg">
-                      <Phone className="h-4 w-4" />
+                    <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                      <Phone className="h-4 w-4 mr-2" />
                       {siteConfig.phone}
                     </Button>
                   </a>
                   <a href={`mailto:${siteConfig.email}`}>
                     <Button variant="outline" size="lg">
-                      <Mail className="h-4 w-4" />
-                      Email Me
+                      <Mail className="h-4 w-4 mr-2" />
+                      Email
                     </Button>
                   </a>
                 </div>
               </div>
 
               <div className="relative">
-                <div className="aspect-[4/5] rounded-2xl bg-secondary overflow-hidden shadow-2xl">
+                <div className="aspect-[4/5] rounded-2xl overflow-hidden">
                   <img
                     src={mikeImages.profile}
                     alt={`${siteConfig.agent.name} - Professional Real Estate Agent`}
@@ -170,29 +164,16 @@ const About = () => {
                     }}
                   />
                 </div>
-                <div className="absolute -bottom-8 -left-8 bg-accent text-accent-foreground p-6 rounded-xl shadow-gold">
-                  <p className="font-serif text-3xl font-bold">{siteConfig.brokerage}</p>
-                  <p className="text-sm">Real Estate Professional</p>
-                </div>
-                <div className="absolute -top-4 -right-4 flex flex-col gap-2">
-                  <div className="bg-white p-3 rounded-lg shadow-xl">
-                    <img
-                      src={brandImages.realtorLogo}
-                      alt="Realtor Logo"
-                      className="h-8 w-auto"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Values Section */}
-        <section className="section-padding bg-secondary">
+        {/* Values */}
+        <section className="py-20 md:py-28 bg-secondary/50">
           <div className="container-custom">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <p className="text-accent font-medium tracking-wider uppercase mb-2">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <p className="text-accent font-medium tracking-widest uppercase mb-3 text-xs">
                 Why Work With Us
               </p>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground">
@@ -200,16 +181,16 @@ const About = () => {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
               {values.map((value) => (
                 <div
                   key={value.title}
-                  className="p-8 rounded-2xl bg-card border border-border hover:shadow-card transition-shadow"
+                  className="p-6 rounded-xl bg-card border border-border/50"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
-                    <value.icon className="h-7 w-7 text-accent" />
+                  <div className="w-11 h-11 rounded-lg bg-accent/10 flex items-center justify-center mb-5">
+                    <value.icon className="h-5 w-5 text-accent" />
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-foreground mb-3">
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-2">
                     {value.title}
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
@@ -224,14 +205,14 @@ const About = () => {
         {/* CTA */}
         <section className="py-20 bg-primary">
           <div className="container-custom text-center">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-5">
               Ready to Work Together?
             </h2>
-            <p className="text-primary-foreground/70 mb-8 max-w-2xl mx-auto">
+            <p className="text-primary-foreground/60 mb-8 max-w-lg mx-auto">
               Let's discuss how we can help you achieve your real estate goals.
             </p>
             <Link to="/contact">
-              <Button variant="gold" size="xl">
+              <Button size="lg" className="h-14 px-8 bg-white text-foreground hover:bg-white/90 font-semibold text-base">
                 Schedule a Consultation
               </Button>
             </Link>
@@ -239,7 +220,6 @@ const About = () => {
         </section>
       </Layout>
 
-      {/* Advanced Schema Markup */}
       <SchemaMarkup schemas={[...getAboutPageSchemas(), getFAQSchema(aboutFAQs), getAggregateRatingSchema()]} />
     </>
   );
