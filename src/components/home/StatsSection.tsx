@@ -1,10 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { Home, Calendar, ThumbsUp, Users } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 interface StatItemProps {
-  icon: React.ReactNode;
   value: number;
   suffix: string;
   label: string;
@@ -51,82 +47,38 @@ function AnimatedCounter({ value, suffix, duration = 2000 }: { value: number; su
   );
 }
 
-function StatItem({ icon, value, suffix, label, duration }: StatItemProps) {
+function StatItem({ value, suffix, label, duration }: StatItemProps) {
   return (
-    <div className="flex flex-col items-center text-center p-6">
-      <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-        {icon}
-      </div>
-      <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">
+    <div className="text-center">
+      <div className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-2 tracking-tight">
         <AnimatedCounter value={value} suffix={suffix} duration={duration} />
       </div>
-      <p className="text-muted-foreground font-medium">{label}</p>
+      <p className="text-muted-foreground text-sm tracking-wide uppercase">{label}</p>
     </div>
   );
 }
 
 export function StatsSection() {
   const stats = [
-    {
-      icon: <Home className="w-8 h-8 text-accent" />,
-      value: 500,
-      suffix: "+",
-      label: "Homes Sold",
-    },
-    {
-      icon: <Calendar className="w-8 h-8 text-accent" />,
-      value: 15,
-      suffix: "+",
-      label: "Years Experience",
-    },
-    {
-      icon: <ThumbsUp className="w-8 h-8 text-accent" />,
-      value: 99,
-      suffix: "%",
-      label: "Client Satisfaction",
-    },
-    {
-      icon: <Users className="w-8 h-8 text-accent" />,
-      value: 500,
-      suffix: "+",
-      label: "Happy Clients",
-    },
+    { value: 500, suffix: "+", label: "Homes Sold" },
+    { value: 15, suffix: "+", label: "Years Experience" },
+    { value: 99, suffix: "%", label: "Client Satisfaction" },
+    { value: 50, suffix: "+", label: "5-Star Reviews" },
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-background to-secondary/30">
+    <section className="py-20 md:py-28 bg-background">
       <div className="container-custom">
-        <div className="text-center mb-12">
-          <p className="text-accent font-medium tracking-wider uppercase mb-2">
-            Our Track Record
-          </p>
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Results That Speak for Themselves
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Trusted by hundreds of families across Houston to help them find their dream homes.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8 max-w-4xl mx-auto">
           {stats.map((stat, index) => (
             <StatItem
               key={index}
-              icon={stat.icon}
               value={stat.value}
               suffix={stat.suffix}
               label={stat.label}
               duration={2000 + index * 200}
             />
           ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Button asChild size="lg" className="gap-2">
-            <Link to="/success-stories">
-              View Our Success Stories
-            </Link>
-          </Button>
         </div>
       </div>
     </section>
